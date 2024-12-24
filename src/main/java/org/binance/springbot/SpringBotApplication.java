@@ -89,7 +89,7 @@ public class SpringBotApplication {
     @Autowired
     private VariantService variantService;
     @Autowired
-    private OpenPositionRepository openPositionRepository;
+    private static OpenPositionRepository openPositionRepository;
 
 	public static void main(String[] args) throws Exception {
 		ApplicationContext context = SpringApplication.run(SpringBotApplication.class, args);
@@ -535,7 +535,7 @@ public  void mainProcess(List<String> symbols) {
 	}
 
 	private void checkSymbols(SymbolsDto symbolsDto) throws Exception {
-		if (openPositionRepository.getCount() < MAX_SIMULTANEOUS_TRADES) {
+		if (openPositionRepository.getCount() < MAX_SIMULTANEOUS_TRADES && !(openPositionService.getOpenPositionSymbol(symbolsDto.getSymbols()))) {
 		Double price = BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
 		TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 

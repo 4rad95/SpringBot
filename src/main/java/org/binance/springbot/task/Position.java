@@ -74,24 +74,6 @@ public class Position {
                 null, // Рабочий процесс исполнения (например, если используешь OCO или другие сложные типы)
                 NewOrderRespType.RESULT // Тип ответа, который ты ожидаешь (например, полное подтверждение о новом ордере)
         );
-//        orderNew = syncRequestClient.postOrder(
-//                symbol, // Торговая пара
-//                OrderSide.BUY, // Тип ордера - продажа
-//                PositionSide.SHORT, // Открытая позиция - длинная
-//                OrderType.LIMIT, // Тип ордера - стоп-ордер
-//                TimeInForce.GTC, // Тайминг выполнения ордера: GTC (Good 'Till Canceled)
-//                String.valueOf(orderNew.getOrigQty()), // Количество актива, который ты продаешь
-//                null, // Цена исполнения ордера (не используется для STOP ордера)
-//                null, // Цена исполнения тейк-профита (если нужен)
-//                profitPrice , // Цена исполнения стоп-лимита (если нужен)
-//                null, // Стоп-цена (trigger price) - цена, при которой ордер будет активирован
-//                null , // Количество тейк-профита (если нужен)
-//                String.valueOf(orderNew.getOrigQty()), // Количество стоп-лимита (если нужен)
-//                null, // Отдельная стратегия исполнения, если есть
-//                null, // Время исполнения, если требуется
-//                null, // Рабочий процесс исполнения (например, если используешь OCO или другие сложные типы)
-//                NewOrderRespType.RESULT // Тип ответа, который ты ожидаешь (например, полное подтверждение о новом ордере)
-//        );
         orderNew = syncRequestClient.postOrder(
                 symbol, // Торговая пара
                 OrderSide.BUY, // Тип ордера - продажа
@@ -154,24 +136,7 @@ public class Position {
                 null, // Отступ callback rate (процент)
                 NewOrderRespType.RESULT // Режим ответа
         );
-//        orderNew = syncRequestClient.postOrder(
-//                symbol, // Торговая пара
-//                OrderSide.SELL, // Тип ордера - продажа
-//                PositionSide.LONG, // Открытая позиция - длинная
-//                OrderType.LIMIT, // Тип ордера - стоп-ордер
-//                TimeInForce.GTC, // Тайминг выполнения ордера: GTC (Good 'Till Canceled)
-//                String.valueOf(orderNew.getOrigQty()), // Количество актива, который ты продаешь
-//                null, // Цена исполнения ордера (не используется для STOP ордера)
-//                null, // Цена исполнения тейк-профита (если нужен)
-//                profitPrice , // Цена исполнения стоп-лимита (если нужен)
-//                profitPrice, // Стоп-цена (trigger price) - цена, при которой ордер будет активирован
-//                null , // Количество тейк-профита (если нужен)
-//                String.valueOf(orderNew.getOrigQty()), // Количество стоп-лимита (если нужен)
-//                null, // Отдельная стратегия исполнения, если есть
-//                null, // Время исполнения, если требуется
-//                null, // Рабочий процесс исполнения (например, если используешь OCO или другие сложные типы)
-//                NewOrderRespType.RESULT // Тип ответа, который ты ожидаешь (например, полное подтверждение о новом ордере)
-//        );
+
     }
     public boolean getStatus(Long idBinance,String symbol){
         RequestOptions options = new RequestOptions();

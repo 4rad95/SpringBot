@@ -31,9 +31,10 @@ public class OpenPositionService {
             mappers.convertToOpenPositionDto(openPositionRepository.save(mappers.convertToOpenPosition(openPositionDto)));
         }
     }
-//    public int getCount() {
-//        return OpenPositionService.getCount();
-//    }
+    public boolean getOpenPositionSymbol(String symbol) {
+        if (openPositionRepository.getOpenPositionSymbol(symbol) >0) {return true;}
+        return false;
+    }
 
     @Transactional
      public void deleteAllAndResetSequence() {
