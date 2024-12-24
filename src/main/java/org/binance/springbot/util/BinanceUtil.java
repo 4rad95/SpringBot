@@ -165,10 +165,11 @@ public class BinanceUtil {
         if (rawAmount > 1) {
             Integer iAmount = Integer.valueOf(rawAmount.intValue());
             return "" + iAmount;
-        } else if (rawAmount < 1 && rawAmount >= 0.1) {
+        } else if (rawAmount < 1 && rawAmount >= 0.05) {
             return StringUtils.replaceAll(String.format("%.2f", rawAmount), ",", ".");
         } else {
-            return StringUtils.replaceAll(String.format("%.3f", rawAmount), ",", ".");
+            return StringUtils.replaceAll(String.format("%.4f", rawAmount), ",", ".");
         }
+
     }
 }

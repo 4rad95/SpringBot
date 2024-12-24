@@ -553,8 +553,6 @@ public  void mainProcess(List<String> symbols) {
 			Long id = startPosition(variantDto);
 			OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 			insertOpenPosition(openPositionDto);
-			MAX_SIMULTANEOUS_TRADES++;
-
 		}}
 		if (price > Double.valueOf(symbolsDto.getLowSell())
 				&& price < Double.valueOf(symbolsDto.getHighSell())
@@ -569,7 +567,6 @@ public  void mainProcess(List<String> symbols) {
   					Long id = startPosition(variantDto);
 					OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 					insertOpenPosition(openPositionDto);
-				MAX_SIMULTANEOUS_TRADES++;
 		}}}
 	}
 
