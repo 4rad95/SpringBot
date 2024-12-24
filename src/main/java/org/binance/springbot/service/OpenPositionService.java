@@ -36,6 +36,9 @@ public class OpenPositionService {
         return false;
     }
 
+    public Integer getCount() {
+       return openPositionRepository.getCount();
+    }
     @Transactional
      public void deleteAllAndResetSequence() {
         variantRepository.deleteAll();

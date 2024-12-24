@@ -535,7 +535,7 @@ public  void mainProcess(List<String> symbols) {
 	}
 
 	private void checkSymbols(SymbolsDto symbolsDto) throws Exception {
-		if (openPositionRepository.getCount() < MAX_SIMULTANEOUS_TRADES && !(openPositionService.getOpenPositionSymbol(symbolsDto.getSymbols()))) {
+		if (openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES && !(openPositionService.getOpenPositionSymbol(symbolsDto.getSymbols()))) {
 		Double price = BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
 		TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 
