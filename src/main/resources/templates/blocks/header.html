@@ -1,0 +1,43 @@
+<div>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">SpringBot</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+                aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/statistic">Statistic</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/console">Console</a>
+                </li>
+
+
+            </ul>
+            <form class="form-inline my-2 my-lg-0" onsubmit="return redirectToSite(event)">
+                <input id="searchInput" class="form-control mr-sm-2" type="text" placeholder="Enter URL"
+                       aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+            <script>
+                function redirectToSite(event) {
+                    event.preventDefault(); // Prevent the form from submitting in the traditional way
+                    var input = document.getElementById("searchInput").value;
+                    if (input) {
+                        window.open("https://www.binance.com/ru-UA/futures/" + input,'_blank')
+                //        window.location.href = "https://www.binance.com/ru-UA/futures/" + input; // Redirect to the entered URL
+                    } else {
+                        alert("Please enter a URL.");
+                    }
+                    return false; // Prevent the form from submitting in the traditional way
+                }
+            </script>
+        </div>
+    </nav>
+</div>

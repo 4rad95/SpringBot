@@ -8,4 +8,6 @@
 
 
     <include file="db/changelog/changeSets/v0.1/createTables.sql"/>
+    <include file="db/changelog/changeSets/v0.1/insertStatistic.sql"/>
+
 </databaseChangeLog>

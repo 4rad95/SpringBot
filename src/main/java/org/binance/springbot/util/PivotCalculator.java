@@ -22,7 +22,7 @@ public class PivotCalculator {
 
         @Override
         public String toString() {
-            return String.format("PP: %.2f, R1: %.2f, R2: %.2f, R3: %.2f, S1: %.2f, S2: %.2f, S3: %.2f",
+            return String.format("PP: %.4f, R1: %.4f, R2: %.4f, R3: %.4f, S1: %.4f, S2: %.4f, S3: %.4f",
                     PP, R1, R2, R3, S1, S2, S3);
         }
     }

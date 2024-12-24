@@ -11,7 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class SymbolsDto {
-    private long symbolsId;
+  //  private long symbolsId;
     private String symbols;
-
+    private String lowBuy;
+    private String highBuy;
+    private String lowSell;
+    private String highSell;
 }

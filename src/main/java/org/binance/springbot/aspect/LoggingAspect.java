@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class LoggingAspect {
     private static final Logger log = LoggerFactory.getLogger(LoggingAspect.class);
 
-    @Around("execution(* com.example.finalproject.controller..*(..)))")
+    @Around("execution(* org.binance.*(..)))")
     public Object mdcServiceController(@NotNull final ProceedingJoinPoint joinPoint) throws Throwable {
         String queryMethod = joinPoint.getSignature().getName();
         Object[] args = joinPoint.getArgs();
@@ -75,7 +75,7 @@ public class LoggingAspect {
         throw new LogException(ex.getMessage(), ex);
     }
 
-    @Around("execution(* com.example.finalproject.service..*(..))")
+    @Around("execution(* org.binance.*(..))")
     public Object mdcServiceService(@NotNull final ProceedingJoinPoint joinPoint) throws Throwable {
         String queryMethod = joinPoint.getSignature().getName();
         Object[] args = joinPoint.getArgs();

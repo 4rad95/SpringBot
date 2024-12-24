@@ -1,13 +1,14 @@
-package entity;
+package org.binance.springbot.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
+import org.binance.springbot.entity.enums.Type;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "Cart")
+@Table(name = "Statistic")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,12 +16,13 @@ import java.util.Set;
 
 public class Statistic {
     @Id
-    @Column (name = id)
+    @Column (name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private long startDateTime;
     private long duration;
-    private String symbol;
-    private 
+    private String symbols;
+    @Enumerated(EnumType.STRING)
+    private Type type;
 
 }
