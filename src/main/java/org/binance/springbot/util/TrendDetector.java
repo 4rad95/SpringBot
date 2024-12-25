@@ -66,11 +66,12 @@ public class TrendDetector {
     }
     public static Integer detectTrendWithMA25(BarSeries series){
         ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
+
         EMAIndicator smaIndicator = new EMAIndicator(closePrice, 25);
-        if (smaIndicator.getValue(smaIndicator.getBarSeries().getMaximumBarCount()).isLessThan(smaIndicator.getValue(smaIndicator.getBarSeries().getMaximumBarCount()-1))) {
+        if (smaIndicator.getValue(series.getEndIndex()).isLessThan(smaIndicator.getValue(series.getEndIndex()-1))) {
             return -1;
         }
-        if (smaIndicator.getValue(smaIndicator.getBarSeries().getMaximumBarCount()).isGreaterThan(smaIndicator.getValue(smaIndicator.getBarSeries().getMaximumBarCount()-1))) {
+        if (smaIndicator.getValue(series.getEndIndex()).isGreaterThan(smaIndicator.getValue(series.getEndIndex()-1))) {
             return 1;}
         return 0;
     }
