@@ -538,10 +538,11 @@ public  void mainProcess(List<String> symbols) {
 		if (openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES && !(openPositionService.getOpenPositionSymbol(symbolsDto.getSymbols()))) {
 		Double price = BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
 		TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
-
+		int move = TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 
 		if (price > Double.valueOf(symbolsDto.getLowBuy())
 				&& price < Double.valueOf(symbolsDto.getHighBuy())
+				&& move> 0
 				&& result.typeD > 0) {
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getHighBuy())-Double.valueOf(symbolsDto.getLowBuy()))+Double.valueOf(symbolsDto.getLowBuy()),countDecimalPlaces(price)));
 			System.out.println( "[LONG] " +symbolsDto.getSymbols() + " " + price );
@@ -556,6 +557,7 @@ public  void mainProcess(List<String> symbols) {
 		}}
 		if (price > Double.valueOf(symbolsDto.getLowSell())
 				&& price < Double.valueOf(symbolsDto.getHighSell())
+				&& move< 0
 				&& result.typeD < 0) {
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getHighSell())-Double.valueOf(symbolsDto.getLowSell()))+Double.valueOf(symbolsDto.getLowSell()),countDecimalPlaces(price)));
 			System.out.println( "[SHORT] "+symbolsDto.getSymbols() + " " + price);

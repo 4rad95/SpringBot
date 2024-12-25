@@ -2,6 +2,9 @@ package org.binance.springbot.util;
 
 
 import org.ta4j.core.*;
+import org.ta4j.core.indicators.EMAIndicator;
+import org.ta4j.core.indicators.SMAIndicator;
+import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -60,6 +63,16 @@ public class TrendDetector {
                     ", highExtremes=" + highExtremes + '\n'+
                     '}';
         }
+    }
+    public static Integer detectTrendWithMA25(BarSeries series){
+        ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
+        EMAIndicator smaIndicator = new EMAIndicator(closePrice, 25);
+        if (smaIndicator.getValue(smaIndicator.getBarSeries().getMaximumBarCount()).isLessThan(smaIndicator.getValue(smaIndicator.getBarSeries().getMaximumBarCount()-1))) {
+            return -1;
+        }
+        if (smaIndicator.getValue(smaIndicator.getBarSeries().getMaximumBarCount()).isGreaterThan(smaIndicator.getValue(smaIndicator.getBarSeries().getMaximumBarCount()-1))) {
+            return 1;}
+        return 0;
     }
 
     public static TrendResult detectTrendWithExtremes(BarSeries series, int range, int filterRange) {
