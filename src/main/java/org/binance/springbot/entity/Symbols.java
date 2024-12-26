@@ -27,8 +27,12 @@ public class Symbols {
     private String lowBuy;
     @Column(name = "highbuy" )
     private String highBuy;
+    @Column(name = "imbbuy" )
+    private String imbBuy;
     @Column(name = "lowsell" )
     private String lowSell;
     @Column(name = "highsell" )
     private String highSell;
+    @Column(name = "imbsell" )
+    private String imbSell;
 }

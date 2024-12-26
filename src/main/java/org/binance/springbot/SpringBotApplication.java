@@ -278,18 +278,17 @@ public class SpringBotApplication {
 					Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
 					System.out.println("Sell Order Block Index: " + orderBlocks.get("SellOrderBlock"));
 					System.out.println("Buy Order Block Index: " + orderBlocks.get("BuyOrderBlock"));
+					String imbBuy = series.getBar(orderBlocks.get("BuyOrderBlock")+2).getLowPrice().toString();
+					String imbSell =series.getBar(orderBlocks.get("SellOrderBlock")+2).getLowPrice().toString();
 
-					SymbolsDto symbolDto = SymbolsDto.builder().symbols(symbol).highBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getHighPrice().toString()).
+							SymbolsDto symbolDto = SymbolsDto.builder().symbols(symbol).highBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getHighPrice().toString()).
 							lowBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getLowPrice().toString()).
+							imbBuy(imbBuy).
 							highSell(series.getBar(orderBlocks.get("SellOrderBlock")).getHighPrice().toString()).
 							lowSell(series.getBar(orderBlocks.get("SellOrderBlock")).getLowPrice().toString()).
+							imbSell(imbSell).
 							build();
-//					SymbolsDto symbolDto = SymbolsDto.builder().symbols(symbol).highBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getClosePrice().toString()).
-//							lowBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getOpenPrice().toString()).
-//							highSell(series.getBar(orderBlocks.get("SellOrderBlock")).getOpenPrice().toString()).
-//							lowSell(series.getBar(orderBlocks.get("SellOrderBlock")).getClosePrice().toString()).
-//							build();
-					// app.insertSymbols(symbolDto);
+
 					insertSymbols(symbolDto);
 					timeSeriesCache.put(symbol, series);
 
@@ -540,11 +539,11 @@ public  void mainProcess(List<String> symbols) {
 		TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 		int move = TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 
-		if (price > Double.valueOf(symbolsDto.getLowBuy())
-				&& price < Double.valueOf(symbolsDto.getHighBuy())
+		if (price < Double.valueOf(symbolsDto.getImbBuy())
+				&& price > Double.valueOf(symbolsDto.getHighBuy())
 				&& move> 0
 				&& result.typeD > 0) {
-			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getHighBuy())-Double.valueOf(symbolsDto.getLowBuy()))+Double.valueOf(symbolsDto.getLowBuy()),countDecimalPlaces(price)));
+			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getImbBuy())+Double.valueOf(symbolsDto.getLowBuy())),countDecimalPlaces(price)));
 			System.out.println( "[LONG] " +symbolsDto.getSymbols() + " " + price );
 			if (Double.valueOf(enterPrice)>price) {
 			VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
@@ -559,7 +558,7 @@ public  void mainProcess(List<String> symbols) {
 				&& price < Double.valueOf(symbolsDto.getHighSell())
 				&& move< 0
 				&& result.typeD < 0) {
-			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getHighSell())-Double.valueOf(symbolsDto.getLowSell()))+Double.valueOf(symbolsDto.getLowSell()),countDecimalPlaces(price)));
+			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getLowSell())),countDecimalPlaces(price)));
 			System.out.println( "[SHORT] "+symbolsDto.getSymbols() + " " + price);
 			if (Double.valueOf(enterPrice)< price){
 					VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())

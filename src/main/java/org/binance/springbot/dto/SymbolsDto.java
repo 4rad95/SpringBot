@@ -15,6 +15,8 @@ public class SymbolsDto {
     private String symbols;
     private String lowBuy;
     private String highBuy;
+    private String imbBuy;
     private String lowSell;
     private String highSell;
+    private String imbSell;
 }
