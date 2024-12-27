@@ -563,7 +563,7 @@ public  void mainProcess(List<String> symbols) {
 
 			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
-			if (move> 0 && result.typeD > 0) {
+			if (move < 0 && result.typeD > 0) {
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getLowSell())),countDecimalPlaces(price)));
 			System.out.println( "[SHORT] "+symbolsDto.getSymbols() + " " + price);
 			if (Double.valueOf(enterPrice)< price){
