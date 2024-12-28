@@ -123,6 +123,9 @@ public class SpringBotApplication {
 	public void insertOpenPosition(OpenPositionDto openPositionDto) throws Exception {
 		openPositionService.insertOpenPosition(openPositionDto);
 	}
+	public void deleteSymbols(String symbol) throws Exception {
+		symbolService.deleteBySymbol(symbol);
+	}
 // public List<OpenPositionDto>
 
 
@@ -379,7 +382,7 @@ public  void mainProcess(List<String> symbols) {
 
 }
 
-	private <GeneralException extends Throwable> void updateSymbol(String symbol) {
+	private <GeneralException extends Throwable> void updateSymbol(String symbol) throws Exception {
 
 		if (frozenTrade.get(symbol) == null) {
 
@@ -396,6 +399,8 @@ public  void mainProcess(List<String> symbols) {
             }
             // Now check the TA strategy with the refreshed time series
             int endIndex = series.getEndIndex();
+			// --
+			updateSQLSymbol(symbol);
 
             //---------------------------------------------------
 //			SymbolsDto list =  symbolService.getSymbol(symbol);
@@ -655,5 +660,25 @@ public  void mainProcess(List<String> symbols) {
 				}
 		}
 	}}
+
+	public void updateSQLSymbol(String symbol) throws Exception {
+		BarSeries series = timeSeriesCache.get(symbol);
+		Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
+		System.out.println("Sell Order Block Index: " + orderBlocks.get("SellOrderBlock"));
+		System.out.println("Buy Order Block Index: " + orderBlocks.get("BuyOrderBlock"));
+		String imbBuy = series.getBar(orderBlocks.get("BuyOrderBlock")+2).getLowPrice().toString();
+		String imbSell =series.getBar(orderBlocks.get("SellOrderBlock")+2).getLowPrice().toString();
+
+		SymbolsDto symbolDto = SymbolsDto.builder().symbols(symbol).highBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getHighPrice().toString()).
+				lowBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getLowPrice().toString()).
+				imbBuy(imbBuy).
+				highSell(series.getBar(orderBlocks.get("SellOrderBlock")).getHighPrice().toString()).
+				lowSell(series.getBar(orderBlocks.get("SellOrderBlock")).getLowPrice().toString()).
+				imbSell(imbSell).
+				build();
+		deleteSymbols(symbol);
+		insertSymbols(symbolDto);
+		timeSeriesCache.put(symbol, series);
+	}
 
 }

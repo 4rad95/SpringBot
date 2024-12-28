@@ -9,6 +9,7 @@ import org.binance.springbot.repo.SymbolsRepository;
 import org.binance.springbot.util.MapperUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -38,4 +39,9 @@ public class SymbolService {
 
         return mappers.convertToSymbolsDto(entity); // Конвертируем в DTO и возвращаем
     }
+    @Transactional
+    public void deleteBySymbol(String symbol){
+        symbolsRepository.deleteBySymbols(symbol);
+    }
+
 }

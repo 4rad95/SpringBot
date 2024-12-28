@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SymbolsRepository extends JpaRepository<Symbols,Long> {
     Symbols findBySymbols(String symbols);
+
+    void deleteBySymbols(String symbols);
 }
