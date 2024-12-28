@@ -403,149 +403,7 @@ public  void mainProcess(List<String> symbols) {
 			updateSQLSymbol(symbol);
 
             //---------------------------------------------------
-//			SymbolsDto list =  symbolService.getSymbol(symbol);
 
-//			for (SymbolsDto list: list1) {
-//				Double price = BinanceTa4jUtils.getCurrentPrice(symbol).doubleValue();
-//				if (price < Double.valueOf(list.getLowBuy())
-//					&& price > Double.valueOf(list.getLowBuy()) ) {
-//							System.out.println( "[LONG] " +symbol + " " + price );
-//					}
-//
-//				if (price > Double.valueOf(list.getLowSell())
-//					&& price < Double.valueOf(list.getHighSell()) ) {
-//							System.out.println( "[SHORT] "+symbol + " " + price);
-//					}
-            // -------------------------------------------------
-	/*
-				if ((openTradesLong.get(symbol) != null) || (openTradesShort.get(symbol) != null) ||
-						((openTradesLong.keySet().size() + openTradesShort.keySet().size()) < MAX_SIMULTANEOUS_TRADES)) {
-
-
-
-					// If we have an open trade for the symbol, we do not create a new one
-					if (DO_TRADES && openTradesLong.get(symbol) == null && (MAKE_LONG)) {
-						//Decimal currentPrice = series.getLastBar().getClosePrice();
-
-						String status = null;
-						status = StrategyStoch.openStochStrategyLong(series);
-						if (status != null) {
-							if (((openTradesLong.keySet().size() + openTradesShort.keySet().size()) < MAX_SIMULTANEOUS_TRADES)) {
-
-
-//                                if (BinanceTa4jUtils.checkStrategyLong(series1)
-//                                        && BinanceTa4jUtils.checkStrategyLong(series2)) {
-//                                  if (StrategyStoch.openStochStrategyLong(series1)
-//                                        && StrategyStoch.openStochStrategyLong(series2))     {
-
-								// ChochCalculator chochCalculator = new ChochCalculator();
-								TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(series, 150,3);
-								//                           Double[] chochData =  ChochTrendAnalyzer.detectChochAndTrend(series);
-								if (result.typeD >0) {
-									TimeSeries series1 = BinanceTa4jUtils.convertToTimeSeries(
-											Objects.requireNonNull(BinanceUtils.getCandelSeries(symbol, interval1.getIntervalId(), 100))
-											, symbol, interval1.getIntervalId());
-									if (TrendDetector.detectTrendWithExtremes(series1, 50,3).typeD > 0) {
-										TimeSeries series2 = BinanceTa4jUtils.convertToTimeSeries(
-												Objects.requireNonNull(BinanceUtils.getCandelSeries(symbol, interval2.getIntervalId(), 100))
-												, symbol, interval2.getIntervalId());
-										if (BEEP) {
-											Sound.tone(15000, 100);
-										}
-
-										System.out.println(result);
-										addTrade(symbol, "LONG", BinanceTa4jUtils.getATR(series),
-												//chochData[2],
-												TrendDetector.detectTrendWithExtremes(series, 15,3).lowExtremes.get(0).value,
-												//BinanceTa4jUtils.getStopPriceLong(series2),
-												// result.lowExtremes.get(2).value,
-												"Open:"+status ,
-												//result.highExtremes.get(2).value);
-												findPreviousHigh(series2));
-									} // else {System.out.println();}}
-								}
-							}
-						}
-					}
-
-					if (DO_TRADES && openTradesShort.get(symbol) == null  && MAKE_SHORT) {
-
-						String status = null;
-						status = StrategyStoch.openStochStrategyShort(series);
-						if (status != null) {
-							//	Decimal currentPrice = series.getLastBar().getClosePrice();
-							if (((openTradesLong.keySet().size() + openTradesShort.keySet().size()) < MAX_SIMULTANEOUS_TRADES)) {
-								// We create a new thread to short trade with the symbol
-
-
-
-
-//                                if (BinanceTa4jUtils.checkStrategyShort(series1)
-//                                        && BinanceTa4jUtils.checkStrategyShort(series2)) {
-								TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(series, 150,3);
-								//                Double[] chochData =  ChochTrendAnalyzer.detectChochAndTrend(series);
-								// ChochCalculator chochCalculator = new ChochCalculator();
-								//    if (ChochDetector.detectChochDirection(series) < 0) {
-								if (result.typeD <0) {
-									//       if (chochData[0] < 0 ) {
-									TimeSeries series1 = BinanceTa4jUtils.convertToTimeSeries(
-											Objects.requireNonNull(BinanceUtils.getCandelSeries(symbol, interval1.getIntervalId(), 100))
-											, symbol, interval1.getIntervalId());
-									if (TrendDetector.detectTrendWithExtremes(series1, 50,3).typeD < 0) {
-										TimeSeries series2 = BinanceTa4jUtils.convertToTimeSeries(
-												Objects.requireNonNull(BinanceUtils.getCandelSeries(symbol, interval2.getIntervalId(), 100))
-												, symbol, interval2.getIntervalId());
-										System.out.println(result);
-										if (BEEP) {
-											Sound.tone(15000, 100);
-										}
-
-//                                            System.out.println(series.getName() +"  Направление CHOCH: " + chochData[0]);
-//                                            System.out.println("Уровень ключевого максимума: " + chochData[1]);
-//                                            System.out.println("Уровень ключевого минимума: " + chochData[2]);
-
-										addTrade(symbol, "SHORT", BinanceTa4jUtils.getATR(series),
-												// chochData[1],
-												//BinanceTa4jUtils.getStopPriceShort(series2),
-												TrendDetector.detectTrendWithExtremes(series, 15,3).highExtremes.get(0).value,
-												//result.highExtremes.get(2).value,
-												"Open:" + status,
-												// result.lowExtremes.get(2).value);
-												findPreviousLow(series2));
-									}//else {System.out.println();}}
-								}
-							}
-						}
-					}
-//                    String status = null;
-//                    String status1 = null;
-
-//                    if (null != openTradesLong.get(symbol)) {
-//                        status = null; //StrategyStoch.openStochStrategyShort(series);
-//                        status1 = StrategyStoch.closeStochStrategyLong(series);;
-//                        if ((status != null) || (status1 != null)) {
-//                            if (status == null) {
-//                                status = status1;
-//                            }
-//                            ordersToBeClosed.put(symbol, " Close: " + status);
-//                            Log.info(CopyBot.class, "\u001B[33m [Close]  Close strategy for symbol = " + symbol + " " + status + "\u001B[0m");
-//
-//                        }
-//                    } else if (null != openTradesShort.get(symbol)) {
-//                            status = null; // StrategyStoch.openStochStrategyLong(series);
-//                            status1 = StrategyStoch.closeStochStrategyShort(series);
-//                            if ((status != null) || (status1 != null)) {
-//                                if (status != null) {
-//                                    status = status1;
-//                                }
-//                                ordersToBeClosed.put(symbol, " Close: " + status);
-//                                Log.info(CopyBot.class, "\u001B[33m [Close]  Close strategy for symbol = " + symbol + " " + status + "\u001B[0m");
-//                            }
-//
-//                        }
-				}
-			} catch (GeneralException e) {
-				log.info("Unable to check symbol " + symbol + "Error: " + e); */
         }
 	}
 
@@ -664,8 +522,8 @@ public  void mainProcess(List<String> symbols) {
 	public void updateSQLSymbol(String symbol) throws Exception {
 		BarSeries series = timeSeriesCache.get(symbol);
 		Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
-		System.out.println("Sell Order Block Index: " + orderBlocks.get("SellOrderBlock"));
-		System.out.println("Buy Order Block Index: " + orderBlocks.get("BuyOrderBlock"));
+		System.out.println("Update "+symbol);
+
 		String imbBuy = series.getBar(orderBlocks.get("BuyOrderBlock")+2).getLowPrice().toString();
 		String imbSell =series.getBar(orderBlocks.get("SellOrderBlock")+2).getLowPrice().toString();
 
