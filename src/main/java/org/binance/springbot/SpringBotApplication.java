@@ -523,9 +523,12 @@ public  void mainProcess(List<String> symbols) {
 	}}
 
 	public void updateAll() throws Exception {
+		Long t0 = currentTimeMillis();
 		for (Map.Entry<String, BarSeries> entry : timeSeriesCache.entrySet()) {
 			updateSQLSymbol(entry.getKey());
-	}}
+	}
+		System.out.println("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0));
+	}
 
 	public void updateSQLSymbol(String symbol) throws Exception {
 		BarSeries series = timeSeriesCache.get(symbol);
@@ -542,7 +545,10 @@ public  void mainProcess(List<String> symbols) {
 				lowSell(series.getBar(orderBlocks.get("SellOrderBlock")).getLowPrice().toString()).
 				imbSell(imbSell).
 				build();
-		deleteSymbols(symbol);
+		try {
+		deleteSymbols(symbol);} catch (Exception e) {
+			System.out.println( "Add symbol :"+symbol);
+		}
 		insertSymbols(symbolDto);
 		timeSeriesCache.put(symbol, series);
 	}
