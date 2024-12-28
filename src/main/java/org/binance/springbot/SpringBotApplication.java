@@ -2,15 +2,23 @@ package org.binance.springbot;
 
 import com.binance.api.client.domain.market.Candlestick;
 import com.binance.api.client.domain.market.CandlestickInterval;
+import com.binance.client.RequestOptions;
+import com.binance.client.SyncRequestClient;
+import com.binance.client.model.trade.MyTrade;
 import org.apache.commons.lang3.StringUtils;
 import org.binance.springbot.aspect.LoggingAspect;
 import org.binance.springbot.dto.OpenPositionDto;
+import org.binance.springbot.dto.StatisticDto;
 import org.binance.springbot.dto.SymbolsDto;
 import org.binance.springbot.dto.VariantDto;
+import org.binance.springbot.entity.OpenPosition;
+import org.binance.springbot.entity.enums.Type;
 import org.binance.springbot.repo.OpenPositionRepository;
+import org.binance.springbot.repo.StatisticRepository;
 import org.binance.springbot.repo.SymbolsRepository;
 
 import org.binance.springbot.service.OpenPositionService;
+import org.binance.springbot.service.StatisticService;
 import org.binance.springbot.service.VariantService;
 import org.binance.springbot.task.Position;
 import org.binance.springbot.util.*;
@@ -25,10 +33,13 @@ import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
 // import org.ta4j.core.BarSeries;
 
+import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.DateTime;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
 
@@ -90,6 +101,10 @@ public class SpringBotApplication {
     private VariantService variantService;
     @Autowired
     private static OpenPositionRepository openPositionRepository;
+    @Autowired
+    private StatisticRepository statisticRepository;
+    @Autowired
+    private StatisticService statisticService;
 
 	public static void main(String[] args) throws Exception {
 		ApplicationContext context = SpringApplication.run(SpringBotApplication.class, args);
@@ -108,6 +123,8 @@ public class SpringBotApplication {
 	public void insertOpenPosition(OpenPositionDto openPositionDto) throws Exception {
 		openPositionService.insertOpenPosition(openPositionDto);
 	}
+// public List<OpenPositionDto>
+
 
 	public static void init() throws IOException {
 		// Pause time
@@ -251,6 +268,7 @@ public class SpringBotApplication {
 //					Thread myThread = new Thread(r, "Search thread");
 					Thread mainThread = new Thread(r, "Search thread");
 					mainThread.start();
+					checkClosePosition();
 					sleep(timeToWait);
 
 				} catch (Exception e) {
@@ -600,4 +618,26 @@ public  void mainProcess(List<String> symbols) {
 		}
 		return position.getIdBinance();
 	}
+	public void checkClosePosition(){
+		List<OpenPosition> openPositionDtoList = openPositionService.getAll();
+		if (openPositionDtoList.size() > 0) {
+			RequestOptions options = new RequestOptions();
+			SyncRequestClient syncRequestClient = SyncRequestClient.create(getApiKey(), getApiSecret(),
+					options);
+			for (OpenPosition entity: openPositionDtoList){
+						List<MyTrade> trades = syncRequestClient.getAccountTrades(entity.getSymbol(), null, null, null, 100);
+				if ((trades.get(trades.size() - 1).getRealizedPnl().doubleValue())!= 0 ){
+					StatisticDto statisticDto = StatisticDto.builder().pnl(trades.get(trades.size() - 1).getRealizedPnl().toString()).symbols(trades.get(trades.size()-1).getSymbol())
+							.comission(trades.get(trades.size()-1).getCommission().add(trades.get(trades.size()-2).getCommission()).toString())
+							.type(Type.valueOf(trades.get(trades.size()-1).getPositionSide()))
+							.startDateTime(convertTimestampToDate(trades.get(trades.size()-1).getTime().longValue()))
+							.duration(convertTimestampToDate(trades.get(trades.size()-1).getTime().longValue()-trades.get(trades.size()-2).getTime().longValue()))
+							.build();
+					statisticService.insertStatistic(statisticDto);
+					openPositionService.deleteById(entity.getId());
+				//	syncRequestClient.cancelOrder(trades.get(trades.size()-1).getSymbol(),null,null);
+				}
+		}
+	}}
+
 }

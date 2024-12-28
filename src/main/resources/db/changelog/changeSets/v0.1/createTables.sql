@@ -1,7 +1,7 @@
 -- liquibase formatted sql
 
 -- changeset 4rad95:create_table_statistic
-CREATE TABLE Statistic (id INT AUTO_INCREMENT NOT NULL, startDateTime int NULL, duration int NULL, symbols VARCHAR(15) NULL, type ENUM('LONG','SHORT') );
+CREATE TABLE Statistic (id INT AUTO_INCREMENT NOT NULL, startDateTime VARCHAR(25) not null , duration VARCHAR(25) NULL, symbols VARCHAR(15) NULL, type ENUM('LONG','SHORT'),pnl VARCHAR(15) not null , comission VARCHAR(15) not null );
 
 -- changeset 4rad95:create_table_symbols
 CREATE TABLE Symbols (symbols VARCHAR(25) NOT NULL, lowbuy VARCHAR(25) NOT NULL, highbuy VARCHAR(25) NOT NULL, imbbuy VARCHAR(25), lowsell VARCHAR(25) NOT NULL, highsell VARCHAR(25) NOT NULL, imbsell VARCHAR(25));

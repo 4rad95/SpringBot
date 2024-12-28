@@ -15,5 +15,6 @@ public interface OpenPositionRepository extends JpaRepository<OpenPosition,Long>
     @Query(value = "SELECT count(*) as count FROM OpenPosition  WHERE OpenPosition.symbol = :symbol", nativeQuery = true)
     Integer getOpenPositionSymbol(String symbol);
 
+    void deleteOpenPositionBySymbol(String symbol);
 }
 

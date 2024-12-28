@@ -17,6 +17,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -171,5 +174,15 @@ public class BinanceUtil {
             return StringUtils.replaceAll(String.format("%.4f", rawAmount), ",", ".");
         }
 
+    }
+    public static String convertTimestampToDate(long timestamp) {
+        Instant instant = Instant.ofEpochMilli(timestamp);
+
+        ZoneId zoneId = ZoneId.of("UTC");
+
+        // Форматируем дату и время
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(zoneId);
+        return formatter.format(instant);
     }
 }

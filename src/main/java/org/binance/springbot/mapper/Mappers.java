@@ -3,9 +3,11 @@ package org.binance.springbot.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.binance.springbot.dto.OpenPositionDto;
+import org.binance.springbot.dto.StatisticDto;
 import org.binance.springbot.dto.SymbolsDto;
 import org.binance.springbot.dto.VariantDto;
 import org.binance.springbot.entity.OpenPosition;
+import org.binance.springbot.entity.Statistic;
 import org.binance.springbot.entity.Symbols;
 import org.binance.springbot.entity.Variant;
 import org.modelmapper.ModelMapper;
@@ -30,7 +32,10 @@ public class Mappers {
 
     public OpenPositionDto convertToOpenPositionDto(OpenPosition openPosition) {return modelMapper.map(openPosition, OpenPositionDto.class);}
 
-    public OpenPosition convertToOpenPosition(OpenPositionDto openPositionDto) { return modelMapper.map(openPositionDto, OpenPosition.class);
-    }
+    public OpenPosition convertToOpenPosition(OpenPositionDto openPositionDto) { return modelMapper.map(openPositionDto, OpenPosition.class);}
+
+    public StatisticDto convertToStatisticDto(Statistic statistic) {return modelMapper.map(statistic, StatisticDto.class);}
+
+    public Statistic convertToStatistic (StatisticDto statisticDto) { return modelMapper.map(statisticDto, Statistic.class);}
 
 }

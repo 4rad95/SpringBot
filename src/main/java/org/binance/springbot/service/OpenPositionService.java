@@ -3,6 +3,7 @@ package org.binance.springbot.service;
 import lombok.RequiredArgsConstructor;
 import org.binance.springbot.dto.OpenPositionDto;
 import org.binance.springbot.dto.VariantDto;
+import org.binance.springbot.entity.OpenPosition;
 import org.binance.springbot.mapper.Mappers;
 import org.binance.springbot.repo.OpenPositionRepository;
 import org.binance.springbot.repo.VariantRepository;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -44,4 +47,13 @@ public class OpenPositionService {
         variantRepository.deleteAll();
         jdbcTemplate.execute("ALTER TABLE variant ALTER COLUMN id RESTART WITH 1;");
     }
+
+    public List<OpenPosition> getAll(){
+        return openPositionRepository.findAll();
+    }
+
+    public void deleteById(Long id) {
+        openPositionRepository.deleteById(id);
+    }
+
 }
