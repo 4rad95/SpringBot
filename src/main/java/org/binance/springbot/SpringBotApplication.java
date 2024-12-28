@@ -263,15 +263,21 @@ public class SpringBotApplication {
 //			}
 			List<String> finalSymbols = symbols;
 			Runnable r = () -> mainProcess(finalSymbols);
+			int wait = 0;
 //
 			while (true) {
 				try {
+					wait++;
 //					List<String> finalSymbols = symbols;
 //					Runnable r = () -> mainProcess(finalSymbols);
 //					Thread myThread = new Thread(r, "Search thread");
 					Thread mainThread = new Thread(r, "Search thread");
 					mainThread.start();
 					checkClosePosition();
+					if (wait == 20 ) {
+						updateAll();
+						wait = 0;
+					}
 					sleep(timeToWait);
 
 				} catch (Exception e) {
@@ -400,7 +406,7 @@ public  void mainProcess(List<String> symbols) {
             // Now check the TA strategy with the refreshed time series
             int endIndex = series.getEndIndex();
 			// --
-			updateSQLSymbol(symbol);
+	//		updateSQLSymbol(symbol);
 
             //---------------------------------------------------
 
@@ -517,6 +523,11 @@ public  void mainProcess(List<String> symbols) {
 					}
 				}
 		}
+	}}
+
+	public void updateAll() throws Exception {
+		for (Map.Entry<String, BarSeries> entry : timeSeriesCache.entrySet()) {
+			updateSQLSymbol(entry.getKey());
 	}}
 
 	public void updateSQLSymbol(String symbol) throws Exception {
