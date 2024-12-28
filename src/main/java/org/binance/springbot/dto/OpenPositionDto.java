@@ -25,4 +25,6 @@ public class OpenPositionDto {
     private String symbol;
     private String type;
     private Long idBinance;
+    private Long stopId;
+    private Long profitId;
 }

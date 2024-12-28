@@ -29,4 +29,8 @@ public class OpenPosition {
     private String type;
     @Column (name = "idBinance")
     private String idBinance;
+    @Column (name = "stopId")
+    private Long stopId;
+    @Column (name = "profitId")
+    private Long profitId;
 }

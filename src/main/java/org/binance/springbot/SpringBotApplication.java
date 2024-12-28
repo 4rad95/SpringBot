@@ -572,8 +572,8 @@ public  void mainProcess(List<String> symbols) {
 						.type("LONG").price(price.toString()).stop(symbolsDto.getLowBuy()).proffit(symbolsDto.getLowSell()).enterPrice(enterPrice)
 						.build();
 			insertVariant(variantDto);
-			Long id = startPosition(variantDto);
-			OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+			Map<String, Long> id =  startPosition(variantDto);
+			OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 			insertOpenPosition(openPositionDto);
 		}}}
 		if (price > Double.valueOf(symbolsDto.getLowSell())
@@ -589,15 +589,16 @@ public  void mainProcess(List<String> symbols) {
 						.type("SHORT").price(price.toString()).stop(symbolsDto.getHighSell()).proffit(symbolsDto.getHighBuy()).enterPrice(enterPrice)
 						.build();
 					insertVariant(variantDto);
-  					Long id = startPosition(variantDto);
-					OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+  					Map<String, Long> id =  startPosition(variantDto);
+					OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 					insertOpenPosition(openPositionDto);
 		}}}}}
 	}
 
-	public Long startPosition(VariantDto variantDto) throws InterruptedException {
+	public Map<String,Long> startPosition(VariantDto variantDto) throws InterruptedException {
 		String quality = BinanceUtil.getAmount(Double.valueOf(variantDto.getPrice()),TRADE_SIZE_USDT);
 		org.binance.springbot.task.Position position = new org.binance.springbot.task.Position(variantDto.getSymbol(),variantDto.getType(),quality ,variantDto.getEnterPrice());
+		Map<String,Long> mapa = new HashMap<String,Long>();
 		if (variantDto.getType() == "SHORT") {
 			Long idPosition = position.openPositionShort();
 			while (!position.getStatus(idPosition, variantDto.getSymbol())) {
@@ -605,7 +606,10 @@ public  void mainProcess(List<String> symbols) {
 				sleep(1000);
 			}
 			org.binance.springbot.task.Position positionSP = new org.binance.springbot.task.Position(idPosition,variantDto.getSymbol());
-			positionSP.stopPositionShort(variantDto.getStop(),variantDto.getProffit());
+			Long[] idSP = positionSP.stopPositionShort(variantDto.getStop(),variantDto.getProffit());
+			mapa.put("id",idPosition);
+			mapa.put("stop",idSP[0]);
+			mapa.put("profit",idSP[1]);
 		}
 		if (variantDto.getType() == "LONG") {
 			Long idPosition = position.openPositionLong();
@@ -614,9 +618,12 @@ public  void mainProcess(List<String> symbols) {
 			   sleep(1000);
 			}
 			org.binance.springbot.task.Position positionSP = new org.binance.springbot.task.Position(idPosition,variantDto.getSymbol());
-			positionSP.stopPositionLong(variantDto.getStop(),variantDto.getProffit());
+			Long[] idSP = positionSP.stopPositionLong(variantDto.getStop(),variantDto.getProffit());
+			mapa.put("id",idPosition);
+			mapa.put("stop",idSP[0]);
+			mapa.put("profit",idSP[1]);
 		}
-		return position.getIdBinance();
+		return mapa;
 	}
 	public void checkClosePosition(){
 		List<OpenPosition> openPositionDtoList = openPositionService.getAll();
@@ -635,7 +642,16 @@ public  void mainProcess(List<String> symbols) {
 							.build();
 					statisticService.insertStatistic(statisticDto);
 					openPositionService.deleteById(entity.getId());
-				//	syncRequestClient.cancelOrder(trades.get(trades.size()-1).getSymbol(),null,null);
+					try {
+						syncRequestClient.cancelOrder(trades.get(trades.size()-1).getSymbol(),entity.getProfitId(),null); }
+					catch (Exception e) {
+						System.out.println();
+					}
+					try {
+					syncRequestClient.cancelOrder(trades.get(trades.size()-1).getSymbol(),entity.getStopId(),null);}
+					catch (Exception e) {
+						System.out.println();
+					}
 				}
 		}
 	}}

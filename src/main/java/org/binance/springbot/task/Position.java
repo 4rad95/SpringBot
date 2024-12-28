@@ -51,7 +51,7 @@ public class Position {
         return orderNew.getOrderId();
     }
 
-    public void stopPositionShort(String stopPrice, String profitPrice) {
+    public Long[] stopPositionShort(String stopPrice, String profitPrice) {
         RequestOptions options = new RequestOptions();
         SyncRequestClient syncRequestClient = SyncRequestClient.create(BinanceUtil.getApiKey(), BinanceUtil.getApiSecret(),
                 options);
@@ -74,6 +74,8 @@ public class Position {
                 null, // Рабочий процесс исполнения (например, если используешь OCO или другие сложные типы)
                 NewOrderRespType.RESULT // Тип ответа, который ты ожидаешь (например, полное подтверждение о новом ордере)
         );
+        //Lon stopClientId = orderNew.getClientOrderId();
+        Long stopId = orderNew.getOrderId();
         orderNew = syncRequestClient.postOrder(
                 symbol, // Торговая пара
                 OrderSide.BUY, // Тип ордера - продажа
@@ -92,9 +94,12 @@ public class Position {
                 null, // Отступ callback rate (процент)
                 NewOrderRespType.RESULT // Режим ответа
         );
+        // String profitClientId = orderNew.getClientOrderId();
+        Long profitId = orderNew.getOrderId();
+        return new Long[] {stopId,profitId};
     }
 
-    public void stopPositionLong(String stopPrice, String profitPrice) {
+    public Long[] stopPositionLong(String stopPrice, String profitPrice) {
         RequestOptions options = new RequestOptions();
         SyncRequestClient syncRequestClient = SyncRequestClient.create(BinanceUtil.getApiKey(), BinanceUtil.getApiSecret(),
                 options);
@@ -118,6 +123,7 @@ public class Position {
                 NewOrderRespType.RESULT // Тип ответа, который ты ожидаешь (например, полное подтверждение о новом ордере)
         );
 
+        Long stopId = orderNew.getOrderId();
         orderNew = syncRequestClient.postOrder(
                 symbol, // Торговая пара
                 OrderSide.SELL, // Тип ордера - продажа
@@ -136,6 +142,8 @@ public class Position {
                 null, // Отступ callback rate (процент)
                 NewOrderRespType.RESULT // Режим ответа
         );
+        Long profitId = orderNew.getOrderId();
+        return new Long[] {stopId,profitId};
 
     }
     public boolean getStatus(Long idBinance,String symbol){

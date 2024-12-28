@@ -11,4 +11,5 @@ CREATE TABLE Symbols (symbols VARCHAR(25) NOT NULL, lowbuy VARCHAR(25) NOT NULL,
 CREATE TABLE Variant(id INT AUTO_INCREMENT NOT NULL, time TIMESTAMP, type VARCHAR(5), symbol VARCHAR(20),price VARCHAR(25),enterprice VARCHAR(25), stop VARCHAR(25), proffit VARCHAR(25) )
 
 -- changeset 4rad95:create_table_openPosition
-CREATE TABLE OpenPosition(id INT AUTO_INCREMENT NOT NULL, time TIMESTAMP, type VARCHAR(5), symbol VARCHAR(20),idBinance VARCHAR(20))
+--CREATE TABLE OpenPosition(id INT AUTO_INCREMENT NOT NULL, time TIMESTAMP, type VARCHAR(5), symbol VARCHAR(20),idBinance VARCHAR(20), stopId VARCHAR(25), stopClientId VARCHAR(25), profitId VARCHAR(25), profitClientId VARCHAR(25))
+CREATE TABLE OpenPosition(id INT AUTO_INCREMENT NOT NULL, time TIMESTAMP, type VARCHAR(5), symbol VARCHAR(20),idBinance VARCHAR(20), stopId VARCHAR(25) NOT NULL , profitId VARCHAR(25) NOT NULL)
