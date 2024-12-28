@@ -268,9 +268,6 @@ public class SpringBotApplication {
 			while (true) {
 				try {
 					wait++;
-//					List<String> finalSymbols = symbols;
-//					Runnable r = () -> mainProcess(finalSymbols);
-//					Thread myThread = new Thread(r, "Search thread");
 					Thread mainThread = new Thread(r, "Search thread");
 					mainThread.start();
 					checkClosePosition();
@@ -507,7 +504,7 @@ public  void mainProcess(List<String> symbols) {
 							.comission(trades.get(trades.size()-1).getCommission().add(trades.get(trades.size()-2).getCommission()).toString())
 							.type(Type.valueOf(trades.get(trades.size()-1).getPositionSide()))
 							.startDateTime(convertTimestampToDate(trades.get(trades.size()-1).getTime().longValue()))
-							.duration(convertTimestampToDate(trades.get(trades.size()-1).getTime().longValue()-trades.get(trades.size()-2).getTime().longValue()))
+							.duration(BinanceUtil.timeFormat(trades.get(trades.size()-1).getTime().longValue()-trades.get(trades.size()-2).getTime().longValue()))
 							.build();
 					statisticService.insertStatistic(statisticDto);
 					openPositionService.deleteById(entity.getId());

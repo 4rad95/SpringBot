@@ -5,6 +5,7 @@ import com.binance.api.client.domain.market.CandlestickInterval;
 import com.binance.client.RequestOptions;
 import com.binance.client.SyncRequestClient;
 import org.apache.commons.lang3.StringUtils;
+import org.binance.springbot.SpringBotApplication;
 import org.binance.springbot.aspect.LoggingAspect;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -184,5 +185,13 @@ public class BinanceUtil {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                 .withZone(zoneId);
         return formatter.format(instant);
+    }
+    public static String timeFormat(Long mmsec) {
+        int seconds = (int) (mmsec / 1000);
+        int minutes = seconds / 60;
+        int hours = minutes / 60;
+        minutes = minutes - hours * 60;
+        seconds = seconds - minutes * 60;
+        return String.format("%d:%02d:%02d", hours, minutes, seconds);
     }
 }
