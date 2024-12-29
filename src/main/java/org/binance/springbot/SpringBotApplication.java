@@ -5,6 +5,7 @@ import com.binance.api.client.domain.market.CandlestickInterval;
 import com.binance.client.RequestOptions;
 import com.binance.client.SyncRequestClient;
 import com.binance.client.model.trade.MyTrade;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import okhttp3.internal.connection.Exchange;
 import org.apache.commons.lang3.StringUtils;
 import org.binance.springbot.aspect.LoggingAspect;
@@ -471,8 +472,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		}}}}}
 	}
 
-	public Map<String,Long> startPosition(VariantDto variantDto) throws InterruptedException {
-		String quality = BinanceUtil.getAmount(Double.valueOf(variantDto.getPrice()),TRADE_SIZE_USDT);
+	public Map<String,Long> startPosition(VariantDto variantDto) throws InterruptedException, JsonProcessingException {
+		String quality = BinanceUtil.getAmount(variantDto.getSymbol(), Double.valueOf(variantDto.getPrice()),TRADE_SIZE_USDT);
 		org.binance.springbot.task.Position position = new org.binance.springbot.task.Position(variantDto.getSymbol(),variantDto.getType(),quality ,variantDto.getEnterPrice());
 		Map<String,Long> mapa = new HashMap<String,Long>();
 		if (variantDto.getType() == "SHORT") {

@@ -168,18 +168,38 @@ public class BinanceUtil {
         return bd.doubleValue();
     }
 
-    public static String getAmount(Double price, Double usdtAmount) {
+    public static String getAmount(String symbol, Double price, Double usdtAmount) throws JsonProcessingException {
         // This method should be refactored... there is a method in Binance API to get symbol info
         Double rawAmount = usdtAmount / price;
-
-        if (rawAmount > 1) {
-            Integer iAmount = Integer.valueOf(rawAmount.intValue());
-            return "" + iAmount;
-        } else if (rawAmount < 1 && rawAmount >= 0.05) {
-            return StringUtils.replaceAll(String.format("%.2f", rawAmount), ",", ".");
-        } else {
-            return StringUtils.replaceAll(String.format("%.4f", rawAmount), ",", ".");
+        int precision =  getPrecision(SpringBotApplication.exchangeInfo,symbol);
+        switch (precision) {
+            case 0:
+                return StringUtils.replaceAll(String.format("%.0f", rawAmount), ",", ".");
+            case 1:
+                return StringUtils.replaceAll(String.format("%.1f", rawAmount), ",", ".");
+            case 2:
+                return StringUtils.replaceAll(String.format("%.2f", rawAmount), ",", ".");
+            case 3:
+                return StringUtils.replaceAll(String.format("%.3f", rawAmount), ",", ".");
+            case 4:
+                return StringUtils.replaceAll(String.format("%.4f", rawAmount), ",", ".");
+            case 5:
+                return StringUtils.replaceAll(String.format("%.5f", rawAmount), ",", ".");
+            case 6:
+                return StringUtils.replaceAll(String.format("%.6f", rawAmount), ",", ".");
+            case 7:
+                return StringUtils.replaceAll(String.format("%.7f", rawAmount), ",", ".");
+            default:
+                return StringUtils.replaceAll(String.format("%.8f", rawAmount), ",", ".");
         }
+//        if (rawAmount > 1) {
+//            Integer iAmount = Integer.valueOf(rawAmount.intValue());
+//            return "" + iAmount;
+//        } else if (rawAmount < 1 && rawAmount >= 0.05) {
+//            return StringUtils.replaceAll(String.format("%.2f", rawAmount), ",", ".");
+//        } else {
+//            return StringUtils.replaceAll(String.format("%.4f", rawAmount), ",", ".");
+//        }
 
     }
     public static String convertTimestampToDate(long timestamp) {
@@ -205,18 +225,15 @@ public class BinanceUtil {
 
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(urc.getInputStream()));
-
         String inputLine;
         inputLine = in.readLine();
         in.close();
-
         return inputLine;
     }
 
-    public int getPrecision(String jsonResponse, String symbol) throws JsonProcessingException {
+    public static int getPrecision(String jsonResponse, String symbol) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode rootNode = mapper.readTree(jsonResponse);
-
         JsonNode symbolsNode = rootNode.get("symbols");
         if (symbolsNode == null || !symbolsNode.isArray()) {
             throw new IllegalArgumentException("Invalid JSON: 'symbols' array not found");
