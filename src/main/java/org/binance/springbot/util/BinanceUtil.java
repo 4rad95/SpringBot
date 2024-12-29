@@ -1,9 +1,11 @@
 package org.binance.springbot.util;
 
+import com.binance.api.client.domain.general.SymbolInfo;
 import com.binance.api.client.domain.market.Candlestick;
 import com.binance.api.client.domain.market.CandlestickInterval;
 import com.binance.client.RequestOptions;
 import com.binance.client.SyncRequestClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.binance.springbot.SpringBotApplication;
 import org.binance.springbot.aspect.LoggingAspect;
@@ -13,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -24,6 +27,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BinanceUtil {
 
@@ -193,4 +199,33 @@ public class BinanceUtil {
         return String.format("%d:%02d:%02d", hours, minutes, seconds);
     }
 
+    public static String getExchangeInfo() throws IOException {
+        URL url = new URL("https://www.binance.com/fapi/v1/exchangeInfo");
+        URLConnection urc = url.openConnection();
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(urc.getInputStream()));
+
+        String inputLine;
+        inputLine = in.readLine();
+        in.close();
+
+        return inputLine;
+    }
+
+    public int getPrecision(String jsonResponse, String symbol) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode rootNode = mapper.readTree(jsonResponse);
+
+        JsonNode symbolsNode = rootNode.get("symbols");
+        if (symbolsNode == null || !symbolsNode.isArray()) {
+            throw new IllegalArgumentException("Invalid JSON: 'symbols' array not found");
+        }
+        for (JsonNode symbolNode : symbolsNode) {
+            if (symbol.equalsIgnoreCase(symbolNode.get("symbol").asText())) {
+                return symbolNode.get("pricePrecision").asInt();
+            }
+        }
+        throw new IllegalArgumentException("Symbol not found: " + symbol);
+    }
 }

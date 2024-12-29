@@ -9,6 +9,33 @@
 <header th:insert="blocks/header"></header>
 
 <div class="container mt-5">
-    <h1> Home </h1>
+    <!-- Таблица для отображения списка -->
+    <table class="table table-dark table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Start DateTime</th>
+            <th scope="col">Symbols</th>
+            <th scope="col">Type</th>
+
+
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Генерация строк таблицы -->
+        <tr th:each="el : ${symbols}">
+            <td th:text="${el.getId()}">Symbol</td>
+            <td th:text="${el.getTime()}">Symbol</td>
+            <td th:text="${el.getSymbols()}">HighBuy</td>
+            <td th:text="${el.getType()}">ImbBuy</td>
+
+        </tr>
+        </tbody>
+    </table>
+    <div class="text-right mt-3">
+        <strong>Total Records:</strong> <span th:text="${symbols.size()}">0</span>
+    </div>
+</div>
+
 </body>
 </html>

@@ -8,30 +8,30 @@
 <body>
 <header th:insert="blocks/header"></header>
 
-
 <div class="container mt-5">
     <!-- Таблица для отображения списка -->
     <table class="table table-dark table-striped">
         <thead>
         <tr>
-            <th scope="col">Start DateTime</th>
-            <th scope="col">Duration</th>
-            <th scope="col">Symbols</th>
-            <th scope="col">Type</th>
-            <th scope="col">PNL</th>
-            <th scope="col">Comission</th>
-
+            <th scope="col">Symbol</th>
+            <th scope="col">Low Buy</th>
+            <th scope="col">High Buy</th>
+            <th scope="col">Imb Buy</th>
+            <th scope="col">Low Sell</th>
+            <th scope="col">High Sell</th>
+            <th scope="col">Imb Sell</th>
         </tr>
         </thead>
         <tbody>
         <!-- Генерация строк таблицы -->
         <tr th:each="el : ${symbols}">
-            <td th:text="${el.getStartDateTime()}">Symbol</td>
-            <td th:text="${el.getDuration()}">LowBuy</td>
-            <td th:text="${el.getSymbols()}">HighBuy</td>
-            <td th:text="${el.getType()}">ImbBuy</td>
-            <td th:text="${el.getPnl()}">LowSell</td>
-            <td th:text="${el.getComission()}">HighSell</td>
+            <td th:text="${el.getSymbols()}">Symbol</td>
+            <td th:text="${el.getLowBuy()}">LowBuy</td>
+            <td th:text="${el.getHighBuy()}">HighBuy</td>
+            <td th:text="${el.getImbBuy()}">ImbBuy</td>
+            <td th:text="${el.getLowBuy()}">LowSell</td>
+            <td th:text="${el.getHighBuy()}">HighSell</td>
+            <td th:text="${el.getImbBuy()}">ImbSell</td>
         </tr>
         </tbody>
     </table>

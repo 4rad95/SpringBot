@@ -15,13 +15,15 @@
                     <a class="nav-link" href="/statistic">Statistic</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/console">Console</a>
+                    <a class="nav-link" href="/logview">Logview</a>
                 </li>
-
+                <li class="nav-item">
+                    <a class="nav-link" href="/allsymbols">AllSymbols</a>
+                </li>
 
             </ul>
             <form class="form-inline my-2 my-lg-0" onsubmit="return redirectToSite(event)">
-                <input id="searchInput" class="form-control mr-sm-2" type="text" placeholder="Enter URL"
+                <input id="searchInput" class="form-control mr-sm-2" type="text" placeholder="Enter SYMBOL"
                        aria-label="Search">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
             </form>
@@ -33,7 +35,7 @@
                         window.open("https://www.binance.com/ru-UA/futures/" + input,'_blank')
                 //        window.location.href = "https://www.binance.com/ru-UA/futures/" + input; // Redirect to the entered URL
                     } else {
-                        alert("Please enter a URL.");
+                        alert("Please enter SYMBOL");
                     }
                     return false; // Prevent the form from submitting in the traditional way
                 }
