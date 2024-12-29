@@ -180,8 +180,6 @@ public class BinanceUtil {
         Instant instant = Instant.ofEpochMilli(timestamp);
 
         ZoneId zoneId = ZoneId.of("UTC");
-
-        // Форматируем дату и время
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                 .withZone(zoneId);
         return formatter.format(instant);
@@ -194,4 +192,5 @@ public class BinanceUtil {
         seconds = seconds - minutes * 60;
         return String.format("%d:%02d:%02d", hours, minutes, seconds);
     }
+
 }

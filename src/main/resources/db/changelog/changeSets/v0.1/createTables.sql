@@ -13,3 +13,6 @@ CREATE TABLE Variant(id INT AUTO_INCREMENT NOT NULL, time TIMESTAMP, type VARCHA
 -- changeset 4rad95:create_table_openPosition
 --CREATE TABLE OpenPosition(id INT AUTO_INCREMENT NOT NULL, time TIMESTAMP, type VARCHAR(5), symbol VARCHAR(20),idBinance VARCHAR(20), stopId VARCHAR(25), stopClientId VARCHAR(25), profitId VARCHAR(25), profitClientId VARCHAR(25))
 CREATE TABLE OpenPosition(id INT AUTO_INCREMENT NOT NULL, time TIMESTAMP, type VARCHAR(5), symbol VARCHAR(20),idBinance VARCHAR(20), stopId VARCHAR(25) NOT NULL , profitId VARCHAR(25) NOT NULL)
+
+-- changeset 4rad95:create_table_logUpdate
+CREATE TABLE LogUpdate (id INT AUTO_INCREMENT NOT NULL, time TIMESTAMP NOT NULL , msg VARCHAR(100) NOT NULL )

@@ -7,27 +7,22 @@ import com.binance.client.SyncRequestClient;
 import com.binance.client.model.trade.MyTrade;
 import org.apache.commons.lang3.StringUtils;
 import org.binance.springbot.aspect.LoggingAspect;
-import org.binance.springbot.dto.OpenPositionDto;
-import org.binance.springbot.dto.StatisticDto;
-import org.binance.springbot.dto.SymbolsDto;
-import org.binance.springbot.dto.VariantDto;
+import org.binance.springbot.dto.*;
 import org.binance.springbot.entity.OpenPosition;
 import org.binance.springbot.entity.enums.Type;
 import org.binance.springbot.repo.OpenPositionRepository;
 import org.binance.springbot.repo.StatisticRepository;
 import org.binance.springbot.repo.SymbolsRepository;
+import org.binance.springbot.repo.LogUpdateRepository;
 
-import org.binance.springbot.service.OpenPositionService;
-import org.binance.springbot.service.StatisticService;
-import org.binance.springbot.service.VariantService;
-import org.binance.springbot.task.Position;
+import org.binance.springbot.service.*;
+
 import org.binance.springbot.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.binance.springbot.service.SymbolService;
 import org.springframework.context.ApplicationContext;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
@@ -53,7 +48,10 @@ public class SpringBotApplication {
 	@Autowired
 	private  SymbolService symbolService;
 	@Autowired
+	private  LogUpdateService logUpdateService;
+	@Autowired
 	private OpenPositionService openPositionService;
+
 
 	public static final Map<String, Integer> frozenTrade = Collections.synchronizedMap(new HashMap<String, Integer>());
 	// We will store time series for every symbol
@@ -102,9 +100,8 @@ public class SpringBotApplication {
     @Autowired
     private static OpenPositionRepository openPositionRepository;
     @Autowired
-    private StatisticRepository statisticRepository;
-    @Autowired
     private StatisticService statisticService;
+
 
 	public static void main(String[] args) throws Exception {
 		ApplicationContext context = SpringApplication.run(SpringBotApplication.class, args);
@@ -126,7 +123,9 @@ public class SpringBotApplication {
 	public void deleteSymbols(String symbol) throws Exception {
 		symbolService.deleteBySymbol(symbol);
 	}
-// public List<OpenPositionDto>
+	public void insertLogRecord(LogUpdateDto logUpdateDto) throws Exception {
+		logUpdateService.insertLogUpdate(logUpdateDto);
+	}
 
 
 	public static void init() throws IOException {
@@ -262,7 +261,13 @@ public class SpringBotApplication {
 //				thread.start();
 //			}
 			List<String> finalSymbols = symbols;
-			Runnable r = () -> mainProcess(finalSymbols);
+			Runnable r = () -> {
+                try {
+                    mainProcess(finalSymbols);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            };
 			int wait = 0;
 //
 			while (true) {
@@ -271,10 +276,10 @@ public class SpringBotApplication {
 					Thread mainThread = new Thread(r, "Search thread");
 					mainThread.start();
 					checkClosePosition();
-					if (wait == 20 ) {
+					//if (wait == 20 ) {
 						updateAll();
 						wait = 0;
-					}
+				//	}
 					sleep(timeToWait);
 
 				} catch (Exception e) {
@@ -315,7 +320,8 @@ public class SpringBotApplication {
 
 					insertSymbols(symbolDto);
 					timeSeriesCache.put(symbol, series);
-
+					LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Generating time series for " + symbol).time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+					insertLogRecord(logUpdateDto);
 				} catch (Exception e) {
 					System.out.println("\u001B[32m" + symbol + "  -  Not used symbol !!! \u001B[0m");
 					badSymbols.add(symbol);
@@ -323,7 +329,7 @@ public class SpringBotApplication {
 			}
 //		}
 	}
-public  void mainProcess(List<String> symbols) {
+public  void mainProcess(List<String> symbols) throws Exception {
 
 	try {
 		Long t0 = currentTimeMillis();
@@ -382,7 +388,8 @@ public  void mainProcess(List<String> symbols) {
 	Long t1 = currentTimeMillis() - t0;
 	log.info("All symbols analyzed, time elapsed: "
 			+ (t1 / 1000.0) + " seconds.");
-
+	LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("All symbols analyzed, time elapsed: "  + (t1 / 1000.0) + " seconds.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+	insertLogRecord(logUpdateDto);
 }
 
 	private <GeneralException extends Throwable> void updateSymbol(String symbol) throws Exception {
@@ -527,7 +534,8 @@ public  void mainProcess(List<String> symbols) {
 		for (Map.Entry<String, BarSeries> entry : timeSeriesCache.entrySet()) {
 			updateSQLSymbol(entry.getKey());
 	}
-		System.out.println("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0));
+		LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0)).time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+		insertLogRecord(logUpdateDto);
 	}
 
 	public void updateSQLSymbol(String symbol) throws Exception {

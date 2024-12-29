@@ -2,14 +2,8 @@ package org.binance.springbot.mapper;
 
 
 import lombok.RequiredArgsConstructor;
-import org.binance.springbot.dto.OpenPositionDto;
-import org.binance.springbot.dto.StatisticDto;
-import org.binance.springbot.dto.SymbolsDto;
-import org.binance.springbot.dto.VariantDto;
-import org.binance.springbot.entity.OpenPosition;
-import org.binance.springbot.entity.Statistic;
-import org.binance.springbot.entity.Symbols;
-import org.binance.springbot.entity.Variant;
+import org.binance.springbot.dto.*;
+import org.binance.springbot.entity.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -38,4 +32,7 @@ public class Mappers {
 
     public Statistic convertToStatistic (StatisticDto statisticDto) { return modelMapper.map(statisticDto, Statistic.class);}
 
+    public LogUpdateDto convertToLogUpdateDto(LogUpdate logUpdate) {return modelMapper.map(logUpdate, LogUpdateDto.class);}
+
+    public LogUpdate convertToLogUpdate (LogUpdateDto logUpdateDto) { return modelMapper.map(logUpdateDto, LogUpdate.class);}
 }
