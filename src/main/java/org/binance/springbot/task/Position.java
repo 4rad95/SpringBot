@@ -51,7 +51,7 @@ public class Position {
         return orderNew.getOrderId();
     }
 
-    public Long[] stopPositionShort(String stopPrice, String profitPrice) {
+    public Long[] stopPositionShort(String stopPrice, String profitPrice, String enterPrice) {
         RequestOptions options = new RequestOptions();
         SyncRequestClient syncRequestClient = SyncRequestClient.create(BinanceUtil.getApiKey(), BinanceUtil.getApiSecret(),
                 options);
@@ -99,7 +99,7 @@ public class Position {
         return new Long[] {stopId,profitId};
     }
 
-    public Long[] stopPositionLong(String stopPrice, String profitPrice) {
+    public Long[] stopPositionLong(String stopPrice, String profitPrice, String enterPrice) {
         RequestOptions options = new RequestOptions();
         SyncRequestClient syncRequestClient = SyncRequestClient.create(BinanceUtil.getApiKey(), BinanceUtil.getApiSecret(),
                 options);

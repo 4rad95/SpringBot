@@ -483,7 +483,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				sleep(1000);
 			}
 			org.binance.springbot.task.Position positionSP = new org.binance.springbot.task.Position(idPosition,variantDto.getSymbol());
-			Long[] idSP = positionSP.stopPositionShort(variantDto.getStop(),variantDto.getProffit());
+			Long[] idSP = positionSP.stopPositionShort(variantDto.getStop(),variantDto.getProffit(),variantDto.getEnterPrice());
 			mapa.put("id",idPosition);
 			mapa.put("stop",idSP[0]);
 			mapa.put("profit",idSP[1]);
@@ -495,7 +495,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			   sleep(1000);
 			}
 			org.binance.springbot.task.Position positionSP = new org.binance.springbot.task.Position(idPosition,variantDto.getSymbol());
-			Long[] idSP = positionSP.stopPositionLong(variantDto.getStop(),variantDto.getProffit());
+			Long[] idSP = positionSP.stopPositionLong(variantDto.getStop(),variantDto.getProffit(),variantDto.getEnterPrice());
 			mapa.put("id",idPosition);
 			mapa.put("stop",idSP[0]);
 			mapa.put("profit",idSP[1]);
@@ -547,7 +547,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
 		System.out.println("Update "+symbol);
 		try {
-			if ((orderBlocks.get("BuyOrderBlock") + 2 <= 1000) && orderBlocks.get("SellOrderBlock") + 2 <= 1000) {
+			if ((orderBlocks.get("BuyOrderBlock") + 2 <= series.getEndIndex()) && orderBlocks.get("SellOrderBlock") + 2 <= series.getEndIndex()) {
 				String imbBuy = series.getBar(orderBlocks.get("BuyOrderBlock") + 2).getLowPrice().toString();
 				String imbSell = series.getBar(orderBlocks.get("SellOrderBlock") + 2).getLowPrice().toString();
 
