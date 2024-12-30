@@ -291,7 +291,7 @@ public class SpringBotApplication {
 					mainThread.start();
 					checkClosePosition();
 					if (wait >= 13) {
-						sleep(180000);
+
 						Thread updateThread = new Thread(update, "Update symbols");
 						updateThread.start();
 //						Long t0 = currentTimeMillis();
