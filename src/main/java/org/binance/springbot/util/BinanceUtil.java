@@ -240,7 +240,7 @@ public class BinanceUtil {
         }
         for (JsonNode symbolNode : symbolsNode) {
             if (symbol.equalsIgnoreCase(symbolNode.get("symbol").asText())) {
-                return symbolNode.get("pricePrecision").asInt();
+                return symbolNode.get("quantityPrecision").asInt();
             }
         }
         throw new IllegalArgumentException("Symbol not found: " + symbol);

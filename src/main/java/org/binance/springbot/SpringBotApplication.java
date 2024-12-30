@@ -277,11 +277,17 @@ public class SpringBotApplication {
 //
 			while (true) {
 				try {
-
+					wait++;
 					sleep(5000);
 					Thread mainThread = new Thread(r, "Search thread");
 					mainThread.start();
 					checkClosePosition();
+					if (wait >= 10) {
+						Long t0 = currentTimeMillis();
+						generateTimeSeriesCache( symbols);
+						 logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0)).time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+						insertLogRecord(logUpdateDto);
+					}
 
 					sleep(timeToWait);
 
@@ -393,7 +399,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			+ (t1 / 1000.0) + " seconds.");
 	LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("All symbols analyzed, time elapsed: "  + (t1 / 1000.0) + " seconds.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 	insertLogRecord(logUpdateDto);
-	updateAll();
+	// updateAll();
 }
 
 	private <GeneralException extends Throwable> void updateSymbol(String symbol) throws Exception {
