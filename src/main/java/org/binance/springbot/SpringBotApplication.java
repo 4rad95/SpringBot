@@ -289,6 +289,7 @@ public class SpringBotApplication {
 						int i = generateTimeSeriesCache( symbols);
 						 logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 						insertLogRecord(logUpdateDto);
+						wait = 0;
 					}
 
 					sleep(timeToWait);
