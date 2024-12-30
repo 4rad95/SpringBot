@@ -129,8 +129,9 @@ public class SpringBotApplication {
 	public void insertLogRecord(LogUpdateDto logUpdateDto) throws Exception {
 		logUpdateService.insertLogUpdate(logUpdateDto);
 	}
-
-
+	public void deleteSymbolsAll() throws Exception {
+		symbolService.deleteAll();
+	}
 	public static void init() throws IOException {
 
 		exchangeInfo = BinanceUtil.getExchangeInfo();
@@ -285,11 +286,11 @@ public class SpringBotApplication {
 					if (wait >= 10) {
 						sleep(180000);
 						Long t0 = currentTimeMillis();
-						symbolsRepository.deleteAll();
+						deleteSymbolsAll();
 						int i = generateTimeSeriesCache( symbols);
 						 logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 						insertLogRecord(logUpdateDto);
-						wait = 0;
+						wait = 1;
 					}
 
 					sleep(timeToWait);

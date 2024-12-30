@@ -44,4 +44,8 @@ public class SymbolService {
         symbolsRepository.deleteBySymbols(symbol);
     }
 
+    @Transactional
+    public void deleteAll(){
+        symbolsRepository.deleteAll();
+    }
 }
