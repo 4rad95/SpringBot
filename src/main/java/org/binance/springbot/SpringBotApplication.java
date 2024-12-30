@@ -11,9 +11,10 @@ import org.binance.springbot.aspect.LoggingAspect;
 import org.binance.springbot.dto.*;
 import org.binance.springbot.entity.OpenPosition;
 import org.binance.springbot.entity.enums.Type;
-import org.binance.springbot.repo.OpenPositionRepository;
 
 import org.binance.springbot.service.*;
+import javax.sound.sampled.*;
+
 
 import org.binance.springbot.util.*;
 import org.slf4j.Logger;
@@ -45,9 +46,6 @@ public class SpringBotApplication {
 	private  LogUpdateService logUpdateService;
 	@Autowired
 	private OpenPositionService openPositionService;
-
-
-//	public static final Map<String, Integer> frozenTrade = Collections.synchronizedMap(new HashMap<>());
 
 	public static final Map<String, BarSeries> timeSeriesCache = Collections.synchronizedMap(new HashMap<>());
 
@@ -235,7 +233,6 @@ public class SpringBotApplication {
 			}
 			};
 			int wait = 0;
-//
 			while (true) {
 				try {
 					wait++;
@@ -254,7 +251,6 @@ public class SpringBotApplication {
 
 				} catch (Exception e) {
 					System.out.println("Error in 1 : " + e);
-
 				}
 			}
 
@@ -405,6 +401,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 	public Map<String,Long> startPosition(VariantDto variantDto) throws InterruptedException, JsonProcessingException {
 		String quality = BinanceUtil.getAmount(variantDto.getSymbol(), Double.valueOf(variantDto.getPrice()),TRADE_SIZE_USDT);
+
 		org.binance.springbot.task.Position position = new org.binance.springbot.task.Position(variantDto.getSymbol(),variantDto.getType(),quality ,variantDto.getEnterPrice());
 		Map<String,Long> mapa = new HashMap<String,Long>();
 		if (variantDto.getType() == "SHORT") {

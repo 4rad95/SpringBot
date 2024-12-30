@@ -14,7 +14,7 @@
 	<name>SpringBot</name>
 	<description>SpringBot</description>
 	<properties>
-		<java.version>22</java.version>
+		<java.version>23</java.version>
 		<spring-modulith.version>1.2.0</spring-modulith.version>
         <kotlin.version>2.0.0</kotlin.version>
     </properties>
