@@ -283,9 +283,11 @@ public class SpringBotApplication {
 					mainThread.start();
 					checkClosePosition();
 					if (wait >= 10) {
+						sleep(180000);
 						Long t0 = currentTimeMillis();
-						generateTimeSeriesCache( symbols);
-						 logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0)).time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+						symbolsRepository.deleteAll();
+						int i = generateTimeSeriesCache( symbols);
+						 logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 						insertLogRecord(logUpdateDto);
 					}
 
@@ -302,14 +304,15 @@ public class SpringBotApplication {
 		}
 	}
 
-	private  void generateTimeSeriesCache(List<String> symbols) {
-
+	private  Integer generateTimeSeriesCache(List<String> symbols) {
+		Integer count = 0;
 		for (String symbol : symbols) {
 		//	if (check(symbol)) {
 				log.info( "Generating time series for " + symbol);
 				try {
 					List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), 1000);
 					BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
+					timeSeriesCache.put(symbol, series);
 //					PivotCalculator.PivotPoints pivotPoints = calculatePivotPoints(series);
 //					System.out.println(series.getName() +" " +pivotPoints);
 
@@ -328,7 +331,7 @@ public class SpringBotApplication {
 							build();
 
 					insertSymbols(symbolDto);
-					timeSeriesCache.put(symbol, series);
+					count++;
 //					LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Generating time series for " + symbol).time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 //					insertLogRecord(logUpdateDto);
 				} catch (Exception e) {
@@ -337,6 +340,7 @@ public class SpringBotApplication {
 				}
 			}
 //		}
+		return count;
 	}
 public  void mainProcess(List<String> symbols) throws Exception {
 
