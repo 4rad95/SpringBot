@@ -266,14 +266,21 @@ public class SpringBotApplication {
 //				frozen.thisThread = thread;
 //				thread.start();
 //			}
-			List<String> finalSymbols = symbols;
+//			List<String> finalSymbols = symbols;
 			Runnable r = () -> {
                 try {
-                    mainProcess(finalSymbols);
+                    mainProcess(symbols);
                 } catch (Exception e) {
 					System.out.println("-----");
                 }
             };
+			Runnable update = () -> {
+				try {
+					updateAll(symbols);
+				} catch (Exception e) {
+				System.out.println("-----");
+			}
+			};
 			int wait = 0;
 //
 			while (true) {
@@ -283,14 +290,17 @@ public class SpringBotApplication {
 					Thread mainThread = new Thread(r, "Search thread");
 					mainThread.start();
 					checkClosePosition();
-					if (wait >= 10) {
+					if (wait >= 13) {
 						sleep(180000);
-						Long t0 = currentTimeMillis();
-						deleteSymbolsAll();
-						int i = generateTimeSeriesCache( symbols);
-						 logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
-						insertLogRecord(logUpdateDto);
+						Thread updateThread = new Thread(update, "Update symbols");
+						updateThread.start();
+//						Long t0 = currentTimeMillis();
+//						deleteSymbolsAll();
+//						int i = generateTimeSeriesCache( symbols);
+//						 logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+//						insertLogRecord(logUpdateDto);
 						wait = 1;
+						sleep(200000);
 					}
 
 					sleep(timeToWait);
@@ -545,37 +555,47 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		}
 	}}
 
-	public void updateAll() throws Exception {
+	public void updateAll(List<String> symbols) throws Exception {
+
+		sleep(180000);
 		Long t0 = currentTimeMillis();
-		for (Map.Entry<String, BarSeries> entry : timeSeriesCache.entrySet()) {
-			updateSQLSymbol(entry.getKey());
-	}
-		LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0)).time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+		deleteSymbolsAll();
+		int i = generateTimeSeriesCache( symbols);
+		LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 		insertLogRecord(logUpdateDto);
+
+
+//		Long t0 = currentTimeMillis();
+//		for (Map.Entry<String, BarSeries> entry : timeSeriesCache.entrySet()) {
+//			updateSQLSymbol(entry.getKey());
+//	}
+//		LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0)).time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+//		insertLogRecord(logUpdateDto);
 	}
 
 	public void updateSQLSymbol(String symbol) throws Exception {
-		BarSeries series = timeSeriesCache.get(symbol);
-		Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
-		System.out.println("Update "+symbol);
-		try {
-			if ((orderBlocks.get("BuyOrderBlock") + 2 <= series.getEndIndex()) && orderBlocks.get("SellOrderBlock") + 2 <= series.getEndIndex()) {
-				String imbBuy = series.getBar(orderBlocks.get("BuyOrderBlock") + 2).getLowPrice().toString();
-				String imbSell = series.getBar(orderBlocks.get("SellOrderBlock") + 2).getLowPrice().toString();
 
-				SymbolsDto symbolDto = SymbolsDto.builder().symbols(symbol).highBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getHighPrice().toString()).
-						lowBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getLowPrice().toString()).
-						imbBuy(imbBuy).
-						highSell(series.getBar(orderBlocks.get("SellOrderBlock")).getHighPrice().toString()).
-						lowSell(series.getBar(orderBlocks.get("SellOrderBlock")).getLowPrice().toString()).
-						imbSell(imbSell).
-						build();
-
-				deleteSymbols(symbol);
-				insertSymbols(symbolDto);
-			}
-		} catch (Exception e) {
-			System.out.println( "Add symbol :"+symbol);
-		}
+//		BarSeries series = timeSeriesCache.get(symbol);
+//		Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
+//		System.out.println("Update "+symbol);
+//		try {
+//			if ((orderBlocks.get("BuyOrderBlock") + 2 <= series.getEndIndex()) && orderBlocks.get("SellOrderBlock") + 2 <= series.getEndIndex()) {
+//				String imbBuy = series.getBar(orderBlocks.get("BuyOrderBlock") + 2).getLowPrice().toString();
+//				String imbSell = series.getBar(orderBlocks.get("SellOrderBlock") + 2).getLowPrice().toString();
+//
+//				SymbolsDto symbolDto = SymbolsDto.builder().symbols(symbol).highBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getHighPrice().toString()).
+//						lowBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getLowPrice().toString()).
+//						imbBuy(imbBuy).
+//						highSell(series.getBar(orderBlocks.get("SellOrderBlock")).getHighPrice().toString()).
+//						lowSell(series.getBar(orderBlocks.get("SellOrderBlock")).getLowPrice().toString()).
+//						imbSell(imbSell).
+//						build();
+//
+//				deleteSymbols(symbol);
+//				insertSymbols(symbolDto);
+//			}
+//		} catch (Exception e) {
+//			System.out.println( "Add symbol :"+symbol);
+//		}
 	}
 }
