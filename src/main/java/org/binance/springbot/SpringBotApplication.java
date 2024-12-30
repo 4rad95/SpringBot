@@ -6,16 +6,12 @@ import com.binance.client.RequestOptions;
 import com.binance.client.SyncRequestClient;
 import com.binance.client.model.trade.MyTrade;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import okhttp3.internal.connection.Exchange;
 import org.apache.commons.lang3.StringUtils;
 import org.binance.springbot.aspect.LoggingAspect;
 import org.binance.springbot.dto.*;
 import org.binance.springbot.entity.OpenPosition;
 import org.binance.springbot.entity.enums.Type;
 import org.binance.springbot.repo.OpenPositionRepository;
-import org.binance.springbot.repo.StatisticRepository;
-import org.binance.springbot.repo.SymbolsRepository;
-import org.binance.springbot.repo.LogUpdateRepository;
 
 import org.binance.springbot.service.*;
 
@@ -28,15 +24,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
-// import org.ta4j.core.BarSeries;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
-import static com.fasterxml.jackson.databind.type.LogicalType.DateTime;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
 
@@ -45,8 +38,7 @@ import static org.binance.springbot.util.BinanceUtil.*;
 
 @SpringBootApplication
 public class SpringBotApplication {
-	@Autowired
-	public static SymbolsRepository symbolsRepository;
+
 	@Autowired
 	private  SymbolService symbolService;
 	@Autowired
@@ -55,14 +47,11 @@ public class SpringBotApplication {
 	private OpenPositionService openPositionService;
 
 
-	public static final Map<String, Integer> frozenTrade = Collections.synchronizedMap(new HashMap<String, Integer>());
-	// We will store time series for every symbol
-	public static final Map<String, BarSeries> timeSeriesCache = Collections.synchronizedMap(new HashMap<String, BarSeries>());
-	private static final Map<String, String> openTradesLong = Collections.synchronizedMap(new HashMap<String, String>());
-	private static final Map<String, String> openTradesShort = Collections.synchronizedMap(new HashMap<String, String>());
-	private static final List<String> ordersToBeClosed = Collections.synchronizedList(new LinkedList<String>());
-//	private static final List<Position> closedPositions = Collections.synchronizedList(new LinkedList<Position>());
-	private static final List<String> badSymbols = new LinkedList<String>();
+//	public static final Map<String, Integer> frozenTrade = Collections.synchronizedMap(new HashMap<>());
+
+	public static final Map<String, BarSeries> timeSeriesCache = Collections.synchronizedMap(new HashMap<>());
+
+	private static final List<String> badSymbols = new LinkedList<>();
 	public static Boolean MAKE_LONG = true;
 	public static Boolean MAKE_SHORT = true;
 	public static Boolean MAKE_TRADE_AVG = true;
@@ -70,25 +59,14 @@ public class SpringBotApplication {
 	public static Integer STOP_NO_LOSS = 100;
 	public static Integer WAIT_LIMIT_ORDER = 15;
 	public static Long timer = currentTimeMillis();
-	public static Integer WAIT_FROZEN = 20;
-	// Config params
+
 	private static Integer PAUSE_TIME_MINUTES = 5;
 	private static Boolean DO_TRADES = true;
 	private static Integer MAX_SIMULTANEOUS_TRADES = 0;
 	private static Double TRADE_SIZE_BTC;
 	private static Double TRADE_SIZE_USDT;
-	private static Double STOPLOSS_PERCENTAGE = 1.00;
-	private static Boolean DO_TRAILING_STOP = false;
-	private static String TRADING_STRATEGY;
-	private static Boolean BEEP = false;
 
-	private static Integer IDENT_LIMIT_ORDER = 20;
-	private static Integer closedTrades = 0;
-	private static Double totalProfit = 0.0;
-	private static Double totalProfitLong = 0.0;
-	private static Integer closedTradesLong = 0;
-	private static Double totalProfitShort = 0.0;
-	private static Integer closedTradesShort = 0;
+	private static Boolean BEEP = false;
 
 
 	private static CandlestickInterval interval = null;
@@ -100,8 +78,7 @@ public class SpringBotApplication {
 	private static final Logger log = LoggerFactory.getLogger(LoggingAspect.class);
     @Autowired
     private VariantService variantService;
-    @Autowired
-    private static OpenPositionRepository openPositionRepository;
+
     @Autowired
     private StatisticService statisticService;
 
@@ -188,24 +165,13 @@ public class SpringBotApplication {
 			MAX_SIMULTANEOUS_TRADES = Integer
 					.valueOf(ConfigUtils
 							.readPropertyValue(ConfigUtils.CONFIG_TRADING_MAX_SIMULTANEOUS_TRADES));
-			STOPLOSS_PERCENTAGE = Double
-					.valueOf(ConfigUtils
-							.readPropertyValue(ConfigUtils.CONFIG_TRADING_STOPLOSS_PERCENTAGE));
+
 			TRADE_SIZE_USDT = Double
 					.valueOf(ConfigUtils
 							.readPropertyValue(ConfigUtils.CONFIG_TRADING_TRADE_SIZE_USDT));
 			TRADE_SIZE_BTC = Double
 					.valueOf(ConfigUtils
 							.readPropertyValue(ConfigUtils.CONFIG_TRADING_TRADE_SIZE_BTC));
-
-			String strDoTrailingStop = ConfigUtils
-					.readPropertyValue(ConfigUtils.CONFIG_TRADING_DO_TRAILING_STOP);
-			if ("true".equalsIgnoreCase(strDoTrailingStop)
-					|| "1".equals(strDoTrailingStop)) {
-				DO_TRAILING_STOP = true;
-			}
-			TRADING_STRATEGY = ConfigUtils
-					.readPropertyValue(ConfigUtils.CONFIG_TRADING_STRATEGY);
 
 			String makeLong = ConfigUtils
 					.readPropertyValue(ConfigUtils.CONFIG_TRADING_LONG);
@@ -228,12 +194,6 @@ public class SpringBotApplication {
 			String waitLimitOrder = ConfigUtils
 					.readPropertyValue(ConfigUtils.CONFIG_TRADING_WAIT_LIMIT);
 			WAIT_LIMIT_ORDER = Integer.valueOf(waitLimitOrder);
-			String waiFrozen = ConfigUtils
-					.readPropertyValue(ConfigUtils.CONFIG_TRADING_WAIT_FROZEN);
-			WAIT_FROZEN = Integer.valueOf(waiFrozen);
-			String identLimit = ConfigUtils
-					.readPropertyValue(ConfigUtils.CONFIG_TRADING_IDENT_LIMIT);
-			IDENT_LIMIT_ORDER = Integer.valueOf(identLimit);
 
 		}
 		try {
@@ -260,13 +220,6 @@ public class SpringBotApplication {
 			if (timeToWait < 0) {
 				timeToWait = 5 * 60 * 1000L;
 			}
-//			{
-//				Frozen frozen = new Frozen(WAIT_FROZEN);
-//				Thread thread = new Thread(frozen);
-//				frozen.thisThread = thread;
-//				thread.start();
-//			}
-//			List<String> finalSymbols = symbols;
 			Runnable r = () -> {
                 try {
                     mainProcess(symbols);
@@ -291,14 +244,8 @@ public class SpringBotApplication {
 					mainThread.start();
 					checkClosePosition();
 					if (wait >= 13) {
-
 						Thread updateThread = new Thread(update, "Update symbols");
 						updateThread.start();
-//						Long t0 = currentTimeMillis();
-//						deleteSymbolsAll();
-//						int i = generateTimeSeriesCache( symbols);
-//						 logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
-//						insertLogRecord(logUpdateDto);
 						wait = 1;
 						sleep(200000);
 					}
@@ -344,8 +291,6 @@ public class SpringBotApplication {
 
 					insertSymbols(symbolDto);
 					count++;
-//					LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Generating time series for " + symbol).time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
-//					insertLogRecord(logUpdateDto);
 				} catch (Exception e) {
 					System.out.println("\u001B[32m" + symbol + "  -  Not used symbol !!! \u001B[0m");
 					badSymbols.add(symbol);
@@ -356,9 +301,8 @@ public class SpringBotApplication {
 	}
 public  void mainProcess(List<String> symbols) throws Exception {
 
-	try {
+//	try {
 		Long t0 = currentTimeMillis();
-
 		int seconds = (int) ((t0 - SpringBotApplication.timer) / 1000);
 		int minutes = seconds / 60;
 		int hours = minutes / 60;
@@ -366,39 +310,17 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		seconds = seconds - minutes * 60;
 		String formattedTime = String.format("%d:%02d:%02d", hours, minutes, seconds);
 		log.info("--------------------------------------------------------------------------------------------------------------------");
-		log.info( "\u001B[36m CopyBot 2.00 ( test Edition mit Spring!)    \u001B[0m");
-		//		Log.info(CopyBot.class, "\u001B[36m Using new re-Made Trade Strategy  \u001B[0m");
-		log.info(" Open trades LONG: " + openTradesLong.keySet().size() + " SHORT:" + openTradesShort.keySet().size());
-		log.info(" LONG:  " + openTradesLong.keySet());
-		log.info(" SHORT: " + openTradesShort.keySet());
+		log.info( "\u001B[36m SpringBot 1.00 ( Beta 0.01!)    \u001B[0m");
 		log.info("--------------------------------------------------------------------------------------------------------------------");
 		log.info("\u001B[32m Start time       : " + new Date(timer) + " \u001B[0m ");
 		log.info("\u001B[32m Execute time     : " + formattedTime + " \u001B[0m ");
 		log.info("\u001B[32m Start Balance    : " + startBalance + "               Current  Balance : " + printBalance() + " \u001B[0m ");
-		//	Log.info(CopyBot.class, "--------------------------------------------------------------------------------------------------------------------");
-		log.info("\u001B[32m Max. Position:   : " + MAX_SIMULTANEOUS_TRADES + "                         USDT Size : " + TRADE_SIZE_USDT + " \u001B[0m ");
 		log.info("--------------------------------------------------------------------------------------------------------------------");
-//		//	Log.info(CopyBot.class, "|Start time          | Work time | Symbol        | Open price       | Current price    | Stop loss        |  Profit");
-//		//	outputPosition();
-		if (DO_TRADES && closedTrades > 0) {
-			log.info(
-					"\u001B[32mClosed trades: " + closedTrades + " Long: " + closedTradesLong + " Short: " + closedTradesShort
-							+ ", total profit: " + String.format("%.8f", totalProfit)
-							+ ", LONG: " + String.format("%.2f", totalProfitLong)
-							+ ", SHORT: " + String.format("%.2f", totalProfitShort) + "\u001B[0m ");
-			log.info("--------------------------------------------------------------------------------------------------------------------");
-
-		}
-////            if ((openTradesLong.keySet().size() + openTradesShort.keySet().size()) >= MAX_SIMULTANEOUS_TRADES) {
-////                // We will not continue trading... avoid checking
-////                checkStrategyOpenPosition(openTradesLong);
-////                checkStrategyOpenPosition(openTradesShort);
-////            }
 //
-	} catch (Exception e) {
-		System.out.println(e);
-	}
-	Long t0 = currentTimeMillis();
+//	} catch (Exception e) {
+//		System.out.println(e);
+//	}
+//	 t0 = currentTimeMillis();
 	List<SymbolsDto> listSymbols =  symbolService.getAll();
 	variantService.deleteAllAndResetSequence();
 	for (SymbolsDto symbol : listSymbols) {
@@ -417,30 +339,17 @@ public  void mainProcess(List<String> symbols) throws Exception {
 	insertLogRecord(logUpdateDto);
 	// updateAll();
 }
-
 	private <GeneralException extends Throwable> void updateSymbol(String symbol) throws Exception {
-
-		if (frozenTrade.get(symbol) == null) {
 
 			Long t0 = currentTimeMillis();
             List<Candlestick> latestCandlesticks = BinanceUtil.getLatestCandlestickBars(symbol, interval);
             BarSeries series = timeSeriesCache.get(symbol);
             if (BinanceTa4jUtils.isSameTick(latestCandlesticks.get(1), series.getLastBar())) {
-                // We are still in the same tick - just update the last tick with the fresh data
                 updateLastTick(symbol, latestCandlesticks.get(1));
             } else {
-                // We have just got a new tick - update the previous one and include the new tick
                 updateLastTick(symbol, latestCandlesticks.get(0));
                 series.addBar(BinanceTa4jUtils.convertToTa4jTick(latestCandlesticks.get(1)));
             }
-            // Now check the TA strategy with the refreshed time series
-            int endIndex = series.getEndIndex();
-			// --
-	//		updateSQLSymbol(symbol);
-
-            //---------------------------------------------------
-
-        }
 	}
 
 	private static void updateLastTick(String symbol, Candlestick candlestick) {
@@ -526,7 +435,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 	}
 	public void checkClosePosition(){
 		List<OpenPosition> openPositionDtoList = openPositionService.getAll();
-		if (openPositionDtoList.size() > 0) {
+		if (!openPositionDtoList.isEmpty()) {
 			RequestOptions options = new RequestOptions();
 			SyncRequestClient syncRequestClient = SyncRequestClient.create(getApiKey(), getApiSecret(),
 					options);
@@ -556,46 +465,12 @@ public  void mainProcess(List<String> symbols) throws Exception {
 	}}
 
 	public void updateAll(List<String> symbols) throws Exception {
-
 		sleep(180000);
 		Long t0 = currentTimeMillis();
 		deleteSymbolsAll();
 		int i = generateTimeSeriesCache( symbols);
 		LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 		insertLogRecord(logUpdateDto);
-
-
-//		Long t0 = currentTimeMillis();
-//		for (Map.Entry<String, BarSeries> entry : timeSeriesCache.entrySet()) {
-//			updateSQLSymbol(entry.getKey());
-//	}
-//		LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0)).time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
-//		insertLogRecord(logUpdateDto);
 	}
 
-	public void updateSQLSymbol(String symbol) throws Exception {
-
-//		BarSeries series = timeSeriesCache.get(symbol);
-//		Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
-//		System.out.println("Update "+symbol);
-//		try {
-//			if ((orderBlocks.get("BuyOrderBlock") + 2 <= series.getEndIndex()) && orderBlocks.get("SellOrderBlock") + 2 <= series.getEndIndex()) {
-//				String imbBuy = series.getBar(orderBlocks.get("BuyOrderBlock") + 2).getLowPrice().toString();
-//				String imbSell = series.getBar(orderBlocks.get("SellOrderBlock") + 2).getLowPrice().toString();
-//
-//				SymbolsDto symbolDto = SymbolsDto.builder().symbols(symbol).highBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getHighPrice().toString()).
-//						lowBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getLowPrice().toString()).
-//						imbBuy(imbBuy).
-//						highSell(series.getBar(orderBlocks.get("SellOrderBlock")).getHighPrice().toString()).
-//						lowSell(series.getBar(orderBlocks.get("SellOrderBlock")).getLowPrice().toString()).
-//						imbSell(imbSell).
-//						build();
-//
-//				deleteSymbols(symbol);
-//				insertSymbols(symbolDto);
-//			}
-//		} catch (Exception e) {
-//			System.out.println( "Add symbol :"+symbol);
-//		}
-	}
 }
