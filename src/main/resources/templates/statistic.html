@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
+<meta http-equiv="refresh" content="15">
 <head>
     <title th:text ="${title}"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -10,9 +11,19 @@
 
 
 <div class="container mt-5">
-    <!-- Таблица для отображения списка -->
+    <div class="container mt-5">
+        <div class="container mt-5">
+            <img src="/images/image2.webp" alt="" width="1050" height="200">
+            <div class="container mt-2">
     <table class="table table-dark table-striped">
         <thead>
+
+        <div class="text-left mt-4 d-flex justify-content-between">
+            <strong>Total PNL :</strong> <span th:text="${resultD[0]}">0</span>
+            <strong>Total Commission Paid :</strong> <span th:text="${resultD[1]}">0</span>
+            <strong>Total Profit :</strong> <span th:text="${resultD[2]}">0</span>
+        </div>
+        <div class="text-right mt-3">
         <tr>
             <th scope="col">Start DateTime</th>
             <th scope="col">Duration</th>
@@ -36,7 +47,10 @@
         </tbody>
     </table>
     <div class="text-right mt-3">
-        <strong>Total Records:</strong> <span th:text="${symbols.size()}">0</span>
+        <strong>Total Position closed:</strong> <span th:text="${symbols.size()}">0</span>
+<!--        <strong>Total PNL :</strong> <span th:text="${result.[0]}">0</span>-->
+<!--        <strong>Total comission paid:</strong> <span th:text="${result.[1]}">0</span>-->
+<!--        <strong>Total Proffit:</strong> <span th:text="${result.[2]}">0</span>-->
     </div>
 </div>
 

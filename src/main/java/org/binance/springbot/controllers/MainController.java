@@ -1,18 +1,18 @@
 package org.binance.springbot.controllers;
 
-import org.binance.springbot.entity.LogUpdate;
-import org.binance.springbot.entity.OpenPosition;
-import org.binance.springbot.entity.Statistic;
-import org.binance.springbot.entity.Symbols;
-import org.binance.springbot.repo.LogUpdateRepository;
-import org.binance.springbot.repo.OpenPositionRepository;
-import org.binance.springbot.repo.StatisticRepository;
-import org.binance.springbot.repo.SymbolsRepository;
+import org.binance.springbot.entity.*;
+import org.binance.springbot.repo.*;
 import org.binance.springbot.service.SymbolService;
+import org.binance.springbot.task.BotInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.Double.sum;
 
 
 @Controller
@@ -29,7 +29,9 @@ public class MainController {
     @GetMapping ("/")
     public String home(Model model){
         Iterable<OpenPosition> symbols = openPositionRepository.findAll();
+        BotInfo botInfo = new BotInfo();
         model.addAttribute("symbols",symbols);
+        model.addAttribute("botInfo",botInfo);
         return "home";
     }
     @Autowired
@@ -37,8 +39,37 @@ public class MainController {
     @GetMapping ("/statistic")
     public String statistic(Model model){
         Iterable<Statistic> symbols = statisticRepository.findAll();
+        double[] resultD = {0.0,0.0,0.0};
+        for (Statistic symbol : symbols) {
+            Double pnl = symbol.getPnl() != null ? Double.valueOf(symbol.getPnl()) : 0.0;
+            Double commission = symbol.getComission() != null ? Double.valueOf(symbol.getComission()) : 0.0;
+
+            resultD[0] += pnl;          // Добавляем PNL
+            resultD[1] += commission;   // Добавляем комиссию
+        }
+        resultD[2] = resultD[0]-resultD[1];
         model.addAttribute("symbols",symbols);
+        model.addAttribute("resultD",resultD);
         return "statistic";
+    }
+    @Autowired
+    private VariantRepository variantRepository;
+    @GetMapping ("/variant")
+    public String variant(Model model) {
+        Iterable<Variant> symbols = variantRepository.findAll();
+        List<String> calculatedResults = new ArrayList<>();
+        for (Variant symbol : symbols) {
+            if (symbol.getType() == "LONG") {
+                double k = (Double.valueOf(symbol.getProffit()) - Double.valueOf(symbol.getEnterPrice())) / (Double.valueOf(symbol.getEnterPrice()) - Double.valueOf(symbol.getStop()));
+                calculatedResults.add(String.format("%.3f", k));
+            }else {
+                double k = (Double.valueOf(symbol.getEnterPrice()) - Double.valueOf(symbol.getProffit())) / (Double.valueOf(symbol.getStop()) - Double.valueOf(symbol.getEnterPrice()));
+            calculatedResults.add(String.format("%.3f", k));}
+
+        }
+        model.addAttribute("symbols",symbols);
+        model.addAttribute("calculatedResults", calculatedResults);
+        return "variant";
     }
     @Autowired
     private LogUpdateRepository logUpdateRepository;

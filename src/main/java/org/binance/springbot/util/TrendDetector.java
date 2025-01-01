@@ -2,8 +2,7 @@ package org.binance.springbot.util;
 
 
 import org.ta4j.core.*;
-import org.ta4j.core.indicators.EMAIndicator;
-import org.ta4j.core.indicators.SMAIndicator;
+import org.ta4j.core.indicators.*;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 
 import java.time.ZonedDateTime;
@@ -68,11 +67,25 @@ public class TrendDetector {
         ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
 
         EMAIndicator smaIndicator = new EMAIndicator(closePrice, 25);
+        detectTrendWithStochRSI(series);
         if (smaIndicator.getValue(series.getEndIndex()).isLessThan(smaIndicator.getValue(series.getEndIndex()-1))) {
             return -1;
         }
         if (smaIndicator.getValue(series.getEndIndex()).isGreaterThan(smaIndicator.getValue(series.getEndIndex()-1))) {
             return 1;}
+        return 0;
+    }
+
+    public static int detectTrendWithStochRSI(BarSeries series) {
+        ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
+        RSIIndicator rsiIndicator = new RSIIndicator(closePrice,14);
+        StochasticOscillatorKIndicator stochasticOscillatorKIndicator = new StochasticOscillatorKIndicator(series,14);
+        StochasticOscillatorDIndicator stochasticOscillatorDIndicator = new StochasticOscillatorDIndicator(stochasticOscillatorKIndicator);
+        System.out.println( series.getName() + "  K=" + stochasticOscillatorKIndicator.getValue(series.getEndIndex()) +"    D="+stochasticOscillatorDIndicator.getValue(series.getEndIndex()) );
+        if ((stochasticOscillatorKIndicator.getValue(series.getEndIndex()).doubleValue() > 70.0) && (stochasticOscillatorKIndicator.getValue(series.getEndIndex()).isLessThan(stochasticOscillatorDIndicator.getValue(series.getEndIndex())))){
+            return -1; }
+        if ((stochasticOscillatorKIndicator.getValue(series.getEndIndex()).doubleValue() < 30.0) && (stochasticOscillatorKIndicator.getValue(series.getEndIndex()).isGreaterThan(stochasticOscillatorDIndicator.getValue(series.getEndIndex())))){
+            return 1; }
         return 0;
     }
 
