@@ -4,6 +4,7 @@ import org.binance.springbot.entity.*;
 import org.binance.springbot.repo.*;
 import org.binance.springbot.service.SymbolService;
 import org.binance.springbot.task.BotInfo;
+import org.binance.springbot.task.PositionStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,8 +31,14 @@ public class MainController {
     public String home(Model model){
         Iterable<OpenPosition> symbols = openPositionRepository.findAll();
         BotInfo botInfo = new BotInfo();
+        List<PositionStatus> positionStatuses = new ArrayList<>();
+        for ( OpenPosition symbol: symbols) {
+            PositionStatus positionStatus = new PositionStatus(symbol.getSymbol(),symbol.getIdBinance(),symbol.getStopId().toString(),symbol.getProfitId().toString());
+            positionStatuses.add(positionStatus);
+        }
         model.addAttribute("symbols",symbols);
         model.addAttribute("botInfo",botInfo);
+        model.addAttribute("positionStatus",positionStatuses);
         return "home";
     }
     @Autowired

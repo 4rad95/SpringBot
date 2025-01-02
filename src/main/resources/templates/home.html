@@ -37,11 +37,12 @@
         </thead>
         <tbody>
         <!-- Генерация строк таблицы -->
-        <tr th:each="el : ${symbols}">
+        <tr th:each="el, IterStat : ${symbols}">
             <td th:text="${el.getId()}">Symbol</td>
             <td th:text="${el.getTime()}">Symbol</td>
             <td th:text="${el.getSymbol()}">HighBuy</td>
             <td th:text="${el.getType()}">ImbBuy</td>
+            <td th:text="${positionStatuses[IterStat.index]}">ImbBuy</td>
 
         </tr>
         </tbody>

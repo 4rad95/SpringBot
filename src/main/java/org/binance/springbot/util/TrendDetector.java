@@ -1,15 +1,15 @@
 package org.binance.springbot.util;
 
 
+import org.binance.springbot.SpringBotApplication;
 import org.ta4j.core.*;
 import org.ta4j.core.indicators.*;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+
+import static org.binance.springbot.SpringBotApplication.interval1;
 
 public class TrendDetector {
 
@@ -79,12 +79,31 @@ public class TrendDetector {
     public static int detectTrendWithStochRSI(BarSeries series) {
         ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
         RSIIndicator rsiIndicator = new RSIIndicator(closePrice,14);
-        StochasticOscillatorKIndicator stochasticOscillatorKIndicator = new StochasticOscillatorKIndicator(series,14);
-        StochasticOscillatorDIndicator stochasticOscillatorDIndicator = new StochasticOscillatorDIndicator(stochasticOscillatorKIndicator);
-        System.out.println( series.getName() + "  K=" + stochasticOscillatorKIndicator.getValue(series.getEndIndex()) +"    D="+stochasticOscillatorDIndicator.getValue(series.getEndIndex()) );
-        if ((stochasticOscillatorKIndicator.getValue(series.getEndIndex()).doubleValue() > 70.0) && (stochasticOscillatorKIndicator.getValue(series.getEndIndex()).isLessThan(stochasticOscillatorDIndicator.getValue(series.getEndIndex())))){
+        StochasticRSIIndicator stochRSIK = new StochasticRSIIndicator(rsiIndicator, 14);
+        StochasticOscillatorDIndicator stochRSID = new StochasticOscillatorDIndicator(stochRSIK);
+        SMAIndicator smaStochK = new SMAIndicator(stochRSIK,3);
+        SMAIndicator smaStochD = new SMAIndicator(smaStochK,3);
+        System.out.println( series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) );
+        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.70) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex())))){
             return -1; }
-        if ((stochasticOscillatorKIndicator.getValue(series.getEndIndex()).doubleValue() < 30.0) && (stochasticOscillatorKIndicator.getValue(series.getEndIndex()).isGreaterThan(stochasticOscillatorDIndicator.getValue(series.getEndIndex())))){
+        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.30) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))){
+            return 1; }
+        return 0;
+    }
+
+    public static int trendDetect(String symbol) {
+        BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
+                Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval1.getIntervalId(), 100))
+                , symbol, interval1.getIntervalId());
+        ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
+        RSIIndicator rsiIndicator = new RSIIndicator(closePrice,14);
+        StochasticRSIIndicator stochRSIK = new StochasticRSIIndicator(rsiIndicator, 14);
+        SMAIndicator smaStochK = new SMAIndicator(stochRSIK,3);
+        SMAIndicator smaStochD = new SMAIndicator(smaStochK,3);
+        System.out.println( series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) );
+        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex())))){
+            return -1; }
+        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 1) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))){
             return 1; }
         return 0;
     }
