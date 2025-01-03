@@ -5,6 +5,7 @@ import org.binance.springbot.SpringBotApplication;
 import org.ta4j.core.*;
 import org.ta4j.core.indicators.*;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
+import org.ta4j.core.num.Num;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -101,9 +102,26 @@ public class TrendDetector {
         SMAIndicator smaStochK = new SMAIndicator(stochRSIK,3);
         SMAIndicator smaStochD = new SMAIndicator(smaStochK,3);
         System.out.println( series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) );
-        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex())))){
+
+        int shortPeriod = 12; // Короткий EMA
+        int longPeriod = 26;  // Длинный EMA
+        int signalPeriod = 9; // Период сигнальной линии
+
+        // MACD индикатор
+        MACDIndicator macd = new MACDIndicator(closePrice, shortPeriod, longPeriod);
+
+        // Сигнальная линия (SMA на MACD)
+        SMAIndicator signalLine = new SMAIndicator(macd, signalPeriod);
+        Num histogram = macd.getValue(series.getEndIndex()).minus(signalLine.getValue(series.getEndIndex()));
+        System.out.println(String.format("%.4f",histogram.doubleValue()));
+
+        if (((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex()))))
+        || macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex())))
+        {
             return -1; }
-        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 1) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))){
+        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 1) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))
+                || macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex())))
+        {
             return 1; }
         return 0;
     }
