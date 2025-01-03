@@ -70,7 +70,8 @@ public class OrderBlockFinder {
             }
         }
         Map<String, Integer> orderBlocks = new HashMap<>();
-        if (series.getBar(lastSellBlockIndex).getLowPrice().isLessThan(series.getBar(lastBuyBlockIndex).getHighPrice())) {
+        if ((series.getBar(lastSellBlockIndex).getLowPrice().isLessThan(series.getBar(lastBuyBlockIndex).getHighPrice())) ||
+        (series.getBar(lastSellBlockIndex).getLowPrice().doubleValue() == series.getBar(lastBuyBlockIndex).getLowPrice().doubleValue())){
             orderBlocks = findOrderBlocks(series, lastSellBlockIndex);
         }
         else {
