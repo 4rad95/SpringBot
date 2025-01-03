@@ -366,7 +366,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		if (price < Double.valueOf(symbolsDto.getImbBuy())
 				&& price > Double.valueOf(symbolsDto.getHighBuy())
 				&& TrendDetector.trendDetect(symbolsDto.getSymbols())>0) {
-
+			System.out.print(" [LONG] ");
 			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
@@ -387,7 +387,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		if (price > Double.valueOf(symbolsDto.getLowSell())
 				&& price < Double.valueOf(symbolsDto.getHighSell())
 				&& TrendDetector.trendDetect(symbolsDto.getSymbols())<0) {
-
+			System.out.print(" [SHORT] ");
 			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = -1;// TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
@@ -404,7 +404,27 @@ public  void mainProcess(List<String> symbols) throws Exception {
   					Map<String, Long> id =  startPosition(variantDto);
 					OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 					insertOpenPosition(openPositionDto);
-		}}}}}}
+		}}}}
+		if (price > Double.valueOf(symbolsDto.getHighSell()) ){
+			System.out.print(" Continue [LONG] ");
+			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
+			int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
+			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
+		//	if (move > 0 && result.typeD > 0 && moveRSI >0 ) {
+
+			//	if (Double.valueOf(enterPrice)>price) {
+					VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
+							.type("LONG").price(price.toString()).stop(symbolsDto.getLowSell()).proffit(OrderBlockFinder.findeUperOB(timeSeriesCache.get(symbolsDto.getSymbols()),price).toString()).enterPrice(price.toString())
+							.build();
+					insertVariant(variantDto);
+			double k = (Double.valueOf(variantDto.getEnterPrice())-Double.valueOf(variantDto.getProffit()))/(Double.valueOf(variantDto.getStop())-Double.valueOf(variantDto.getEnterPrice()));
+			if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1.5)) {
+				Map<String, Long> id =  startPosition(variantDto);
+				OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+				insertOpenPosition(openPositionDto);
+		}
+		}
+		}}
 	}
 
 	public Map<String,Long> startPosition(VariantDto variantDto) throws InterruptedException, JsonProcessingException {

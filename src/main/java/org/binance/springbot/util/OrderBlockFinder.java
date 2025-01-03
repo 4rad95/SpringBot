@@ -82,6 +82,24 @@ public class OrderBlockFinder {
         return orderBlocks;
     }
 
+public static Double findeUperOB(BarSeries series, Double price) {
+    double lastSellBlockIndex = -1.00;
+    for (int i = series.getEndIndex(); i >= 3; i--) {
+        Bar current = series.getBar(i);
+        Bar previous = series.getBar(i - 1);
+        if (((previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()) / (previous.getClosePrice().doubleValue() - previous.getOpenPrice().doubleValue()) > 2)
+                && previous.getOpenPrice().isLessThan(previous.getClosePrice())
+                && current.getOpenPrice().isGreaterThan(current.getClosePrice())
+                && previous.getLowPrice().isGreaterThan(current.getClosePrice())
+                && checkPriceHigh(series, i)
+                && previous.getClosePrice().doubleValue()>price
+        ) {
+            lastSellBlockIndex = previous.getHighPrice().doubleValue();
+            break;
+        }
+    }
+    return lastSellBlockIndex;
+}
 
 
    private static boolean checkPriceHigh(BarSeries series, int i) {
