@@ -381,7 +381,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				double k = (Double.valueOf(variantDto.getProffit())-Double.valueOf(variantDto.getEnterPrice()))/(Double.valueOf(variantDto.getEnterPrice())-Double.valueOf(variantDto.getStop()));
 			if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES )&&(k>1.5)) {
 						Map<String, Long> id =  startPosition(variantDto);
-			OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+			OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 			insertOpenPosition(openPositionDto);
 		}}}}
 		if (price > Double.valueOf(symbolsDto.getLowSell())
@@ -402,15 +402,15 @@ public  void mainProcess(List<String> symbols) throws Exception {
 					double k = (Double.valueOf(variantDto.getEnterPrice())-Double.valueOf(variantDto.getProffit()))/(Double.valueOf(variantDto.getStop())-Double.valueOf(variantDto.getEnterPrice()));
 			if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1.5)) {
   					Map<String, Long> id =  startPosition(variantDto);
-					OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+					OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 					insertOpenPosition(openPositionDto);
 		}}}}
 		if (price > Double.valueOf(symbolsDto.getHighSell()) ){
 			System.out.print(" Continue [LONG] ");
-			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
+		//	TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
-		//	if (move > 0 && result.typeD > 0 && moveRSI >0 ) {
+			if (move > 0 &&  moveRSI >0 ) {
 
 			//	if (Double.valueOf(enterPrice)>price) {
 					VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
@@ -420,11 +420,32 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			double k = (Double.valueOf(variantDto.getEnterPrice())-Double.valueOf(variantDto.getProffit()))/(Double.valueOf(variantDto.getStop())-Double.valueOf(variantDto.getEnterPrice()));
 			if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1.5)) {
 				Map<String, Long> id =  startPosition(variantDto);
-				OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+				OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 				insertOpenPosition(openPositionDto);
 		}
-		}
 		}}
+			if (price < Double.valueOf(symbolsDto.getLowBuy()) ){
+				System.out.print(" Continue [SHORT] ");
+				// TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
+				int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
+				int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
+				if (move > 0 && moveRSI > 0 ) {
+
+				//	if (Double.valueOf(enterPrice)>price) {
+				VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
+						.type("LONG").price(price.toString()).stop(symbolsDto.getHighBuy()).proffit(OrderBlockFinder.findeDownOB(timeSeriesCache.get(symbolsDto.getSymbols()),price)
+						.toString()).enterPrice(price.toString())
+						.build();
+				insertVariant(variantDto);
+				double k = (Double.valueOf(variantDto.getEnterPrice())-Double.valueOf(variantDto.getProffit()))/(Double.valueOf(variantDto.getStop())-Double.valueOf(variantDto.getEnterPrice()));
+				if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1.5)) {
+					Map<String, Long> id =  startPosition(variantDto);
+					OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+					insertOpenPosition(openPositionDto);
+				}
+			}
+
+		}}}
 	}
 
 	public Map<String,Long> startPosition(VariantDto variantDto) throws InterruptedException, JsonProcessingException {
@@ -443,6 +464,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			mapa.put("id",idPosition);
 			mapa.put("stop",idSP[0]);
 			mapa.put("profit",idSP[1]);
+			mapa.put("profit2",idSP[2]);
 		}
 		if (variantDto.getType() == "LONG") {
 			Long idPosition = position.openPositionLong();
@@ -455,6 +477,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			mapa.put("id",idPosition);
 			mapa.put("stop",idSP[0]);
 			mapa.put("profit",idSP[1]);
+			mapa.put("profit2",idSP[2]);
 		}
 		return mapa;
 	}
@@ -481,9 +504,14 @@ public  void mainProcess(List<String> symbols) throws Exception {
 						System.out.println();
 					}
 					try {
-					syncRequestClient.cancelOrder(trades.get(trades.size()-1).getSymbol(),entity.getStopId(),null);}
+						syncRequestClient.cancelOrder(trades.get(trades.size()-1).getSymbol(),entity.getStopId(),null);}
 					catch (Exception e) {
 						System.out.println();
+					}
+					try {
+						syncRequestClient.cancelOrder(trades.get(trades.size()-1).getSymbol(),entity.getProfit2Id(),null);}
+					catch (Exception e) {
+							System.out.println();
 					}
 				}
 		}

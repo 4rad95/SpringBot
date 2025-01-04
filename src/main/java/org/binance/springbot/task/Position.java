@@ -8,6 +8,9 @@ import com.binance.client.model.trade.Order;
 import org.binance.springbot.entity.enums.Type;
 import org.binance.springbot.util.BinanceUtil;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class Position {
     private String symbol;
     private Long idBinance;
@@ -62,7 +65,7 @@ public class Position {
                 PositionSide.SHORT, // Открытая позиция - длинная
                 OrderType.STOP_MARKET, // Тип ордера - стоп-ордер
                 TimeInForce.GTC, // Тайминг выполнения ордера: GTC (Good 'Till Canceled)
-                String.valueOf(orderNew.getOrigQty()), // Количество актива, который ты продаешь
+                String.valueOf(orderNew.getOrigQty()), // Количество актива
                 null, // Цена исполнения ордера (не используется для STOP ордера)
                 null, // Цена исполнения тейк-профита (если нужен)
                 stopPrice , // Цена исполнения стоп-лимита (если нужен)
@@ -96,7 +99,28 @@ public class Position {
         );
         // String profitClientId = orderNew.getClientOrderId();
         Long profitId = orderNew.getOrderId();
-        return new Long[] {stopId,profitId};
+        BigDecimal delta = orderNew.getPrice().subtract(BigDecimal.valueOf(Double.valueOf(enterPrice))).divide(BigDecimal.valueOf(2),orderNew.getPrice().scale(),RoundingMode.HALF_UP);
+        orderNew = syncRequestClient.postOrder(
+                symbol, // Торговая пара
+                OrderSide.BUY, // Тип ордера - продажа
+                PositionSide.SHORT, // Длинная позиция
+                OrderType.TRAILING_STOP_MARKET, // Тип ордера - трейлинг стоп
+                TimeInForce.GTC, // Время действия ордера: GTC
+                String.valueOf(orderNew.getOrigQty().divide(BigDecimal.valueOf(2),orderNew.getOrigQty().scale(), RoundingMode.HALF_UP)), // Количество актива, который ты продаешь
+                null, // Цена не требуется для трейлинг стопа
+                null , // Цена тейк-профита
+                null, // Стоп-цена (не используется для трейлинг стопа)
+                String.valueOf(delta), // Лимитная цена
+                null, // Отклонение (callback rate указывается в следующем параметре)
+                null, // Процент отступа
+                null, // Дополнительные параметры (если требуются)
+                WorkingType.MARK_PRICE, // Рабочий тип (например, MARK_PRICE)
+                null, // Отступ callback rate (процент)
+                NewOrderRespType.RESULT // Режим ответа
+        );
+        // String profitClientId = orderNew.getClientOrderId();
+        Long profit2Id = orderNew.getOrderId();
+        return new Long[] {stopId,profitId,profit2Id};
     }
 
     public Long[] stopPositionLong(String stopPrice, String profitPrice, String enterPrice) {
@@ -143,7 +167,28 @@ public class Position {
                 NewOrderRespType.RESULT // Режим ответа
         );
         Long profitId = orderNew.getOrderId();
-        return new Long[] {stopId,profitId};
+        BigDecimal delta = orderNew.getPrice().subtract(BigDecimal.valueOf(Double.valueOf(enterPrice))).divide(BigDecimal.valueOf(2),orderNew.getPrice().scale(),RoundingMode.HALF_UP);
+        orderNew = syncRequestClient.postOrder(
+                symbol, // Торговая пара
+                OrderSide.SELL, // Тип ордера - продажа
+                PositionSide.LONG, // Длинная позиция
+                OrderType.TRAILING_STOP_MARKET, // Тип ордера - трейлинг стоп
+                TimeInForce.GTC, // Время действия ордера: GTC
+                String.valueOf(orderNew.getOrigQty().divide(BigDecimal.valueOf(2),orderNew.getOrigQty().scale(), RoundingMode.HALF_UP)), // Количество актива, который ты продаешь
+                null, // Цена не требуется для трейлинг стопа
+                null , // Цена тейк-профита
+                null, // Стоп-цена (не используется для трейлинг стопа)
+                String.valueOf(delta), // Лимитная цена
+                null, // Отклонение (callback rate указывается в следующем параметре)
+                null, // Процент отступа
+                null, // Дополнительные параметры (если требуются)
+                WorkingType.MARK_PRICE, // Рабочий тип (например, MARK_PRICE)
+                null, // Отступ callback rate (процент)
+                NewOrderRespType.RESULT // Режим ответа
+        );
+        // String profitClientId = orderNew.getClientOrderId();
+        Long profit2Id = orderNew.getOrderId();
+        return new Long[] {stopId,profitId,profit2Id,profit2Id};
 
     }
     public boolean getStatus(Long idBinance,String symbol){

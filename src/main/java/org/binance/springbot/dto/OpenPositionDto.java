@@ -27,4 +27,5 @@ public class OpenPositionDto {
     private Long idBinance;
     private Long stopId;
     private Long profitId;
+    private Long profit2Id;
 }

@@ -33,4 +33,6 @@ public class OpenPosition {
     private Long stopId;
     @Column (name = "profitId")
     private Long profitId;
+    @Column (name = "profit2Id")
+    private Long profit2Id;
 }
