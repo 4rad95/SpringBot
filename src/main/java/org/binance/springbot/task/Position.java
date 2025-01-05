@@ -99,7 +99,8 @@ public class Position {
         );
         // String profitClientId = orderNew.getClientOrderId();
         Long profitId = orderNew.getOrderId();
-        BigDecimal delta = orderNew.getPrice().subtract(BigDecimal.valueOf(Double.valueOf(enterPrice))).divide(BigDecimal.valueOf(2),orderNew.getPrice().scale(),RoundingMode.HALF_UP);
+        BigDecimal delta = orderNew.getPrice().subtract(BigDecimal.valueOf(Double.valueOf(enterPrice))).divide(BigDecimal.valueOf(2),orderNew.getPrice().scale(),RoundingMode.HALF_UP).abs();
+        delta =  (BigDecimal.valueOf(Double.valueOf(enterPrice)).subtract(delta));
         orderNew = syncRequestClient.postOrder(
                 symbol, // Торговая пара
                 OrderSide.BUY, // Тип ордера - продажа
@@ -167,7 +168,8 @@ public class Position {
                 NewOrderRespType.RESULT // Режим ответа
         );
         Long profitId = orderNew.getOrderId();
-        BigDecimal delta = orderNew.getPrice().subtract(BigDecimal.valueOf(Double.valueOf(enterPrice))).divide(BigDecimal.valueOf(2),orderNew.getPrice().scale(),RoundingMode.HALF_UP);
+        BigDecimal delta = orderNew.getPrice().subtract(BigDecimal.valueOf(Double.valueOf(enterPrice))).divide(BigDecimal.valueOf(2),orderNew.getPrice().scale(),RoundingMode.HALF_UP).abs();
+        delta =  (BigDecimal.valueOf(Double.valueOf(enterPrice)).add(delta));
         orderNew = syncRequestClient.postOrder(
                 symbol, // Торговая пара
                 OrderSide.SELL, // Тип ордера - продажа
