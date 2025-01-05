@@ -117,11 +117,11 @@ public class TrendDetector {
                 "   diff = " + String.format("%.4f",histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()));
 
         if (((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex()))))
-        || macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex())))
+        && macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex())))
         {
             return -1; }
         if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 1) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))
-                || macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex())))
+                && macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex())))
         {
             return 1; }
         return 0;
