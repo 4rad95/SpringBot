@@ -265,7 +265,7 @@ public class SpringBotApplication {
 		//	if (check(symbol)) {
 				log.info( "Generating time series for " + symbol);
 				try {
-					List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), 1000);
+					List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), 500);
 					BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
 					timeSeriesCache.put(symbol, series);
 //					PivotCalculator.PivotPoints pivotPoints = calculatePivotPoints(series);
