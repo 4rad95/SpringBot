@@ -65,7 +65,7 @@ public class Position {
                 PositionSide.SHORT, // Открытая позиция - длинная
                 OrderType.STOP_MARKET, // Тип ордера - стоп-ордер
                 TimeInForce.GTC, // Тайминг выполнения ордера: GTC (Good 'Till Canceled)
-                String.valueOf(orderNew.getOrigQty()), // Количество актива
+                orderNew.getOrigQty().toString(), // Количество актива
                 null, // Цена исполнения ордера (не используется для STOP ордера)
                 null, // Цена исполнения тейк-профита (если нужен)
                 stopPrice , // Цена исполнения стоп-лимита (если нужен)
@@ -85,7 +85,7 @@ public class Position {
                 PositionSide.SHORT, // Длинная позиция
                 OrderType.TRAILING_STOP_MARKET, // Тип ордера - трейлинг стоп
                 TimeInForce.GTC, // Время действия ордера: GTC
-                String.valueOf(orderNew.getOrigQty()), // Количество актива
+                orderNew.getOrigQty().toString(), // Количество актива
                 null, // Цена не требуется для трейлинг стопа
                 null , // Цена тейк-профита
                 null, // Стоп-цена (не используется для трейлинг стопа)
@@ -135,7 +135,7 @@ public class Position {
                 PositionSide.LONG, // Открытая позиция - длинная
                 OrderType.STOP_MARKET, // Тип ордера - стоп-ордер
                 TimeInForce.GTC, // Тайминг выполнения ордера: GTC (Good 'Till Canceled)
-                String.valueOf(orderNew.getOrigQty()), // Количество актива, который ты продаешь
+                orderNew.getOrigQty().toString(), // Количество актива, который ты продаешь
                 null, // Цена исполнения ордера (не используется для STOP ордера)
                 null, // Цена исполнения тейк-профита (если нужен)
                 stopPrice , // Цена исполнения стоп-лимита (если нужен)
@@ -155,7 +155,7 @@ public class Position {
                 PositionSide.LONG, // Длинная позиция
                 OrderType.TRAILING_STOP_MARKET, // Тип ордера - трейлинг стоп
                 TimeInForce.GTC, // Время действия ордера: GTC
-                String.valueOf(orderNew.getOrigQty()), // Количество актива
+                orderNew.getOrigQty().toString(), // Количество актива
                 null, // Цена не требуется для трейлинг стопа
                 null , // Цена тейк-профита
                 null, // Стоп-цена (не используется для трейлинг стопа)
