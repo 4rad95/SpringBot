@@ -103,25 +103,23 @@ public class TrendDetector {
         SMAIndicator smaStochD = new SMAIndicator(smaStochK,3);
         System.out.println( series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) );
 
-        int shortPeriod = 12; // Короткий EMA
-        int longPeriod = 26;  // Длинный EMA
-        int signalPeriod = 9; // Период сигнальной линии
+        int shortPeriod = 12;
+        int longPeriod = 26;
+        int signalPeriod = 9;
 
-        // MACD индикатор
         MACDIndicator macd = new MACDIndicator(closePrice, shortPeriod, longPeriod);
 
-        // Сигнальная линия (SMA на MACD)
         SMAIndicator signalLine = new SMAIndicator(macd, signalPeriod);
         Num histogram = macd.getValue(series.getEndIndex()).minus(signalLine.getValue(series.getEndIndex()));
         System.out.println(String.format("%.4f",macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()) + " , " +String.format("%.4f",histogram.doubleValue()) +
                 "   diff = " + String.format("%.4f",histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()));
 
         if (((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex()))))
-        && macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex())))
+        && signalLine.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()-1)))
         {
             return -1; }
         if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 1) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))
-                && macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex())))
+                && signalLine.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()-1)))
         {
             return 1; }
         return 0;
@@ -137,10 +135,10 @@ public class TrendDetector {
             return new TrendResult("Insufficient Data",name,0, new ArrayList<>(),new ArrayList<>());
         }
 
-        // Сбор всех минимумов и максимумов
+
         for (int i = endIndex - range + 1; i <= endIndex; i++) {
             if (excluded[i]) {
-                continue; // Пропускаем свечи, попадающие в фильтр
+                continue;
             }
             double currentHigh = series.getBar(i).getHighPrice().doubleValue();
             double currentLow = series.getBar(i).getLowPrice().doubleValue();
@@ -156,26 +154,20 @@ public class TrendDetector {
             }
         }
 
-        // Сортируем минимумы и максимумы по значению
-        allMinima.sort(Comparator.comparingDouble(e -> e.value));
-        allMaxima.sort((e1, e2) -> Double.compare(e2.value, e1.value)); // Обратная сортировка для максимумов
 
-        // Берем 3 самых значимых экстремума
+        allMinima.sort(Comparator.comparingDouble(e -> e.value));
+        allMaxima.sort((e1, e2) -> Double.compare(e2.value, e1.value));
         List<Extremum> keyMinima = allMinima.subList(0, Math.min(3, allMinima.size()));
         List<Extremum> keyMaxima = allMaxima.subList(0, Math.min(3, allMaxima.size()));
-
-        // Определяем тренд
         String trend = determineTrend(keyMinima, keyMaxima);
         int typeD = 0;
         if (trend == "Uptrend")  {typeD = 1;}
         if (trend == "Downtrend") {typeD = -1;}
-        // Объединяем ключевые экстремумы
         List<Extremum> lowExtremes = new ArrayList<>();
         lowExtremes.addAll(keyMinima);
         List<Extremum> highExtremes = new ArrayList<>();
         highExtremes.addAll(keyMaxima);
 
-        // Возвращаем результат
         return new TrendResult(trend, name, typeD, lowExtremes, highExtremes);
     }
 
@@ -209,7 +201,6 @@ public class TrendDetector {
             return "Undefined";
         }
 
-        // Сравниваем индексы ключевых минимумов и максимумов
         int minIndex = minima.get(0).index;
         int maxIndex = maxima.get(0).index;
 
