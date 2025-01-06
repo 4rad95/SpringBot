@@ -263,7 +263,7 @@ public class SpringBotApplication {
 		Integer count = 0;
 		for (String symbol : symbols) {
 		//	if (check(symbol)) {
-				log.info( "Generating time series for " + symbol);
+			//	log.info( "Generating time series for " + symbol);
 				try {
 					List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), 500);
 					BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
@@ -272,8 +272,8 @@ public class SpringBotApplication {
 //					System.out.println(series.getName() +" " +pivotPoints);
 
 					Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
-					System.out.println("Sell Order Block Index: " + orderBlocks.get("SellOrderBlock"));
-					System.out.println("Buy Order Block Index: " + orderBlocks.get("BuyOrderBlock"));
+				//	System.out.println("Sell Order Block Index: " + orderBlocks.get("SellOrderBlock"));
+				//	System.out.println("Buy Order Block Index: " + orderBlocks.get("BuyOrderBlock"));
 					String imbBuy = series.getBar(orderBlocks.get("BuyOrderBlock")+2).getLowPrice().toString();
 					String imbSell =series.getBar(orderBlocks.get("SellOrderBlock")+2).getLowPrice().toString();
 
@@ -299,20 +299,20 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 //	try {
 		Long t0 = currentTimeMillis();
-		int seconds = (int) ((t0 - SpringBotApplication.timer) / 1000);
-		int minutes = seconds / 60;
-		int hours = minutes / 60;
-		minutes = minutes - hours * 60;
-		seconds = seconds - minutes * 60;
-		String formattedTime = String.format("%d:%02d:%02d", hours, minutes, seconds);
-		sleep(300);
-		log.info("--------------------------------------------------------------------------------------------------------------------");
-		log.info( "\u001B[36m SpringBot 1.00 ( Beta 0.01!)    \u001B[0m");
-		log.info("--------------------------------------------------------------------------------------------------------------------");
-		log.info("\u001B[32m Start time       : " + new Date(timer) + " \u001B[0m ");
-		log.info("\u001B[32m Execute time     : " + formattedTime + " \u001B[0m ");
-		log.info("\u001B[32m Start Balance    : " + startBalance + "               Current  Balance : " + printBalance() + " \u001B[0m ");
-		log.info("--------------------------------------------------------------------------------------------------------------------");
+//		int seconds = (int) ((t0 - SpringBotApplication.timer) / 1000);
+//		int minutes = seconds / 60;
+//		int hours = minutes / 60;
+//		minutes = minutes - hours * 60;
+//		seconds = seconds - minutes * 60;
+//		String formattedTime = String.format("%d:%02d:%02d", hours, minutes, seconds);
+//		sleep(300);
+//		log.info("--------------------------------------------------------------------------------------------------------------------");
+//		log.info( "\u001B[36m SpringBot 1.00 ( Beta 0.01!)    \u001B[0m");
+//		log.info("--------------------------------------------------------------------------------------------------------------------");
+//		log.info("\u001B[32m Start time       : " + new Date(timer) + " \u001B[0m ");
+//		log.info("\u001B[32m Execute time     : " + formattedTime + " \u001B[0m ");
+//		log.info("\u001B[32m Start Balance    : " + startBalance + "               Current  Balance : " + printBalance() + " \u001B[0m ");
+//		log.info("--------------------------------------------------------------------------------------------------------------------");
 //
 //	} catch (Exception e) {
 //		System.out.println(e);
@@ -366,13 +366,11 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		if (price < Double.valueOf(symbolsDto.getImbBuy())
 				&& price > Double.valueOf(symbolsDto.getHighBuy())
 				&& TrendDetector.trendDetect(symbolsDto.getSymbols())>0) {
-			System.out.print(" [LONG] ");
 			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
 			if (move> 0 && result.typeD > 0 && moveRSI >0) {
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getImbBuy())+Double.valueOf(symbolsDto.getLowBuy())),countDecimalPlaces(price)));
-			System.out.println( "[LONG] " +symbolsDto.getSymbols() + " " + price );
 			if (Double.valueOf(enterPrice)>price) {
 					VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
 						.type("LONG").price(price.toString()).stop(symbolsDto.getLowBuy()).proffit(symbolsDto.getLowSell()).enterPrice(enterPrice)
@@ -382,18 +380,18 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES )&&(k>1.5)) {
 						Map<String, Long> id =  startPosition(variantDto);
 			OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+				log.info(" [LONG] " + variantDto.toString());
+				log.info(" [LONG] " + openPositionDto.toString());
 			insertOpenPosition(openPositionDto);
 		}}}}
 		else if (price > Double.valueOf(symbolsDto.getLowSell())
 				&& price < Double.valueOf(symbolsDto.getHighSell())
 				&& TrendDetector.trendDetect(symbolsDto.getSymbols())<0) {
-			System.out.print(" [SHORT] ");
 			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = -1;// TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
 			if (move < 0 && result.typeD > 0 && moveRSI <0 ) {
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getLowSell())),countDecimalPlaces(price)));
-			System.out.println( "[SHORT] "+symbolsDto.getSymbols() + " " + price);
 			if (Double.valueOf(enterPrice)< price){
 					VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
 						.type("SHORT").price(price.toString()).stop(symbolsDto.getHighSell()).proffit(symbolsDto.getHighBuy()).enterPrice(enterPrice)
@@ -403,10 +401,11 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1.5)) {
   					Map<String, Long> id =  startPosition(variantDto);
 					OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+				log.info(" [SHORT] " + variantDto.toString());
+				log.info(" [SHORT] " + openPositionDto.toString());
 					insertOpenPosition(openPositionDto);
 		}}}}
 		else if (price > Double.valueOf(symbolsDto.getHighSell()) ){
-			System.out.print(" Continue [LONG] ");
 		//	TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
@@ -421,11 +420,13 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1.5)) {
 				Map<String, Long> id =  startPosition(variantDto);
 				OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+				log.info(" [LONG] " + variantDto.toString());
+				log.info(" Continue [LONG] "+openPositionDto.toString());
 				insertOpenPosition(openPositionDto);
 		}
 		}}
 		else if (price < Double.valueOf(symbolsDto.getLowBuy()) ){
-				System.out.print(" Continue [SHORT] ");
+
 				// TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 				int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 				int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
@@ -441,6 +442,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1.5)) {
 					Map<String, Long> id =  startPosition(variantDto);
 					OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+					log.info(" [SHORT] " + variantDto.toString());
+					log.info(" Continue [SHORT]  "+ openPositionDto.toString());
 					insertOpenPosition(openPositionDto);
 				}
 			}

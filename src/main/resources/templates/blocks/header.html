@@ -23,24 +23,24 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/allsymbols">AllSymbols</a>
                 </li>
-
             </ul>
+
             <form class="form-inline my-2 my-lg-0" onsubmit="return redirectToSite(event)">
+                <label for="searchInput" class="sr-only">Search Symbol</label>
                 <input id="searchInput" class="form-control mr-sm-2" type="text" placeholder="Enter SYMBOL"
-                       aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                       aria-label="Search Symbol">
+                <button class="btn btn-primary my-2 my-sm-0" type="submit">Search</button>
             </form>
             <script>
                 function redirectToSite(event) {
-                    event.preventDefault(); // Prevent the form from submitting in the traditional way
-                    var input = document.getElementById("searchInput").value;
+                    event.preventDefault();
+                    var input = document.getElementById("searchInput").value.trim().toUpperCase();
                     if (input) {
-                        window.open("https://www.binance.com/ru-UA/futures/" + input,'_blank')
-                //        window.location.href = "https://www.binance.com/ru-UA/futures/" + input; // Redirect to the entered URL
+                        window.open("https://www.binance.com/ru-UA/futures/" + input, '_blank');
                     } else {
                         alert("Please enter SYMBOL");
                     }
-                    return false; // Prevent the form from submitting in the traditional way
+                    return false;
                 }
             </script>
         </div>
