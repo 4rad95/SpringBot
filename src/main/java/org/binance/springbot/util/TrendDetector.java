@@ -7,6 +7,7 @@ import org.ta4j.core.indicators.*;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 import org.ta4j.core.num.Num;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -114,14 +115,23 @@ public class TrendDetector {
         System.out.println(String.format("%.4f",macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()) + " , " +String.format("%.4f",histogram.doubleValue()) +
                 "   diff = " + String.format("%.4f",histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()));
 
-        if (((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.5) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex()))))
-        && signalLine.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()-1)))
+        if (smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.7)
+//                && signalLine.getValue(series.getEndIndex()).isNegative())
         {
             return -1; }
-        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.5) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))
-                && signalLine.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()-1)))
+        if (smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.3)
+ //               && signalLine.getValue(series.getEndIndex()).isPositive())
         {
             return 1; }
+
+//        if (((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.5) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex()))))
+//        && signalLine.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()-1)))
+//        {
+//            return -1; }
+//        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.5) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))
+//                && signalLine.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()-1)))
+//        {
+//            return 1; }
         return 0;
     }
 
