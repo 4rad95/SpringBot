@@ -85,9 +85,9 @@ public class TrendDetector {
         SMAIndicator smaStochK = new SMAIndicator(stochRSIK,3);
         SMAIndicator smaStochD = new SMAIndicator(smaStochK,3);
         System.out.println( series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) );
-        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.70) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex())))){
+        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.50) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex())))){
             return -1; }
-        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.30) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))){
+        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.50) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))){
             return 1; }
         return 0;
     }
@@ -114,11 +114,11 @@ public class TrendDetector {
         System.out.println(String.format("%.4f",macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()) + " , " +String.format("%.4f",histogram.doubleValue()) +
                 "   diff = " + String.format("%.4f",histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()));
 
-        if (((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex()))))
+        if (((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.5) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex()))))
         && signalLine.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()-1)))
         {
             return -1; }
-        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 1) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))
+        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.5) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))
                 && signalLine.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()-1)))
         {
             return 1; }
