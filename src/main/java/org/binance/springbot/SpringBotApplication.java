@@ -373,7 +373,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getImbBuy())+Double.valueOf(symbolsDto.getLowBuy())),countDecimalPlaces(price)));
 			if (Double.valueOf(enterPrice)>price) {
 					VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
-						.type("LONG").price(price.toString()).stop(symbolsDto.getLowBuy()).proffit(symbolsDto.getLowSell()).enterPrice(enterPrice)
+						.type("LONG").price(price.toString()).stop(symbolsDto.getLowBuy()).proffit(symbolsDto.getImbSell()).enterPrice(enterPrice)
 						.build();
 					insertVariant(variantDto);
 				double k = (Double.valueOf(variantDto.getProffit())-Double.valueOf(variantDto.getEnterPrice()))/(Double.valueOf(variantDto.getEnterPrice())-Double.valueOf(variantDto.getStop()));
@@ -394,7 +394,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getLowSell())),countDecimalPlaces(price)));
 			if (Double.valueOf(enterPrice)< price){
 					VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
-						.type("SHORT").price(price.toString()).stop(symbolsDto.getHighSell()).proffit(symbolsDto.getHighBuy()).enterPrice(enterPrice)
+						.type("SHORT").price(price.toString()).stop(symbolsDto.getHighSell()).proffit(symbolsDto.getImbBuy()).enterPrice(enterPrice)
 						.build();
 					insertVariant(variantDto);
 					double k = (Double.valueOf(variantDto.getEnterPrice())-Double.valueOf(variantDto.getProffit()))/(Double.valueOf(variantDto.getStop())-Double.valueOf(variantDto.getEnterPrice()));
@@ -413,7 +413,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 			//	if (Double.valueOf(enterPrice)>price) {
 					VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
-							.type("LONG").price(price.toString()).stop(symbolsDto.getLowSell()).proffit(OrderBlockFinder.findeUperOB(timeSeriesCache.get(symbolsDto.getSymbols()),price).toString()).enterPrice(price.toString())
+							.type("LONG").price(price.toString()).stop(symbolsDto.getLowSell()).proffit(OrderBlockFinder.findeUperIMB(timeSeriesCache.get(symbolsDto.getSymbols()),price).toString()).enterPrice(price.toString())
 							.build();
 					insertVariant(variantDto);
 			double k = (Double.valueOf(variantDto.getEnterPrice())-Double.valueOf(variantDto.getProffit()))/(Double.valueOf(variantDto.getStop())-Double.valueOf(variantDto.getEnterPrice()));
@@ -434,7 +434,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 				//	if (Double.valueOf(enterPrice)>price) {
 				VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
-						.type("SHORT").price(price.toString()).stop(symbolsDto.getHighBuy()).proffit(OrderBlockFinder.findeDownOB(timeSeriesCache.get(symbolsDto.getSymbols()),price)
+						.type("SHORT").price(price.toString()).stop(symbolsDto.getHighBuy()).proffit(OrderBlockFinder.findeDownIMB(timeSeriesCache.get(symbolsDto.getSymbols()),price)
 						.toString()).enterPrice(price.toString())
 						.build();
 				insertVariant(variantDto);
