@@ -435,7 +435,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				// TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 				int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 				int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
-				if (move > 0 && moveRSI > 0 ) {
+				if (move > 0 && moveRSI < 0 ) {
 
 				//	if (Double.valueOf(enterPrice)>price) {
 				String proffit = OrderBlockFinder.findeDownIMB(timeSeriesCache.get(symbolsDto.getSymbols()),price).toString();
