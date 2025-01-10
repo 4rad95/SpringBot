@@ -1,13 +1,15 @@
 package org.binance.springbot.util;
+import org.binance.springbot.SpringBotApplication;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
-import org.ta4j.core.indicators.helpers.HighPriceIndicator;
-import org.ta4j.core.indicators.helpers.HighestValueIndicator;
-import org.ta4j.core.indicators.helpers.LowPriceIndicator;
-import org.ta4j.core.indicators.helpers.LowestValueIndicator;
+import org.ta4j.core.indicators.helpers.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+import static org.binance.springbot.SpringBotApplication.interval1;
+import static org.binance.springbot.SpringBotApplication.interval2;
 
 public class OrderBlockFinder {
 
@@ -179,5 +181,22 @@ public static Double findeUperOB(BarSeries series, Double price) {
                     + " Swing High: " + swingHigh.getValue(i)
                     + " Swing Low: " + swingLow.getValue(i));
         }
+    }
+
+    public static Double  findDownImbStop(String symbol) {
+        BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
+                Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval2.getIntervalId(), 500))
+                , symbol, SpringBotApplication.interval2.getIntervalId());
+        ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
+        double price = closePrice.getValue(series.getEndIndex()).doubleValue();
+        return findeDownIMB(series,price);
+    }
+    public static Double  findUpImbStop(String symbol) {
+        BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
+                Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval2.getIntervalId(), 500))
+                , symbol, SpringBotApplication.interval2.getIntervalId());
+        ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
+        double price = closePrice.getValue(series.getEndIndex()).doubleValue();
+        return findeUperIMB(series,price);
     }
 }
