@@ -27,7 +27,7 @@ public class OrderBlockFinder {
             Bar previous2 = series.getBar(i - 3);
             Bar previous3 = series.getBar(i - 3);
 
-            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getClosePrice().doubleValue()-previous.getOpenPrice().doubleValue())>2)
+            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getClosePrice().doubleValue()-previous.getOpenPrice().doubleValue())>1)
                 && previous.getOpenPrice().isLessThan(previous.getClosePrice())
                 && current.getOpenPrice().isGreaterThan(current.getClosePrice())
                 && previous.getLowPrice().isGreaterThan(current.getClosePrice())
@@ -45,7 +45,7 @@ public class OrderBlockFinder {
             Bar previous2 = series.getBar(i - 3);
             Bar previous3 = series.getBar(i - 3);
 
-            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getOpenPrice().doubleValue()-previous.getClosePrice().doubleValue())>2)
+            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getOpenPrice().doubleValue()-previous.getClosePrice().doubleValue())>1)
                     && previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
                     && current.getOpenPrice().isLessThan(current.getClosePrice())
                     && previous.getHighPrice().isLessThan(current.getClosePrice())
@@ -72,7 +72,7 @@ public static Double findeUperOB(BarSeries series, Double price) {
     for (int i = series.getEndIndex(); i >= 3; i--) {
         Bar current = series.getBar(i);
         Bar previous = series.getBar(i - 1);
-        if (((previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()) / (previous.getClosePrice().doubleValue() - previous.getOpenPrice().doubleValue()) > 2)
+        if (((previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()) / (previous.getClosePrice().doubleValue() - previous.getOpenPrice().doubleValue()) > 1)
                 && previous.getOpenPrice().isLessThan(previous.getClosePrice())
                 && current.getOpenPrice().isGreaterThan(current.getClosePrice())
                 && previous.getLowPrice().isGreaterThan(current.getClosePrice())
@@ -92,7 +92,7 @@ public static Double findeUperOB(BarSeries series, Double price) {
         for (int i = series.getEndIndex(); i >= 3; i--) {
             Bar current = series.getBar(i);
             Bar previous = series.getBar(i - 1);
-            if (((previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()) / (previous.getClosePrice().doubleValue() - previous.getOpenPrice().doubleValue()) > 2)
+            if (((previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()) / (previous.getClosePrice().doubleValue() - previous.getOpenPrice().doubleValue()) > 1)
                     && previous.getOpenPrice().isLessThan(previous.getClosePrice())
                     && current.getOpenPrice().isGreaterThan(current.getClosePrice())
                     && previous.getLowPrice().isGreaterThan(current.getClosePrice())
@@ -115,7 +115,7 @@ public static Double findeUperOB(BarSeries series, Double price) {
         for (int i = series.getEndIndex(); i >= 3; i--) {
             Bar current = series.getBar(i);
             Bar previous = series.getBar(i - 1);
-            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getOpenPrice().doubleValue()-previous.getClosePrice().doubleValue())>2)
+            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getOpenPrice().doubleValue()-previous.getClosePrice().doubleValue())>1)
                     && previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
                     && current.getOpenPrice().isLessThan(current.getClosePrice())
                     && previous.getHighPrice().isLessThan(current.getClosePrice())
@@ -136,7 +136,7 @@ public static Double findeUperOB(BarSeries series, Double price) {
             Bar current = series.getBar(i);
             Bar previous = series.getBar(i - 1);
 
-            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getOpenPrice().doubleValue()-previous.getClosePrice().doubleValue())>2)
+            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getOpenPrice().doubleValue()-previous.getClosePrice().doubleValue())>1)
                     && previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
                     && current.getOpenPrice().isLessThan(current.getClosePrice())
                     && previous.getHighPrice().isLessThan(current.getClosePrice())
