@@ -89,7 +89,7 @@ public static Double findeUperOB(BarSeries series, Double price) {
     public static Double findeUperIMB(BarSeries series, Double price) {
         double uperIMB = -1.00;
         double uperOB = -1.00;
-        for (int i = series.getEndIndex(); i >= 3; i--) {
+        for (int i = series.getEndIndex()-1; i >= 3; i--) {
             Bar current = series.getBar(i);
             Bar previous = series.getBar(i - 1);
             if (((previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()) / (previous.getClosePrice().doubleValue() - previous.getOpenPrice().doubleValue()) > 1)
@@ -132,7 +132,7 @@ public static Double findeUperOB(BarSeries series, Double price) {
     public static Double findeDownIMB(BarSeries series, Double price) {
         double downIMB = -1.00;
         double downOB;
-        for (int i = series.getEndIndex(); i >= 3; i--) {
+        for (int i = series.getEndIndex()-1; i >= 3; i--) {
             Bar current = series.getBar(i);
             Bar previous = series.getBar(i - 1);
 
