@@ -358,6 +358,10 @@ public  void mainProcess(List<String> symbols) throws Exception {
 	}
 
 	private void checkSymbols(SymbolsDto symbolsDto) throws Exception {
+
+//		String proffit1 = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
+//		String proffit2 = OrderBlockFinder.findDownImbStop(symbolsDto.getSymbols()).toString();
+
 		if (Double.valueOf(symbolsDto.getLowSell())>Double.valueOf(symbolsDto.getImbSell())
 			&& Double.valueOf(symbolsDto.getHighBuy())< Double.valueOf(symbolsDto.getImbBuy())){
 		if (!openPositionService.getOpenPositionSymbol(symbolsDto.getSymbols()))  {

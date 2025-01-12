@@ -92,20 +92,24 @@ public static Double findeUperOB(BarSeries series, Double price) {
         for (int i = series.getEndIndex()-1; i >= 3; i--) {
             Bar current = series.getBar(i);
             Bar previous = series.getBar(i - 1);
-            if (((previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()) / (previous.getClosePrice().doubleValue() - previous.getOpenPrice().doubleValue()) > 1)
-                    && previous.getOpenPrice().isLessThan(previous.getClosePrice())
-                    && current.getOpenPrice().isGreaterThan(current.getClosePrice())
-                    && previous.getLowPrice().isGreaterThan(current.getClosePrice())
+            Bar next = series.getBar(i+1);
+            if ( //((previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()) / (previous.getClosePrice().doubleValue() - previous.getOpenPrice().doubleValue()) > 1)
+//                     previous.getOpenPrice().isLessThan(previous.getClosePrice())
+//                    && current.getOpenPrice().isGreaterThan(current.getClosePrice())
+//                    && previous.getLowPrice().isGreaterThan(current.getClosePrice())
+                    next.getHighPrice().isLessThan(previous.getLowPrice())
                     && checkPriceHigh(series, i)
                     && previous.getClosePrice().doubleValue()>price
             ) {
-                uperIMB = series.getBar(i+1).getHighPrice().doubleValue();
+                uperIMB = previous.getLowPrice().doubleValue();
                 uperOB = previous.getLowPrice().doubleValue();
-                if(uperIMB < uperOB ) {
-                    return uperIMB;
-                } else {
-                    return uperOB;
-                }
+        //        if(uperIMB < uperOB ) {
+                System.out.println(series.getName() + "  UP "+  uperIMB);
+
+                return uperIMB;
+//                } else {
+//                    return uperOB;
+//                }
             }}
         return uperOB;
     }
@@ -135,28 +139,34 @@ public static Double findeUperOB(BarSeries series, Double price) {
         for (int i = series.getEndIndex()-1; i >= 3; i--) {
             Bar current = series.getBar(i);
             Bar previous = series.getBar(i - 1);
+            Bar next = series.getBar(i+1);
 
-            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getOpenPrice().doubleValue()-previous.getClosePrice().doubleValue())>1)
-                    && previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
-                    && current.getOpenPrice().isLessThan(current.getClosePrice())
-                    && previous.getHighPrice().isLessThan(current.getClosePrice())
-                    && checkPriceLow(series, i)
-                    && previous.getClosePrice().doubleValue()<price
+            if (//((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getOpenPrice().doubleValue()-previous.getClosePrice().doubleValue())>1)
+//                    previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
+//                    && current.getOpenPrice().isLessThan(current.getClosePrice())
+//                    && previous.getHighPrice().isLessThan(current.getClosePrice())
+//                    && checkPriceLow(series, i)
+//                    && previous.getClosePrice().doubleValue()<price
+                   next.getLowPrice().isGreaterThan(previous.getHighPrice())
+                   && checkPriceLow(series, i)
+
             ) {
-                downIMB = series.getBar(i+1).getLowPrice().doubleValue();
+                downIMB = previous.getHighPrice().doubleValue();
                 downOB = previous.getHighPrice().doubleValue();
-                if (downIMB > downOB) {
+               // if (downIMB > downOB) {
+                System.out.println(series.getName() + "  DOWN "+  downIMB);
                     return downIMB;
-                }
-                return downOB;
+                //}
+               //   return downOB;
             }
         }
         return downIMB;
-    }
+        }
 
    private static boolean checkPriceHigh(BarSeries series, int i) {
        for (int j = series.getEndIndex(); j > i  ; j--) {
-            if (series.getBar(j).getClosePrice().isGreaterThan( series.getBar(i).getHighPrice())){
+            if (series.getBar(j).getClosePrice().isGreaterThan( series.getBar(i).getHighPrice())
+                ){
                 return false;
             }
        }
