@@ -397,7 +397,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 						.build();
 					insertVariant(variantDto);
 				if (Double.valueOf(proffit) > 0) {
-					    double k = (Double.valueOf(proffit)-Double.valueOf(variantDto.getEnterPrice()))/(Double.valueOf(variantDto.getEnterPrice())-Double.valueOf(stop));
+					    double k = (Double.valueOf(proffit)-price)/(price-Double.valueOf(stop));
 						if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES )&&(k>1.5)) {
 						Map<String, Long> id =  startPosition(variantDto);
 						OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
@@ -425,7 +425,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 						.build();
 					insertVariant(variantDto);
 				if (Double.valueOf(proffit) > 0) {
-						double k = (Double.valueOf(variantDto.getEnterPrice())-Double.valueOf(proffit))/(Double.valueOf(stop)-Double.valueOf(variantDto.getEnterPrice()));
+						double k = (price-Double.valueOf(proffit))/(Double.valueOf(stop)-price);
 						if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1.5)) {
 							Map<String, Long> id =  startPosition(variantDto);
 							OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
@@ -448,7 +448,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 							.build();
 					insertVariant(variantDto);
 				if (Double.valueOf(proffit) > 0) {
-					double k = (Double.valueOf(proffit)-Double.valueOf(variantDto.getEnterPrice()))/(Double.valueOf(variantDto.getEnterPrice())-Double.valueOf(stop));
+					double k = (Double.valueOf(proffit)-price)/(price-Double.valueOf(stop));
 					if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1.5)) {
 						Map<String, Long> id =  startPosition(variantDto);
 						OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
@@ -474,7 +474,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 						.build();
 				insertVariant(variantDto);
 					if (Double.valueOf(proffit) > 0) {
-						double k = (Double.valueOf(variantDto.getEnterPrice())-Double.valueOf(proffit))/(Double.valueOf(stop)-Double.valueOf(variantDto.getEnterPrice()));
+						double k = (price-Double.valueOf(proffit))/(Double.valueOf(stop)-price);
 						if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1.5)) {
 							Map<String, Long> id =  startPosition(variantDto);
 							OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();

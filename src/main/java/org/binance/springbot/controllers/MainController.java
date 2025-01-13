@@ -67,10 +67,10 @@ public class MainController {
         List<String> calculatedResults = new ArrayList<>();
         for (Variant symbol : symbols) {
             if (symbol.getType() == "LONG") {
-                double k = (Double.valueOf(symbol.getProffit()) - Double.valueOf(symbol.getEnterPrice())) / (Double.valueOf(symbol.getEnterPrice()) - Double.valueOf(symbol.getStop()));
+                double k = (Double.valueOf(symbol.getProffit()) - Double.valueOf(symbol.getPrice())) / (Double.valueOf(symbol.getPrice()) - Double.valueOf(symbol.getStop()));
                 calculatedResults.add(String.format("%.3f", k));
             }else {
-                double k = (Double.valueOf(symbol.getEnterPrice()) - Double.valueOf(symbol.getProffit())) / (Double.valueOf(symbol.getStop()) - Double.valueOf(symbol.getEnterPrice()));
+                double k = (Double.valueOf(symbol.getPrice()) - Double.valueOf(symbol.getProffit())) / (Double.valueOf(symbol.getStop()) - Double.valueOf(symbol.getPrice()));
             calculatedResults.add(String.format("%.3f", k));}
 
         }
