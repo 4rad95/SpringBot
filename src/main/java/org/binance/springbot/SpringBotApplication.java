@@ -266,13 +266,21 @@ public class SpringBotApplication {
 		//	if (check(symbol)) {
 			//	log.info( "Generating time series for " + symbol);
 				try {
-					List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), 500);
+					int limit = 300;
+					List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), limit);
 					BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
 					timeSeriesCache.put(symbol, series);
 //					PivotCalculator.PivotPoints pivotPoints = calculatePivotPoints(series);
 //					System.out.println(series.getName() +" " +pivotPoints);
 
 					Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
+//					if ((orderBlocks.get("BuyOrderBlock").doubleValue()<0.00)
+//						||(orderBlocks.get("SellOrderBlock").doubleValue() <0.00)){
+//						candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), limit*7);
+//						series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
+//						timeSeriesCache.put(symbol, series);
+//						orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
+//					}
 				//	System.out.println("Sell Order Block Index: " + orderBlocks.get("SellOrderBlock"));
 				//	System.out.println("Buy Order Block Index: " + orderBlocks.get("BuyOrderBlock"));
 					String imbBuy = series.getBar(orderBlocks.get("BuyOrderBlock")+2).getLowPrice().toString();
@@ -289,6 +297,8 @@ public class SpringBotApplication {
 					insertSymbols(symbolDto);
 					count++;
 				} catch (Exception e) {
+
+
 					System.out.println("\u001B[32m" + symbol + "  -  Not used symbol !!! \u001B[0m");
 					badSymbols.add(symbol);
 				}
@@ -371,13 +381,15 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		if (price < Double.valueOf(symbolsDto.getImbBuy())
 				&& price > Double.valueOf(symbolsDto.getHighBuy())
 				&& TrendDetector.trendDetect(symbolsDto.getSymbols())>0) {
-			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
+		//	TrendDetector.TrendResult result =  TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
-			if (move> 0 && result.typeD > 0 && moveRSI >0) {
+		//	if (move> 0 && result.typeD > 0 && moveRSI >0) {
+				if (move> 0 && moveRSI >0) {
+
 			// String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getImbBuy())+Double.valueOf(symbolsDto.getLowBuy())),countDecimalPlaces(price)));
 				String enterPrice = symbolsDto.getHighBuy();
-			if (Double.valueOf(enterPrice)>price){
+			if (Double.valueOf(enterPrice) > price){
 				String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
 				String stop   = BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowBuy())).multiply(new BigDecimal("0.993")).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).scale(), RoundingMode.HALF_UP).toString();
 				VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
@@ -396,16 +408,18 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		if (price > Double.valueOf(symbolsDto.getLowSell())
 				&& price < Double.valueOf(symbolsDto.getHighSell())
 				&& TrendDetector.trendDetect(symbolsDto.getSymbols())<0) {
-			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
+	//		TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = -1;// TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
-			if (move < 0 && result.typeD > 0 && moveRSI <0 ) {
+//			if (move < 0 && result.typeD > 0 && moveRSI <0 ) {
+				if (move < 0 && moveRSI <0 ) {
+
 			// String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getLowSell())),countDecimalPlaces(price)));
 			String enterPrice = symbolsDto.getLowSell();
 			String proffit = OrderBlockFinder.findDownImbStop(symbolsDto.getSymbols()).toString();
 			String stop   = BigDecimal.valueOf(Double.valueOf(symbolsDto.getHighSell())).multiply(new BigDecimal("1.007")).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getHighSell())).scale(), RoundingMode.HALF_UP).toString();
 
-			if (Double.valueOf(enterPrice)< price){
+			if (Double.valueOf(enterPrice) < price){
 					VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
 						.type("SHORT").price(price.toString()).stop(stop).proffit(proffit).enterPrice(enterPrice)
 						.build();

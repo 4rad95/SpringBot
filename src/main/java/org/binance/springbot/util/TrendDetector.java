@@ -86,9 +86,9 @@ public class TrendDetector {
         SMAIndicator smaStochK = new SMAIndicator(stochRSIK,3);
         SMAIndicator smaStochD = new SMAIndicator(smaStochK,3);
         System.out.println( series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) );
-        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.50) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex())))){
+        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.75)){// && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex())))){
             return -1; }
-        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.50) && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))){
+        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.25)){// && (smaStochK.getValue(series.getEndIndex()).isGreaterThan(smaStochD.getValue(series.getEndIndex())))){
             return 1; }
         return 0;
     }
