@@ -14,7 +14,7 @@ import org.binance.springbot.entity.enums.Type;
 
 import org.binance.springbot.service.*;
 import javax.sound.sampled.*;
-
+import java.math.BigDecimal;
 
 import org.binance.springbot.util.*;
 import org.slf4j.Logger;
@@ -245,7 +245,7 @@ public class SpringBotApplication {
 						Thread updateThread = new Thread(update, "Update symbols");
 						updateThread.start();
 						wait = 1;
-						sleep(200000);
+						sleep(300000);
 					}
 
 					sleep(timeToWait);
@@ -274,23 +274,23 @@ public class SpringBotApplication {
 //					System.out.println(series.getName() +" " +pivotPoints);
 
 					Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
-					if ((orderBlocks.get("BuyOrderBlock").doubleValue()<0.00)
-						||(orderBlocks.get("SellOrderBlock").doubleValue() <0.00)){
-						timeSeriesCache.remove(symbol);
-						candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), limit*2);
-						series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
-						timeSeriesCache.put(symbol, series);
-						orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
-					}
+//					if ((orderBlocks.get("BuyOrderBlock").doubleValue()<0.00)
+//						||(orderBlocks.get("SellOrderBlock").doubleValue() <0.00)){
+//						timeSeriesCache.remove(symbol);
+//						candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), limit*2);
+//						series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
+//						timeSeriesCache.put(symbol, series);
+//						orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
+//					}
 
-					String imbBuy = series.getBar(orderBlocks.get("BuyOrderBlock")+2).getLowPrice().toString();
-					String imbSell =series.getBar(orderBlocks.get("SellOrderBlock")+2).getLowPrice().toString();
+					String imbBuy  = BigDecimal.valueOf(series.getBar(orderBlocks.get("BuyOrderBlock")+2).getLowPrice().doubleValue()).toString();
+					String imbSell = BigDecimal.valueOf(series.getBar(orderBlocks.get("SellOrderBlock")+2).getLowPrice().doubleValue()).toString();
 
-							SymbolsDto symbolDto = SymbolsDto.builder().symbols(symbol).highBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getHighPrice().toString()).
-							lowBuy(series.getBar(orderBlocks.get("BuyOrderBlock")).getLowPrice().toString()).
+							SymbolsDto symbolDto = SymbolsDto.builder().symbols(symbol).highBuy(BigDecimal.valueOf(series.getBar(orderBlocks.get("BuyOrderBlock")).getHighPrice().doubleValue()).toString()).
+							lowBuy(BigDecimal.valueOf(series.getBar(orderBlocks.get("BuyOrderBlock")).getLowPrice().doubleValue()).toString()).
 							imbBuy(imbBuy).
-							highSell(series.getBar(orderBlocks.get("SellOrderBlock")).getHighPrice().toString()).
-							lowSell(series.getBar(orderBlocks.get("SellOrderBlock")).getLowPrice().toString()).
+							highSell(BigDecimal.valueOf(series.getBar(orderBlocks.get("SellOrderBlock")).getHighPrice().doubleValue()).toString()).
+							lowSell(BigDecimal.valueOf(series.getBar(orderBlocks.get("SellOrderBlock")).getLowPrice().doubleValue()).toString()).
 							imbSell(imbSell).
 							build();
 
