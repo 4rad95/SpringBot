@@ -195,7 +195,7 @@ public static Double findeUperOB(BarSeries series, Double price) {
     }
     private static boolean checkImbHigh(BarSeries series, int i) {
         for (int j = series.getEndIndex(); j > i  ; j--) {
-            if (series.getBar(j).getLowPrice().isGreaterThan( series.getBar(i).getHighPrice())
+            if (series.getBar(j).getHighPrice().isGreaterThan( series.getBar(i+1).getHighPrice())
             ){
                 return false;
             }
@@ -204,7 +204,7 @@ public static Double findeUperOB(BarSeries series, Double price) {
     }
     private static boolean checkImbLow(BarSeries series, int i) {
         for (int j = series.getEndIndex(); j > i  ; j--) {
-            if (series.getBar(j).getHighPrice().isLessThan( series.getBar(i).getLowPrice())){
+            if (series.getBar(j).getLowPrice().isLessThan( series.getBar(i+1).getLowPrice())){
                 return false;
             }
         }
