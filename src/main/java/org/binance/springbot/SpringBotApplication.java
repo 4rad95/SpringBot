@@ -266,7 +266,7 @@ public class SpringBotApplication {
 		//	if (check(symbol)) {
 			//	log.info( "Generating time series for " + symbol);
 				try {
-					int limit = 300;
+					int limit = 500;
 					List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), limit);
 					BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
 					timeSeriesCache.put(symbol, series);
@@ -274,15 +274,15 @@ public class SpringBotApplication {
 //					System.out.println(series.getName() +" " +pivotPoints);
 
 					Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
-//					if ((orderBlocks.get("BuyOrderBlock").doubleValue()<0.00)
-//						||(orderBlocks.get("SellOrderBlock").doubleValue() <0.00)){
-//						candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), limit*7);
-//						series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
-//						timeSeriesCache.put(symbol, series);
-//						orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
-//					}
-				//	System.out.println("Sell Order Block Index: " + orderBlocks.get("SellOrderBlock"));
-				//	System.out.println("Buy Order Block Index: " + orderBlocks.get("BuyOrderBlock"));
+					if ((orderBlocks.get("BuyOrderBlock").doubleValue()<0.00)
+						||(orderBlocks.get("SellOrderBlock").doubleValue() <0.00)){
+						timeSeriesCache.remove(symbol);
+						candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), limit*2);
+						series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
+						timeSeriesCache.put(symbol, series);
+						orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
+					}
+
 					String imbBuy = series.getBar(orderBlocks.get("BuyOrderBlock")+2).getLowPrice().toString();
 					String imbSell =series.getBar(orderBlocks.get("SellOrderBlock")+2).getLowPrice().toString();
 
@@ -378,8 +378,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		Double price = BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
 
 
-		if (price < Double.valueOf(symbolsDto.getImbBuy())
-				&& price > Double.valueOf(symbolsDto.getHighBuy())
+		if (price < Double.valueOf(symbolsDto.getHighSell())
+				&& price > Double.valueOf(symbolsDto.getLowBuy())
 				&& TrendDetector.trendDetect(symbolsDto.getSymbols())>0) {
 		//	TrendDetector.TrendResult result =  TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
