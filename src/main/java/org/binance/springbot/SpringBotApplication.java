@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
+import org.ta4j.core.indicators.RSIIndicator;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -434,10 +435,10 @@ public  void mainProcess(List<String> symbols) throws Exception {
 							insertOpenPosition(openPositionDto);
 		}}}}}
 		if (price > Double.valueOf(symbolsDto.getHighSell()) ){
-			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
+	//		TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
-			if (move > 0 &&  moveRSI >0 && result.typeD >0 ) {
+			if (move > 0 &&  moveRSI >0  ) {
 //				String proffit = OrderBlockFinder.findeUperIMB(timeSeriesCache.get(symbolsDto.getSymbols()),price).toString();
 				String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
 				String stop   = BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).multiply(new BigDecimal("0.993")).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).scale(), RoundingMode.HALF_UP).toString();
@@ -459,10 +460,10 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		}}
 		if (price < Double.valueOf(symbolsDto.getLowBuy()) ){
 
-				TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
+		//		TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 				int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 				int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
-				if (move > 0 && moveRSI < 0 && result.typeD < 0) {
+				if (move > 0 && moveRSI < 0 ) {
 
 				//	if (Double.valueOf(enterPrice)>price) {
 			//	String proffit = OrderBlockFinder.findeDownIMB(timeSeriesCache.get(symbolsDto.getSymbols()),price).toString();

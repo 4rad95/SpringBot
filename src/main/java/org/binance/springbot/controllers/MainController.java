@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.Double.sum;
-
 
 @Controller
 public class MainController {
@@ -84,7 +82,7 @@ public class MainController {
     public String logview(Model model){
         Iterable<LogUpdate> symbols = logUpdateRepository.findAll();
         model.addAttribute("symbols",symbols);
-        return "logview";
+        return "logview1";
     }
     @Autowired
     private SymbolsRepository symbolsRepository;
