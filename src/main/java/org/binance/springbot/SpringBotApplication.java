@@ -406,7 +406,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 						log.info(" [LONG] " + openPositionDto.toString());
 			insertOpenPosition(openPositionDto);
 		}}}}}
-		if (price > Double.valueOf(symbolsDto.getLowSell())
+		else if (price > Double.valueOf(symbolsDto.getLowSell())
 				&& price < Double.valueOf(symbolsDto.getHighSell())
 				&& TrendDetector.trendDetect(symbolsDto.getSymbols())<0) {
 			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
@@ -434,7 +434,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 							log.info(" [SHORT] " + openPositionDto.toString());
 							insertOpenPosition(openPositionDto);
 		}}}}}
-		if (price > Double.valueOf(symbolsDto.getHighSell()) ){
+		else if (price > Double.valueOf(symbolsDto.getHighSell()) ){
 	//		TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
@@ -458,7 +458,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 						insertOpenPosition(openPositionDto);
 		}}
 		}}
-		if (price < Double.valueOf(symbolsDto.getLowBuy()) ){
+		else if (price < Double.valueOf(symbolsDto.getLowBuy()) ){
 
 		//		TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 				int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
