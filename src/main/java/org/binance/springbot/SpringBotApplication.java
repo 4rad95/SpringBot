@@ -381,11 +381,11 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		if (price < Double.valueOf(symbolsDto.getHighSell())
 				&& price > Double.valueOf(symbolsDto.getLowBuy())
 				&& TrendDetector.trendDetect(symbolsDto.getSymbols())>0) {
-		//	TrendDetector.TrendResult result =  TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
+			TrendDetector.TrendResult result =  TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
-		//	if (move> 0 && result.typeD > 0 && moveRSI >0) {
-				if (move> 0 && moveRSI >0) {
+			if (move> 0 && result.typeD > 0 && moveRSI >0) {
+
 
 			// String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getImbBuy())+Double.valueOf(symbolsDto.getLowBuy())),countDecimalPlaces(price)));
 				String enterPrice = symbolsDto.getHighBuy();
@@ -408,11 +408,11 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		if (price > Double.valueOf(symbolsDto.getLowSell())
 				&& price < Double.valueOf(symbolsDto.getHighSell())
 				&& TrendDetector.trendDetect(symbolsDto.getSymbols())<0) {
-	//		TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
+			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = -1;// TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
-//			if (move < 0 && result.typeD > 0 && moveRSI <0 ) {
-				if (move < 0 && moveRSI <0 ) {
+			if (move < 0 && result.typeD > 0 && moveRSI <0 ) {
+
 
 			// String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getLowSell())),countDecimalPlaces(price)));
 			String enterPrice = symbolsDto.getLowSell();
@@ -434,10 +434,10 @@ public  void mainProcess(List<String> symbols) throws Exception {
 							insertOpenPosition(openPositionDto);
 		}}}}}
 		if (price > Double.valueOf(symbolsDto.getHighSell()) ){
-		//	TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
+			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
-			if (move > 0 &&  moveRSI >0 ) {
+			if (move > 0 &&  moveRSI >0 && result.typeD >0 ) {
 //				String proffit = OrderBlockFinder.findeUperIMB(timeSeriesCache.get(symbolsDto.getSymbols()),price).toString();
 				String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
 				String stop   = BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).multiply(new BigDecimal("0.993")).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).scale(), RoundingMode.HALF_UP).toString();
@@ -459,10 +459,10 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		}}
 		if (price < Double.valueOf(symbolsDto.getLowBuy()) ){
 
-				// TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
+				TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 				int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 				int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
-				if (move > 0 && moveRSI < 0 ) {
+				if (move > 0 && moveRSI < 0 && result.typeD < 0) {
 
 				//	if (Double.valueOf(enterPrice)>price) {
 			//	String proffit = OrderBlockFinder.findeDownIMB(timeSeriesCache.get(symbolsDto.getSymbols()),price).toString();
@@ -529,8 +529,18 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			for (OpenPosition entity: openPositionDtoList){
 						List<MyTrade> trades = syncRequestClient.getAccountTrades(entity.getSymbol(), null, null, null, 100);
 				if ((trades.get(trades.size() - 1).getRealizedPnl().doubleValue())!= 0 ){
-					StatisticDto statisticDto = StatisticDto.builder().pnl(trades.get(trades.size() - 1).getRealizedPnl().toString()).symbols(trades.get(trades.size()-1).getSymbol())
-							.comission(trades.get(trades.size()-1).getCommission().add(trades.get(trades.size()-2).getCommission()).toString())
+					Long dateTime = trades.get(trades.size()-1).getTime().longValue();
+					BigDecimal pnl = BigDecimal.valueOf(trades.get(trades.size() - 1).getRealizedPnl().doubleValue());
+					BigDecimal comission = BigDecimal.valueOf(trades.get(trades.size()-1).getCommission().doubleValue());
+					for  (int i = 2; i < trades.size(); i++  ) {
+							if ( dateTime == trades.get(trades.size()-i).getTime().longValue()) {
+									pnl.add(BigDecimal.valueOf(trades.get(trades.size() - i).getRealizedPnl().doubleValue()));
+									comission.add(BigDecimal.valueOf(trades.get(trades.size()-i).getCommission().doubleValue()));
+							}  else {
+									break;
+					}}
+					StatisticDto statisticDto = StatisticDto.builder().pnl(pnl.toString()).symbols(trades.get(trades.size()-1).getSymbol())
+							.comission(comission.toString())
 							.type(Type.valueOf(trades.get(trades.size()-1).getPositionSide()))
 							.startDateTime(convertTimestampToDate(trades.get(trades.size()-1).getTime().longValue()))
 							.duration(BinanceUtil.timeFormat(trades.get(trades.size()-1).getTime().longValue()-trades.get(trades.size()-2).getTime().longValue()))
