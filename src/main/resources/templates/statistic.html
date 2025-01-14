@@ -31,18 +31,20 @@
             <th scope="col">Type</th>
             <th scope="col">PNL</th>
             <th scope="col">Comission</th>
+            <th scope="col">Profit</th>
 
         </tr>
         </thead>
         <tbody>
         <!-- Генерация строк таблицы -->
-        <tr th:each="el : ${symbols}">
+        <tr th:each="el, IterStat : ${symbols}">
             <td th:text="${el.getStartDateTime()}">Symbol</td>
             <td th:text="${el.getDuration()}">LowBuy</td>
             <td th:text="${el.getSymbols()}">HighBuy</td>
             <td th:text="${el.getType()}">ImbBuy</td>
             <td th:text="${el.getPnl()}">LowSell</td>
             <td th:text="${el.getComission()}">HighSell</td>
+            <td th:text="${calculatedResults[IterStat.index]}"></td>
         </tr>
         </tbody>
     </table>

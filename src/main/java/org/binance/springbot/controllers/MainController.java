@@ -45,16 +45,20 @@ public class MainController {
     public String statistic(Model model){
         Iterable<Statistic> symbols = statisticRepository.findAll();
         double[] resultD = {0.0,0.0,0.0};
+        List<String> calculatedResults = new ArrayList<>();
         for (Statistic symbol : symbols) {
             Double pnl = symbol.getPnl() != null ? Double.valueOf(symbol.getPnl()) : 0.0;
             Double commission = symbol.getComission() != null ? Double.valueOf(symbol.getComission()) : 0.0;
 
             resultD[0] += pnl;          // Добавляем PNL
             resultD[1] += commission;   // Добавляем комиссию
+            calculatedResults.add(String.format("%.4f", pnl-commission));
         }
         resultD[2] = resultD[0]-resultD[1];
         model.addAttribute("symbols",symbols);
+        model.addAttribute("calculatedResults", calculatedResults);
         model.addAttribute("resultD",resultD);
+
         return "statistic";
     }
     @Autowired
@@ -82,7 +86,7 @@ public class MainController {
     public String logview(Model model){
         Iterable<LogUpdate> symbols = logUpdateRepository.findAll();
         model.addAttribute("symbols",symbols);
-        return "logview1";
+        return "logview";
     }
     @Autowired
     private SymbolsRepository symbolsRepository;
