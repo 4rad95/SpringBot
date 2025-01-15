@@ -547,11 +547,11 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				if ((trades.get(trades.size() - 1).getRealizedPnl().doubleValue())!= 0 ){
 					Long time = trades.get(trades.size()-1).getTime().longValue();
 					trades = syncRequestClient.getAccountTrades(entity.getSymbol(), time, null, null, 100);
-					BigDecimal pnl = BigDecimal.valueOf(trades.get(trades.size() - 1).getRealizedPnl().doubleValue());
-					BigDecimal comission = BigDecimal.valueOf(trades.get(trades.size()-1).getCommission().doubleValue());
-					for  (int i = 2; i < trades.size(); i++  ) {
-									pnl.add(BigDecimal.valueOf(trades.get(trades.size() - i).getRealizedPnl().doubleValue()));
-									comission.add(BigDecimal.valueOf(trades.get(trades.size()-i).getCommission().doubleValue()));
+					BigDecimal pnl = BigDecimal.valueOf(0);
+					BigDecimal comission = BigDecimal.valueOf(0);
+					for (MyTrade trade : trades){
+									pnl.add(BigDecimal.valueOf(trade.getRealizedPnl().doubleValue()));
+									comission.add(BigDecimal.valueOf(trade.getCommission().doubleValue()));
 					}
 					StatisticDto statisticDto = StatisticDto.builder().pnl(pnl.toString()).symbols(trades.get(trades.size()-1).getSymbol())
 							.comission(comission.toString())
