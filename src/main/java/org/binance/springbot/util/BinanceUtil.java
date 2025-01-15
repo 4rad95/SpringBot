@@ -22,6 +22,7 @@ import java.math.RoundingMode;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -219,12 +220,19 @@ public class BinanceUtil {
         int seconds = (int) (mmsec / 1000);
         int minutes = seconds / 60;
         int hours = minutes / 60;
+
         minutes = minutes % 60;
         seconds = seconds % 60;
         return String.format("%d:%02d:%02d", hours, minutes, seconds);
     }
 
-    public static String getExchangeInfo() throws IOException {
+    public static String dateTimeFormat(Long mmsec) {
+        LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(mmsec), ZoneId.systemDefault());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        return dateTime.format(formatter);
+    }
+
+        public static String getExchangeInfo() throws IOException {
         URL url = new URL("https://www.binance.com/fapi/v1/exchangeInfo");
         URLConnection urc = url.openConnection();
 
