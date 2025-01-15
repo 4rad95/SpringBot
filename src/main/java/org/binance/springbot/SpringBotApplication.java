@@ -50,6 +50,7 @@ public class SpringBotApplication {
 	private OpenPositionService openPositionService;
 
 	public static final Map<String, BarSeries> timeSeriesCache = Collections.synchronizedMap(new HashMap<>());
+	public static final Map<String, BarSeries> timeSeriesCache_t1 = Collections.synchronizedMap(new HashMap<>());
 
 	private static final List<String> badSymbols = new LinkedList<>();
 	public static Boolean MAKE_LONG = true;
@@ -530,16 +531,14 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			for (OpenPosition entity: openPositionDtoList){
 						List<MyTrade> trades = syncRequestClient.getAccountTrades(entity.getSymbol(), null, null, null, 100);
 				if ((trades.get(trades.size() - 1).getRealizedPnl().doubleValue())!= 0 ){
-					Long dateTime = trades.get(trades.size()-1).getTime().longValue();
+					Long time = trades.get(trades.size()-1).getTime().longValue();
+					trades = syncRequestClient.getAccountTrades(entity.getSymbol(), time, null, null, 100);
 					BigDecimal pnl = BigDecimal.valueOf(trades.get(trades.size() - 1).getRealizedPnl().doubleValue());
 					BigDecimal comission = BigDecimal.valueOf(trades.get(trades.size()-1).getCommission().doubleValue());
 					for  (int i = 2; i < trades.size(); i++  ) {
-							if ( dateTime == trades.get(trades.size()-i).getTime().longValue()) {
 									pnl.add(BigDecimal.valueOf(trades.get(trades.size() - i).getRealizedPnl().doubleValue()));
 									comission.add(BigDecimal.valueOf(trades.get(trades.size()-i).getCommission().doubleValue()));
-							}  else {
-									break;
-					}}
+					}
 					StatisticDto statisticDto = StatisticDto.builder().pnl(pnl.toString()).symbols(trades.get(trades.size()-1).getSymbol())
 							.comission(comission.toString())
 							.type(Type.valueOf(trades.get(trades.size()-1).getPositionSide()))
@@ -570,6 +569,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 	public void updateAll(List<String> symbols) throws Exception {
 		sleep(180000);
 		Long t0 = currentTimeMillis();
+		timeSeriesCache_t1.clear();
+		timeSeriesCache.clear();
 		deleteSymbolsAll();
 		int i = generateTimeSeriesCache( symbols);
 		LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();

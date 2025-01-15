@@ -98,9 +98,7 @@ public class TrendDetector {
     }
 
     public static int trendDetect(String symbol) {
-        BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
-                Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval1.getIntervalId(), 100))
-                , symbol, interval1.getIntervalId());
+        BarSeries series = BinanceUtil.getSeriesT1(symbol);
         ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
         RSIIndicator rsiIndicator = new RSIIndicator(closePrice,14);
         StochasticRSIIndicator stochRSIK = new StochasticRSIIndicator(rsiIndicator, 14);

@@ -84,7 +84,7 @@ public class MainController {
     private LogUpdateRepository logUpdateRepository;
     @GetMapping ("/logview")
     public String logview(Model model){
-        Iterable<LogUpdate> symbols = logUpdateRepository.findAll();
+        Iterable<LogUpdate> symbols = logUpdateRepository.getLogUpdate50();
         model.addAttribute("symbols",symbols);
         return "logview";
     }

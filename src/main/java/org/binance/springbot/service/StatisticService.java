@@ -25,4 +25,5 @@ public class StatisticService {
             mappers.convertToStatisticDto(statisticRepository.save(mappers.convertToStatistic(statisticDto)));
         }
     }
+
 }

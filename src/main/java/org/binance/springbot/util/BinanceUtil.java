@@ -27,9 +27,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.ta4j.core.BarSeries;
+
+import static org.binance.springbot.SpringBotApplication.interval1;
+import static org.binance.springbot.SpringBotApplication.timeSeriesCache_t1;
 
 public class BinanceUtil {
 
@@ -244,5 +249,15 @@ public class BinanceUtil {
             }
         }
         throw new IllegalArgumentException("Symbol not found: " + symbol);
+    }
+
+    public static BarSeries getSeriesT1(String symbol) {
+        if (timeSeriesCache_t1.get(symbol) == null) {
+            BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
+                    Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval1.getIntervalId(), 100))
+                    , symbol, interval1.getIntervalId());
+            timeSeriesCache_t1.put(symbol,series);
+        }
+        return timeSeriesCache_t1.get(symbol);
     }
 }
