@@ -13,6 +13,6 @@ import java.sql.Timestamp;
 @Builder
 public class LogUpdateDto {
     private Long id;
-    private Timestamp time;
+    private String time;
     private String msg;
 }

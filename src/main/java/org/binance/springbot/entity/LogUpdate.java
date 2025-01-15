@@ -20,7 +20,7 @@ public class LogUpdate {
     @Column (name = "id")
     private Long id;
     @Column (name = "time")
-    private Timestamp time;
+    private String time;
     @Column (name = "msg")
     private String msg;
 }

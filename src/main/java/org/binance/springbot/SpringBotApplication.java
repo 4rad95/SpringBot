@@ -213,7 +213,7 @@ public class SpringBotApplication {
 
 	public  void process( SpringBotApplication app ) {
 		try {
-			LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Start application").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+			LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Start application").time(BinanceUtil.timeFormat(currentTimeMillis())).build();
 			insertLogRecord(logUpdateDto);
 			List<String> symbols = BinanceUtil.getBitcoinSymbols();
 			generateTimeSeriesCache( symbols);
@@ -345,7 +345,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 	Long t1 = currentTimeMillis() - t0;
 	log.info("All symbols analyzed, time elapsed: "
 			+ (t1 / 1000.0) + " seconds.");
-	LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("All symbols analyzed, time elapsed: "  + (t1 / 1000.0) + " seconds.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+	LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("All symbols analyzed, time elapsed: "  + (t1 / 1000.0) + " seconds.").time(BinanceUtil.timeFormat(currentTimeMillis())).build();
 	insertLogRecord(logUpdateDto);
 	// updateAll();
 }
@@ -573,7 +573,10 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		timeSeriesCache.clear();
 		deleteSymbolsAll();
 		int i = generateTimeSeriesCache( symbols);
-		LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+		LogUpdateDto logUpdateDto = LogUpdateDto.builder()
+				.msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.")
+				.time(BinanceUtil.timeFormat(currentTimeMillis()))
+				.build();
 		insertLogRecord(logUpdateDto);
 	}
 
