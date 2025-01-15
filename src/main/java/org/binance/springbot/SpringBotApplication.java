@@ -37,6 +37,8 @@ import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
 
 import static org.binance.springbot.util.BinanceUtil.*;
+import static org.binance.springbot.util.OrderBlockFinder.findAllOrderBlocks;
+import static org.binance.springbot.util.TrendDetector.detectTrendWithOB;
 
 
 @SpringBootApplication
@@ -275,7 +277,19 @@ public class SpringBotApplication {
 //					PivotCalculator.PivotPoints pivotPoints = calculatePivotPoints(series);
 //					System.out.println(series.getName() +" " +pivotPoints);
 
-					Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
+// 					Map<String, Integer> orderBlocks = OrderBlockFinder.findOrderBlocks(series , series.getEndIndex());
+					Map<String, Integer> orderBlocks = new HashMap<>();
+					Map<Integer, OrderBlock> allOrderBlocks  = findAllOrderBlocks(series);
+					Integer[] keys = allOrderBlocks.keySet().toArray(new Integer[0]);
+					OrderBlock[] values = allOrderBlocks.values().toArray(new OrderBlock[0]);
+					if (values[0].getMove() > 0 ) {
+						orderBlocks.put("SellOrderBlock",keys[1]);
+						orderBlocks.put("BuyOrderBlock",keys[0]);
+					} else {
+						orderBlocks.put("SellOrderBlock",keys[0]);
+						orderBlocks.put("BuyOrderBlock",keys[1]);
+
+					}
 //					if ((orderBlocks.get("BuyOrderBlock").doubleValue()<0.00)
 //						||(orderBlocks.get("SellOrderBlock").doubleValue() <0.00)){
 //						timeSeriesCache.remove(symbol);
@@ -378,16 +392,17 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			&& Double.valueOf(symbolsDto.getHighBuy())< Double.valueOf(symbolsDto.getImbBuy())){
 		if (!openPositionService.getOpenPositionSymbol(symbolsDto.getSymbols()))  {
 		Double price = BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
+			//	int trend = detectTrendWithOB(timeSeriesCache.get(symbolsDto.getSymbols()));
+			//		TrendDetector.TrendResult result =  TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 
 
 		if (price < Double.valueOf(symbolsDto.getHighSell())
 				&& price > Double.valueOf(symbolsDto.getLowBuy())
 				&& TrendDetector.trendDetect(symbolsDto.getSymbols())>0) {
-			TrendDetector.TrendResult result =  TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = 1; //TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
-			if (move> 0 && result.typeD < 0 && moveRSI >0) {
-
+			//if (move> 0 && result.typeD > 0 && moveRSI >0) {
+			if (move> 0 &&  moveRSI >0) {
 
 			// String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getImbBuy())+Double.valueOf(symbolsDto.getLowBuy())),countDecimalPlaces(price)));
 				String enterPrice = symbolsDto.getHighBuy();
@@ -410,10 +425,9 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		else if (price > Double.valueOf(symbolsDto.getLowSell())
 				&& price < Double.valueOf(symbolsDto.getHighSell())
 				&& TrendDetector.trendDetect(symbolsDto.getSymbols())<0) {
-			TrendDetector.TrendResult result = TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
 			int move = -1;// TrendDetector.detectTrendWithMA25(timeSeriesCache.get(symbolsDto.getSymbols()));
 			int moveRSI = TrendDetector.detectTrendWithStochRSI(timeSeriesCache.get(symbolsDto.getSymbols()));
-			if (move < 0 && result.typeD < 0 && moveRSI <0 ) {
+			if (move < 0 &&  moveRSI <0 ) {
 
 
 			// String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getLowSell())),countDecimalPlaces(price)));

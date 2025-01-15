@@ -12,6 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 import static org.binance.springbot.SpringBotApplication.interval1;
+import static org.binance.springbot.util.OrderBlockFinder.findAllOrderBlocks;
 
 public class TrendDetector {
 
@@ -137,7 +138,27 @@ public class TrendDetector {
         return 0;
     }
 
-    public static TrendResult detectTrendWithExtremes(BarSeries series, int range, int filterRange) {
+    public static int detectTrendWithOB(BarSeries series) {
+        Map<Integer, OrderBlock> allOrderBlocks  = findAllOrderBlocks(series);
+        Integer[] keys = allOrderBlocks.keySet().toArray(new Integer[0]);
+        OrderBlock[] values = allOrderBlocks.values().toArray(new OrderBlock[0]);
+        if (values[0].getMove() < 0) {
+            double min1 = values[1].getBar().getLowPrice().doubleValue();
+            double min2 = values[3].getBar().getLowPrice().doubleValue();
+            if (min1 < min2) { return  -1; }
+            else return 1;
+        }
+        if (values[0].getMove() > 0) {
+            double max1 = values[1].getBar().getHighPrice().doubleValue();
+            double max2 = values[3].getBar().getHighPrice().doubleValue();
+            if (max1 > max2) { return  1; }
+            else return -1;
+        }
+        return 0;
+    }
+        public static TrendResult detectTrendWithExtremes(BarSeries series, int range, int filterRange) {
+
+
         List<Extremum> allMinima = new ArrayList<>();
         List<Extremum> allMaxima = new ArrayList<>();
         String name = series.getName();

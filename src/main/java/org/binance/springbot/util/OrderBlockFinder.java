@@ -4,9 +4,7 @@ import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.helpers.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static org.binance.springbot.SpringBotApplication.interval1;
 import static org.binance.springbot.SpringBotApplication.interval2;
@@ -238,4 +236,68 @@ public static Double findeUperOB(BarSeries series, Double price) {
         double price = closePrice.getValue(series.getEndIndex()).doubleValue();
         return findeUperIMB(series,price);
     }
+
+
+    public static Map<Integer, OrderBlock> findAllOrderBlocks(BarSeries series) {
+        int maxIndex = series.getEndIndex();
+
+        Map<Integer, OrderBlock> orderBlocks = new TreeMap<>(Comparator.reverseOrder());
+
+        for (int i=maxIndex-1; i >=3; i--) {
+
+            Bar next = series.getBar(i+1);
+            Bar current = series.getBar(i);
+            Bar previous = series.getBar(i - 1);
+            Bar previous1 = series.getBar(i - 2);
+            Bar previous2 = series.getBar(i - 3);
+            Bar previous3 = series.getBar(i - 3);
+
+            // (Sell Order Block)
+            if (            previous.getOpenPrice().isLessThan(previous.getClosePrice())
+                            && current.getOpenPrice().isGreaterThan(current.getClosePrice())
+                            && next.getHighPrice().isLessThan(previous.getLowPrice())
+                            && checkPriceHigh(series, i)
+
+            ) {
+                OrderBlock orderBlock = new OrderBlock(-1,i-1,series.getBar(i-1));
+                orderBlocks.put((i - 1), orderBlock);
+            }
+        // Buy Order Block
+            if (
+                    previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
+                            && current.getOpenPrice().isLessThan(current.getClosePrice())
+                            && next.getLowPrice().isGreaterThan(previous.getHighPrice())
+                            && checkPriceLow(series, i)
+
+            ) {
+                OrderBlock orderBlock = new OrderBlock(1,i-1,series.getBar(i-1));
+                orderBlocks.put((i - 1), orderBlock);
+
+            }
+        }
+        return sortData(orderBlocks);
+    }
+    private static Map<Integer, OrderBlock> sortData(Map<Integer, OrderBlock> orderBlocks) {
+        Set<Integer> seenMoves = new HashSet<>();
+
+        // Итератор для безопасного удаления
+        Iterator<Map.Entry<Integer, OrderBlock>> iterator = orderBlocks.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, OrderBlock> entry = iterator.next();
+            int move = entry.getValue().getMove();
+
+            // Если move уже встречался, удаляем запись
+            if (seenMoves.contains(move)) {
+                iterator.remove();
+            } else {
+                // Если move ещё не встречался, добавляем его в Set
+                seenMoves.add(move);
+            }
+        }
+
+        return orderBlocks;
+    }
+
+
 }
