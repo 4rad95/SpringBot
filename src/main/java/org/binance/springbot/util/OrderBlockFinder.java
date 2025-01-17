@@ -55,11 +55,6 @@ public class OrderBlockFinder {
                     && current.getOpenPrice().isLessThan(current.getClosePrice())
                     && next.getLowPrice().isGreaterThan(previous.getHighPrice())
                     && checkPriceLow(series, i)
-//            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getOpenPrice().doubleValue()-previous.getClosePrice().doubleValue())>1)
-//                    && previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
-//                    && current.getOpenPrice().isLessThan(current.getClosePrice())
-//                    && previous.getHighPrice().isLessThan(current.getClosePrice())
-//                    && checkPriceLow(series, i)
             ) {
                 lastBuyBlockIndex = i - 1;
                 break;
@@ -103,26 +98,18 @@ public static Double findeUperOB(BarSeries series, Double price) {
             Bar current = series.getBar(i);
             Bar previous = series.getBar(i - 1);
             Bar next = series.getBar(i+1);
-            if ( //((previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()) / (previous.getClosePrice().doubleValue() - previous.getOpenPrice().doubleValue()) > 1)
-//                     previous.getOpenPrice().isLessThan(previous.getClosePrice())
-//                    && current.getOpenPrice().isGreaterThan(current.getClosePrice())
-//                    && previous.getLowPrice().isGreaterThan(current.getClosePrice())
+            if (
                     next.getHighPrice().isLessThan(previous.getLowPrice())
                     && checkImbHigh(series, i)
                     && previous.getClosePrice().doubleValue()>price
-
             ) {
                 uperIMB = previous.getLowPrice().doubleValue();
-                uperOB = previous.getLowPrice().doubleValue();
-        //        if(uperIMB < uperOB ) {
+
                 System.out.println(series.getName() + "  UP "+  uperIMB);
 
                 return uperIMB;
-//                } else {
-//                    return uperOB;
-//                }
             }}
-        return uperOB;
+        return uperIMB;
     }
 
     public static Double findeDownOB(BarSeries series, Double price) {
@@ -222,7 +209,7 @@ public static Double findeUperOB(BarSeries series, Double price) {
 
     public static Double  findDownImbStop(String symbol) {
         BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
-                Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval2.getIntervalId(), 500))
+                Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval2.getIntervalId(), 200))
                 , symbol, SpringBotApplication.interval2.getIntervalId());
         ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
         double price = closePrice.getValue(series.getEndIndex()).doubleValue();
@@ -230,7 +217,7 @@ public static Double findeUperOB(BarSeries series, Double price) {
     }
     public static Double  findUpImbStop(String symbol) {
         BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
-                Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval2.getIntervalId(), 500))
+                Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval2.getIntervalId(), 200))
                 , symbol, SpringBotApplication.interval2.getIntervalId());
         ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
         double price = closePrice.getValue(series.getEndIndex()).doubleValue();
