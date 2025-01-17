@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
@@ -246,7 +247,7 @@ public class SpringBotApplication {
 					Thread mainThread = new Thread(r, "Search thread");
 					mainThread.start();
 
-					if (wait >= 13) {
+					if (wait >= 3) {
 						Thread updateThread = new Thread(update, "Update symbols");
 						updateThread.start();
 						wait = 1;
@@ -272,8 +273,13 @@ public class SpringBotApplication {
 			//	log.info( "Generating time series for " + symbol);
 				try {
 					int limit = 300;
-					List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), limit);
-					BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
+					BarSeries series = null;
+					if (timeSeriesCache.get(symbol) == null) {
+						List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), limit);
+						series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
+					} else {
+						series = timeSeriesCache.get(symbol);
+					}
 					timeSeriesCache.put(symbol, series);
 //					PivotCalculator.PivotPoints pivotPoints = calculatePivotPoints(series);
 //					System.out.println(series.getName() +" " +pivotPoints);
@@ -485,51 +491,61 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		List<OpenPosition> openPositionDtoList = openPositionService.getAll();
 		if (!openPositionDtoList.isEmpty()) {
 			RequestOptions options = new RequestOptions();
-			SyncRequestClient syncRequestClient = SyncRequestClient.create(getApiKey(), getApiSecret(),
-					options);
-			for (OpenPosition entity: openPositionDtoList){
-						List<MyTrade> trades = syncRequestClient.getAccountTrades(entity.getSymbol(), null, null, null, 100);
-				if ((trades.get(trades.size() - 1).getRealizedPnl().doubleValue())!= 0 ){
-					Long time = trades.get(trades.size()-1).getTime().longValue();
-					trades = syncRequestClient.getAccountTrades(entity.getSymbol(), time, null, null, 100);
-					BigDecimal pnl = BigDecimal.valueOf(0);
-					BigDecimal comission = BigDecimal.valueOf(0);
-					for (MyTrade trade : trades){
-									pnl.add(BigDecimal.valueOf(trade.getRealizedPnl().doubleValue()));
-									comission.add(BigDecimal.valueOf(trade.getCommission().doubleValue()));
-					}
-					StatisticDto statisticDto = StatisticDto.builder().pnl(pnl.toString()).symbols(trades.get(trades.size()-1).getSymbol())
-							.comission(comission.toString())
-							.type(Type.valueOf(trades.get(trades.size()-1).getPositionSide()))
-							.startDateTime(convertTimestampToDate(trades.get(trades.size()-1).getTime().longValue()))
-							.duration(BinanceUtil.timeFormat(trades.get(trades.size()-1).getTime().longValue()-trades.get(trades.size()-2).getTime().longValue()))
+			SyncRequestClient syncRequestClient = SyncRequestClient.create(getApiKey(), getApiSecret(), options);
+
+			for (OpenPosition entity : openPositionDtoList) {
+				List<MyTrade> trades = syncRequestClient.getAccountTrades(entity.getSymbol(), null, null, null, 100);
+
+				MyTrade lastTrade = trades.get(trades.size() - 1);
+				if (lastTrade.getRealizedPnl().doubleValue() != 0) {
+					long lastTime = lastTrade.getTime();
+
+					List<MyTrade> filteredTrades = trades.stream()
+							.filter(trade -> trade.getTime() == lastTime)
+							.collect(Collectors.toList());
+
+					BigDecimal totalPnl = filteredTrades.stream()
+							.map(trade -> BigDecimal.valueOf(trade.getRealizedPnl().doubleValue()))
+							.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+					BigDecimal totalCommission = filteredTrades.stream()
+							.map(trade -> BigDecimal.valueOf(trade.getCommission().doubleValue()))
+							.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
+					StatisticDto statisticDto = StatisticDto.builder()
+							.pnl(totalPnl.toString())
+							.symbols(lastTrade.getSymbol())
+							.comission(totalCommission.toString())
+							.type(Type.valueOf(lastTrade.getPositionSide()))
+							.startDateTime(convertTimestampToDate(lastTime))
+							.duration(BinanceUtil.timeFormat(lastTime - trades.get(trades.size() - 2).getTime()))
 							.build();
-					statisticService.insertStatistic(statisticDto);
-					openPositionService.deleteById(entity.getId());
-					try {
-						syncRequestClient.cancelOrder(trades.get(trades.size()-1).getSymbol(),entity.getProfitId(),null); }
-					catch (Exception e) {
-						System.out.println();
-					}
-					try {
-						syncRequestClient.cancelOrder(trades.get(trades.size()-1).getSymbol(),entity.getStopId(),null);}
-					catch (Exception e) {
-						System.out.println();
-					}
-//					try {
-//						syncRequestClient.cancelOrder(trades.get(trades.size()-1).getSymbol(),entity.getProfit2Id(),null);}
-//					catch (Exception e) {
-//							System.out.println();
-//					}
+
+				statisticService.insertStatistic(statisticDto);
+				openPositionService.deleteById(entity.getId());
+
+				try {
+					syncRequestClient.cancelOrder(entity.getSymbol(), entity.getProfitId(), null);
+				} catch (Exception e) {
+					System.err.println("Failed to cancel profit order: " + e.getMessage());
 				}
+
+				try {
+					syncRequestClient.cancelOrder(entity.getSymbol(), entity.getStopId(), null);
+				} catch (Exception e) {
+					System.err.println("Failed to cancel stop order: " + e.getMessage());
+				}
+			}
 		}
 	}}
+
 
 	public void updateAll(List<String> symbols) throws Exception {
 		sleep(180000);
 		Long t0 = currentTimeMillis();
 		timeSeriesCache_t1.clear();
-		timeSeriesCache.clear();
+		// timeSeriesCache.clear();
 		deleteSymbolsAll();
 		int i = generateTimeSeriesCache( symbols);
 		LogUpdateDto logUpdateDto = LogUpdateDto.builder()
