@@ -98,8 +98,8 @@ public class TrendDetector {
         return 0;
     }
 
-    public static int trendDetect(String symbol) {
-        BarSeries series = BinanceUtil.getSeriesT1(symbol);
+    public static int trendDetect(BarSeries series) {
+        //BarSeries series = BinanceUtil.getSeriesT1(symbol);
         ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
         RSIIndicator rsiIndicator = new RSIIndicator(closePrice,14);
         StochasticRSIIndicator stochRSIK = new StochasticRSIIndicator(rsiIndicator, 14);
@@ -115,16 +115,17 @@ public class TrendDetector {
 
         SMAIndicator signalLine = new SMAIndicator(macd, signalPeriod);
         Num histogram = macd.getValue(series.getEndIndex()).minus(signalLine.getValue(series.getEndIndex()));
+        Double diff = histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue();
         System.out.println(String.format("%.4f",macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()) + " , " +String.format("%.4f",histogram.doubleValue()) +
                 "   diff = " + String.format("%.4f",histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()));
 
-        if (smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.7)
-//                && signalLine.getValue(series.getEndIndex()).isNegative())
+        if ((rsiIndicator.getValue(series.getEndIndex()).doubleValue() < 0.7)//smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.7)
+              && diff <0 )//  && macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex())))
         {
             return -1; }
-        if (smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.3)
- //               && signalLine.getValue(series.getEndIndex()).isPositive())
-        {
+        if ((rsiIndicator.getValue(series.getEndIndex()).doubleValue() > 0.3)  //(smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.3)
+                && diff > 0 ) //macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex())))
+             {
             return 1; }
 
 //        if (((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.5) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex()))))

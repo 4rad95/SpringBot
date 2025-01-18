@@ -39,7 +39,9 @@ import static java.lang.Thread.sleep;
 
 import static org.binance.springbot.util.BinanceUtil.*;
 import static org.binance.springbot.util.OrderBlockFinder.findAllOrderBlocks;
+
 import static org.binance.springbot.util.TrendDetector.detectTrendWithOB;
+import static org.binance.springbot.util.TrendDetector.trendDetect;
 
 
 @SpringBootApplication
@@ -396,11 +398,13 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			&& Double.valueOf(symbolsDto.getHighBuy())< Double.valueOf(symbolsDto.getImbBuy())){
 		if (!openPositionService.getOpenPositionSymbol(symbolsDto.getSymbols()))  {
 		Double price = timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue(); // BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
+			int trend = trendDetect(timeSeriesCache.get(symbolsDto.getSymbols()));
 			//	int trend = detectTrendWithOB(timeSeriesCache.get(symbolsDto.getSymbols()));
 			//		TrendDetector.TrendResult result =  TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
+		if (trend == 0) { return;}
 
-
-		if (price > Double.valueOf(symbolsDto.getHighBuy())
+		if (	trend > 0
+				&& price > Double.valueOf(symbolsDto.getHighBuy())
 				&& price < Double.valueOf(symbolsDto.getImbBuy())) {
 
 			{
@@ -426,7 +430,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			insertOpenPosition(openPositionDto);
 		}}}}}
 
-		if (price > Double.valueOf(symbolsDto.getImbSell())
+		if (trend < 0
+				&& price > Double.valueOf(symbolsDto.getImbSell())
 				&& price < Double.valueOf(symbolsDto.getLowSell())) {
 
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getLowSell())),countDecimalPlaces(price)));
