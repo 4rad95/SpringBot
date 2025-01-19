@@ -119,11 +119,11 @@ public class TrendDetector {
         System.out.println(String.format("%.4f",macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()) + " , " +String.format("%.4f",histogram.doubleValue()) +
                 "   diff = " + String.format("%.4f",histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()));
 
-        if ((rsiIndicator.getValue(series.getEndIndex()).doubleValue() < 0.7)//smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.7)
+        if ((rsiIndicator.getValue(series.getEndIndex()).doubleValue() < 70)//smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.7)
               && macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex())))
         {
             return -1; }
-        if ((rsiIndicator.getValue(series.getEndIndex()).doubleValue() > 0.3)  //(smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.3)
+        if ((rsiIndicator.getValue(series.getEndIndex()).doubleValue() > 30)  //(smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.3)
                 && macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex())))
              {
             return 1; }
