@@ -443,19 +443,20 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			insertOpenPosition(openPositionDto);
 		}}}}}
 
-		if (trend < 0
+		else if (trend < 0
 				&& price > Double.valueOf(symbolsDto.getImbSell())
 				&& price < Double.valueOf(symbolsDto.getLowSell())) {
 
-			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getLowSell())),countDecimalPlaces(price)));
-			String proffit = OrderBlockFinder.findDownImbStop(symbolsDto.getSymbols()).toString();
-			String stop   = BigDecimal.valueOf(Double.valueOf(symbolsDto.getHighSell())).multiply(new BigDecimal("1.007")).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getHighSell())).scale(), RoundingMode.HALF_UP).toString();
+			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getImbSell())),countDecimalPlaces(price)));
 
-			if (Double.valueOf(enterPrice) < price){
+			if (Double.valueOf(enterPrice) <= price){
+				String proffit = OrderBlockFinder.findDownImbStop(symbolsDto.getSymbols()).toString();
+
 				if (Double.valueOf(proffit) <0) {
 					proffit =symbolsDto.getImbBuy();
 				}
-					VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
+				String stop   = BigDecimal.valueOf(Double.valueOf(symbolsDto.getHighSell())).multiply(new BigDecimal("1.007")).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getHighSell())).scale(), RoundingMode.HALF_UP).toString();
+				VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
 						.type("SHORT").price(price.toString()).stop(stop).proffit(proffit).enterPrice(enterPrice)
 						.build();
 					insertVariant(variantDto);
