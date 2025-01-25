@@ -7,13 +7,15 @@ import com.binance.client.SyncRequestClient;
 import com.binance.client.model.trade.MyTrade;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
+import org.binance.springbot.analytic.ClosePosition;
+import org.binance.springbot.analytic.OrderBlockFinder;
 import org.binance.springbot.aspect.LoggingAspect;
 import org.binance.springbot.dto.*;
 import org.binance.springbot.entity.OpenPosition;
 import org.binance.springbot.entity.enums.Type;
 
 import org.binance.springbot.service.*;
-import javax.sound.sampled.*;
+
 import java.math.BigDecimal;
 
 import org.binance.springbot.util.*;
@@ -25,10 +27,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
-import org.ta4j.core.indicators.RSIIndicator;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.*;
@@ -38,10 +38,8 @@ import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
 
 import static org.binance.springbot.util.BinanceUtil.*;
-import static org.binance.springbot.util.OrderBlockFinder.findAllOrderBlocks;
 
-import static org.binance.springbot.util.TrendDetector.detectTrendWithOB;
-import static org.binance.springbot.util.TrendDetector.trendDetect;
+import static org.binance.springbot.analytic.TrendDetector.trendDetect;
 
 
 @SpringBootApplication
@@ -516,6 +514,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				List<MyTrade> trades = syncRequestClient.getAccountTrades(entity.getSymbol(), null, null, null, 100);
 
 				MyTrade lastTrade = trades.get(trades.size() - 1);
+				ClosePosition closePosition =  new ClosePosition(timeSeriesCache.get(entity.getSymbol()),entity.getType(),lastTrade.getOrderId());
+				System.out.println( entity.getSymbol() + "  " + closePosition.checkPosition());
 				if (lastTrade.getRealizedPnl().doubleValue() != 0) {
 					long lastTime = lastTrade.getTime();
 

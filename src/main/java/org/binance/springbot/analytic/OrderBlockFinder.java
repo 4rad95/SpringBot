@@ -1,13 +1,12 @@
-package org.binance.springbot.util;
+package org.binance.springbot.analytic;
 import org.binance.springbot.SpringBotApplication;
+import org.binance.springbot.util.BinanceTa4jUtils;
+import org.binance.springbot.util.BinanceUtil;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.helpers.*;
 
 import java.util.*;
-
-import static org.binance.springbot.SpringBotApplication.interval1;
-import static org.binance.springbot.SpringBotApplication.interval2;
 
 public class OrderBlockFinder {
 

@@ -1,4 +1,4 @@
-package org.binance.springbot.util;
+package org.binance.springbot.analytic;
 
 import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;

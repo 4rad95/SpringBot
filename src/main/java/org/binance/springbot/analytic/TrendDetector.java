@@ -1,18 +1,15 @@
-package org.binance.springbot.util;
+package org.binance.springbot.analytic;
 
 
-import org.binance.springbot.SpringBotApplication;
 import org.ta4j.core.*;
 import org.ta4j.core.indicators.*;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 import org.ta4j.core.num.Num;
 
-import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static org.binance.springbot.SpringBotApplication.interval1;
-import static org.binance.springbot.util.OrderBlockFinder.findAllOrderBlocks;
+import static org.binance.springbot.analytic.OrderBlockFinder.findAllOrderBlocks;
 
 public class TrendDetector {
 
