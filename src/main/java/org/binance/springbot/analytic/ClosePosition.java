@@ -78,7 +78,7 @@ public class ClosePosition {
                     break;
                 }
                 case "LONG": {
-                    orderNew = syncRequestClient.postOrder(series.getName(), ,
+                    orderNew = syncRequestClient.postOrder(series.getName(),
                             OrderSide.SELL, PositionSide.LONG, OrderType.MARKET, null, orderNew.getOrigQty().toString(),
                             null, null, null, null, null, null, null, null, null,
                             NewOrderRespType.RESULT);
