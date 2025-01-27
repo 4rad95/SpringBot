@@ -247,7 +247,7 @@ public class SpringBotApplication {
 					Thread mainThread = new Thread(r, "Search thread");
 					mainThread.start();
 
-					if (wait >= 3) {
+					if (wait >= 20) {
 						Thread updateThread = new Thread(update, "Update symbols");
 						updateThread.start();
 						wait = 1;
@@ -564,7 +564,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		sleep(180000);
 		Long t0 = currentTimeMillis();
 		timeSeriesCache_t1.clear();
-		// timeSeriesCache.clear();
+		timeSeriesCache.clear();
 		deleteSymbolsAll();
 		int i = generateTimeSeriesCache( symbols);
 		LogUpdateDto logUpdateDto = LogUpdateDto.builder()
