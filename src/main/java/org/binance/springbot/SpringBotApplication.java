@@ -514,8 +514,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				List<MyTrade> trades = syncRequestClient.getAccountTrades(entity.getSymbol(), null, null, null, 100);
 
 				MyTrade lastTrade = trades.get(trades.size() - 1);
-				ClosePosition closePosition =  new ClosePosition(timeSeriesCache.get(entity.getSymbol()),entity.getType(),lastTrade.getOrderId());
-				System.out.println( entity.getSymbol() + "  " + closePosition.checkPosition());
+//				ClosePosition closePosition =  new ClosePosition(timeSeriesCache.get(entity.getSymbol()),entity.getType(),lastTrade.getOrderId());
+//				System.out.println( entity.getSymbol() + "  " + closePosition.checkPosition());
 				if (lastTrade.getRealizedPnl().doubleValue() != 0) {
 					long lastTime = lastTrade.getTime();
 
