@@ -247,7 +247,7 @@ public class SpringBotApplication {
 					Thread mainThread = new Thread(r, "Search thread");
 					mainThread.start();
 
-					if (wait >= 20) {
+					if (wait >= 10) {
 						Thread updateThread = new Thread(update, "Update symbols");
 						updateThread.start();
 						wait = 1;

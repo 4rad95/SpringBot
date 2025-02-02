@@ -15,6 +15,8 @@ public class OrderBlockFinder {
         String[]  buyBlock = {null,null,null};
         ///  String [Low, High, Imb ]
 
+        double avgVolume = calculateAverageVolume(series, 20);
+
         // (Sell Order Block)
         for (int i = maxIndex-1; i >= 3; i--) {
             Bar next = series.getBar(i+1);
@@ -28,7 +30,8 @@ public class OrderBlockFinder {
                  previous.getOpenPrice().isLessThan(previous.getClosePrice())
                  && current.getOpenPrice().isGreaterThan(current.getClosePrice())
                  && next.getHighPrice().isLessThan(previous.getLowPrice())
-                 && checkPriceHigh(series, i)
+                 &&  hasHighVolume(previous, avgVolume * 1.5)
+            // && checkPriceHigh(series, i)
 //            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getClosePrice().doubleValue()-previous.getOpenPrice().doubleValue())>1)
 //                && previous.getOpenPrice().isLessThan(previous.getClosePrice())
 //                && current.getOpenPrice().isGreaterThan(current.getClosePrice())
@@ -44,7 +47,8 @@ public class OrderBlockFinder {
                     && Math.abs(previous.getHighPrice().doubleValue() - previous.getOpenPrice().doubleValue()/Math.abs(previous.getOpenPrice().doubleValue() - previous.getClosePrice().doubleValue()))>50
                     && current.getOpenPrice().isGreaterThan(current.getClosePrice())
                     && next.getHighPrice().isLessThan(previous.getLowPrice())
-                    && checkPriceHigh(series, i)
+                            && hasHighVolume(previous, avgVolume * 1.5)
+                            // && checkPriceHigh(series, i)
 
             ){ ///  +
                 sellBlock[0] = series.getBar(i - 1).getLowPrice().toString();
@@ -313,5 +317,20 @@ public static Double findeUperOB(BarSeries series, Double price) {
         return orderBlocks;
     }
 
+    private static double calculateAverageVolume(BarSeries series, int lookbackPeriod) {
+        double totalVolume = 0;
+        int count = 0;
 
+        for (int i = 0; i < lookbackPeriod && i < series.getBarCount(); i++) {
+            Bar bar = series.getBar(series.getEndIndex() - i);
+            totalVolume += bar.getVolume().doubleValue();
+            count++;
+        }
+
+        return count > 0 ? totalVolume / count : 0;
+    }
+
+    private static boolean hasHighVolume(Bar bar, double threshold) {
+        return bar.getVolume().doubleValue() > threshold;
+    }
 }
