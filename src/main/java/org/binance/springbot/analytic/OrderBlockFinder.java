@@ -349,6 +349,11 @@ public class OrderBlockFinder {
                     imbalance = Math.min(imbalance, bar.getLowPrice().doubleValue());
                 }
             }
+
+            // Защита от мусорных значений
+            if (Double.isInfinite(imbalance) || Double.isNaN(imbalance)) {
+                imbalance = isSell ? series.getBar(startIndex).getHighPrice().doubleValue() : series.getBar(startIndex).getLowPrice().doubleValue();
+            }
         }
 
         return imbalance;
