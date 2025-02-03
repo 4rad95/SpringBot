@@ -334,21 +334,32 @@ public class OrderBlockFinder {
     private static boolean hasHighVolume(Bar bar, double threshold) {
         return bar.getVolume().doubleValue() > threshold;
     }
-    static double calculateImbalance(BarSeries series, int startIndex, int lookback, boolean isSell) {
+    private static double calculateImbalance(BarSeries series, int startIndex, int lookback, boolean isSell) {
         double imbalance = isSell ? Double.MIN_VALUE : Double.MAX_VALUE;
 
         for (int j = 1; j <= lookback && startIndex + j < series.getBarCount(); j++) {
             Bar bar = series.getBar(startIndex + j);
+
             if (isSell) {
-                imbalance = Math.max(imbalance, bar.getHighPrice().doubleValue()); // Для sell: максимальное High
+                if (!isContinuationTrend(bar, isSell)) {
+                    imbalance = Math.max(imbalance, bar.getHighPrice().doubleValue());
+                }
             } else {
-                imbalance = Math.min(imbalance, bar.getLowPrice().doubleValue()); // Для buy: минимальное Low
+                if (!isContinuationTrend(bar, isSell)) {
+                    imbalance = Math.min(imbalance, bar.getLowPrice().doubleValue());
+                }
             }
         }
 
         return imbalance;
     }
-
+    private static boolean isContinuationTrend(Bar bar, boolean isSell) {
+        if (isSell) {
+            return bar.getClosePrice().isGreaterThan(bar.getOpenPrice());
+        } else {
+            return bar.getClosePrice().isLessThan(bar.getOpenPrice());
+        }
+    }
 }
 
 
