@@ -17,6 +17,7 @@ public class OrderBlockFinder {
 
         double avgVolume = calculateAverageVolume(series, 20);
 
+
         // (Sell Order Block)
         for (int i = maxIndex-1; i >= 3; i--) {
             Bar next = series.getBar(i+1);
@@ -40,7 +41,7 @@ public class OrderBlockFinder {
             ) {
                 sellBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 sellBlock[1] = series.getBar(i - 1).getHighPrice().toString();
-                sellBlock[2] = series.getBar(i + 1).getHighPrice().toString();
+                sellBlock[2] = String.valueOf(calculateImbalance(series, i+1, 3,true));//series.getBar(i + 1).getHighPrice().toString();
                 break;
             } if (
                     previous1.getOpenPrice().isLessThan(previous1.getClosePrice())
@@ -53,7 +54,7 @@ public class OrderBlockFinder {
             ){
                 sellBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 sellBlock[1] = series.getBar(i - 1).getHighPrice().toString();
-                sellBlock[2] = series.getBar(i + 1).getHighPrice().toString();
+                sellBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 3,true));//series.getBar(i + 1).getHighPrice().toString();
 
                 break;
 //BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowBuy()))).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).scale(), RoundingMode.HALF_UP).toString();
@@ -72,11 +73,11 @@ public class OrderBlockFinder {
                     previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
                             && current.getOpenPrice().isLessThan(current.getClosePrice())
                             && next.getLowPrice().isGreaterThan(previous.getHighPrice())
-                            && checkPriceLow(series, i)
+                            && hasHighVolume(previous, avgVolume )
             ) {  /// +
                 buyBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 buyBlock[1] = series.getBar(i - 1).getHighPrice().toString();
-                buyBlock[2] = series.getBar(i + 1).getLowPrice().toString();
+                buyBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 3,false)); //series.getBar(i + 1).getLowPrice().toString();
 
                 break;
             }  if (
@@ -84,11 +85,11 @@ public class OrderBlockFinder {
                             && Math.abs(previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()/Math.abs(previous.getOpenPrice().doubleValue() - previous.getClosePrice().doubleValue()))>50
                             && current.getOpenPrice().isLessThan(current.getClosePrice())
                             && next.getLowPrice().isGreaterThan(previous.getHighPrice())
-                            && checkPriceLow(series, i)
+                            && hasHighVolume(previous, avgVolume )
             ) {
                 buyBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 buyBlock[1] = series.getBar(i - 1).getHighPrice().toString();
-                buyBlock[2] = series.getBar(i + 1).getLowPrice().toString();
+                buyBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 3,false));//series.getBar(i + 1).getLowPrice().toString();
 
                 break;
             }
@@ -333,6 +334,21 @@ public class OrderBlockFinder {
     private static boolean hasHighVolume(Bar bar, double threshold) {
         return bar.getVolume().doubleValue() > threshold;
     }
+    static double calculateImbalance(BarSeries series, int startIndex, int lookback, boolean isSell) {
+        double imbalance = isSell ? Double.MIN_VALUE : Double.MAX_VALUE;
+
+        for (int j = 1; j <= lookback && startIndex + j < series.getBarCount(); j++) {
+            Bar bar = series.getBar(startIndex + j);
+            if (isSell) {
+                imbalance = Math.max(imbalance, bar.getHighPrice().doubleValue()); // Для sell: максимальное High
+            } else {
+                imbalance = Math.min(imbalance, bar.getLowPrice().doubleValue()); // Для buy: минимальное Low
+            }
+        }
+
+        return imbalance;
+    }
+
 }
 
 
