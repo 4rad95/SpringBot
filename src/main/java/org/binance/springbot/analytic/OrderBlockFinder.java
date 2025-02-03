@@ -31,7 +31,8 @@ public class OrderBlockFinder {
                     previous.getOpenPrice().isLessThan(previous.getClosePrice())
                             && current.getOpenPrice().isGreaterThan(current.getClosePrice())
                             && next.getHighPrice().isLessThan(previous.getLowPrice())
-                            &&  hasHighVolume(previous, avgVolume )
+                                            && checkPriceHigh(series, i)
+                             //&&  hasHighVolume(previous, avgVolume )
                 // && checkPriceHigh(series, i)
 //            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getClosePrice().doubleValue()-previous.getOpenPrice().doubleValue())>1)
 //                && previous.getOpenPrice().isLessThan(previous.getClosePrice())
@@ -48,7 +49,8 @@ public class OrderBlockFinder {
                             && Math.abs(previous.getHighPrice().doubleValue() - previous.getOpenPrice().doubleValue()/Math.abs(previous.getOpenPrice().doubleValue() - previous.getClosePrice().doubleValue()))>50
                             && current.getOpenPrice().isGreaterThan(current.getClosePrice())
                             && next.getHighPrice().isLessThan(previous.getLowPrice())
-                            && hasHighVolume(previous, avgVolume )
+                                && checkPriceHigh(series, i)
+                        //    && hasHighVolume(previous, avgVolume )
                 // && checkPriceHigh(series, i)
 
             ){
@@ -73,7 +75,8 @@ public class OrderBlockFinder {
                     previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
                             && current.getOpenPrice().isLessThan(current.getClosePrice())
                             && next.getLowPrice().isGreaterThan(previous.getHighPrice())
-                            && hasHighVolume(previous, avgVolume )
+                            && checkPriceLow(series, i)
+                    //        && hasHighVolume(previous, avgVolume )
             ) {  /// +
                 buyBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 buyBlock[1] = series.getBar(i - 1).getHighPrice().toString();
@@ -85,7 +88,8 @@ public class OrderBlockFinder {
                             && Math.abs(previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()/Math.abs(previous.getOpenPrice().doubleValue() - previous.getClosePrice().doubleValue()))>50
                             && current.getOpenPrice().isLessThan(current.getClosePrice())
                             && next.getLowPrice().isGreaterThan(previous.getHighPrice())
-                            && hasHighVolume(previous, avgVolume )
+                            && checkPriceLow(series, i)
+                    //        && hasHighVolume(previous, avgVolume )
             ) {
                 buyBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 buyBlock[1] = series.getBar(i - 1).getHighPrice().toString();
