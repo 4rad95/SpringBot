@@ -27,11 +27,11 @@ public class OrderBlockFinder {
             Bar previous3 = series.getBar(i - 3);
 
             if (
-                 previous.getOpenPrice().isLessThan(previous.getClosePrice())
-                 && current.getOpenPrice().isGreaterThan(current.getClosePrice())
-                 && next.getHighPrice().isLessThan(previous.getLowPrice())
-                 &&  hasHighVolume(previous, avgVolume * 1.5)
-            // && checkPriceHigh(series, i)
+                    previous.getOpenPrice().isLessThan(previous.getClosePrice())
+                            && current.getOpenPrice().isGreaterThan(current.getClosePrice())
+                            && next.getHighPrice().isLessThan(previous.getLowPrice())
+                            &&  hasHighVolume(previous, avgVolume )
+                // && checkPriceHigh(series, i)
 //            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getClosePrice().doubleValue()-previous.getOpenPrice().doubleValue())>1)
 //                && previous.getOpenPrice().isLessThan(previous.getClosePrice())
 //                && current.getOpenPrice().isGreaterThan(current.getClosePrice())
@@ -44,17 +44,17 @@ public class OrderBlockFinder {
                 break;
             } if (
                     previous1.getOpenPrice().isLessThan(previous1.getClosePrice())
-                    && Math.abs(previous.getHighPrice().doubleValue() - previous.getOpenPrice().doubleValue()/Math.abs(previous.getOpenPrice().doubleValue() - previous.getClosePrice().doubleValue()))>50
-                    && current.getOpenPrice().isGreaterThan(current.getClosePrice())
-                    && next.getHighPrice().isLessThan(previous.getLowPrice())
-                            && hasHighVolume(previous, avgVolume * 1.5)
-                            // && checkPriceHigh(series, i)
+                            && Math.abs(previous.getHighPrice().doubleValue() - previous.getOpenPrice().doubleValue()/Math.abs(previous.getOpenPrice().doubleValue() - previous.getClosePrice().doubleValue()))>50
+                            && current.getOpenPrice().isGreaterThan(current.getClosePrice())
+                            && next.getHighPrice().isLessThan(previous.getLowPrice())
+                            && hasHighVolume(previous, avgVolume )
+                // && checkPriceHigh(series, i)
 
-            ){ ///  +
+            ){
                 sellBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 sellBlock[1] = series.getBar(i - 1).getHighPrice().toString();
                 sellBlock[2] = series.getBar(i + 1).getHighPrice().toString();
-/// /???
+
                 break;
 //BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowBuy()))).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).scale(), RoundingMode.HALF_UP).toString();
             }
@@ -70,9 +70,9 @@ public class OrderBlockFinder {
 
             if (
                     previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
-                    && current.getOpenPrice().isLessThan(current.getClosePrice())
-                    && next.getLowPrice().isGreaterThan(previous.getHighPrice())
-                    && checkPriceLow(series, i)
+                            && current.getOpenPrice().isLessThan(current.getClosePrice())
+                            && next.getLowPrice().isGreaterThan(previous.getHighPrice())
+                            && checkPriceLow(series, i)
             ) {  /// +
                 buyBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 buyBlock[1] = series.getBar(i - 1).getHighPrice().toString();
@@ -81,10 +81,10 @@ public class OrderBlockFinder {
                 break;
             }  if (
                     previous1.getOpenPrice().isGreaterThan(previous1.getClosePrice())
-                    && Math.abs(previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()/Math.abs(previous.getOpenPrice().doubleValue() - previous.getClosePrice().doubleValue()))>50
-                    && current.getOpenPrice().isLessThan(current.getClosePrice())
-                    && next.getLowPrice().isGreaterThan(previous.getHighPrice())
-                    && checkPriceLow(series, i)
+                            && Math.abs(previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()/Math.abs(previous.getOpenPrice().doubleValue() - previous.getClosePrice().doubleValue()))>50
+                            && current.getOpenPrice().isLessThan(current.getClosePrice())
+                            && next.getLowPrice().isGreaterThan(previous.getHighPrice())
+                            && checkPriceLow(series, i)
             ) {
                 buyBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 buyBlock[1] = series.getBar(i - 1).getHighPrice().toString();
@@ -100,30 +100,30 @@ public class OrderBlockFinder {
 //            orderBlocks = findOrderBlocks(series, lastSellBlockIndex);
 //        }
 //        else {
-            orderBlocks.put("SellOrderBlock", sellBlock);
-            orderBlocks.put("BuyOrderBlock", buyBlock);
+        orderBlocks.put("SellOrderBlock", sellBlock);
+        orderBlocks.put("BuyOrderBlock", buyBlock);
         //}
         return orderBlocks;
     }
 
-public static Double findeUperOB(BarSeries series, Double price) {
-    double uperOB = -1.00;
-    for (int i = series.getEndIndex(); i >= 3; i--) {
-        Bar current = series.getBar(i);
-        Bar previous = series.getBar(i - 1);
-        if (((previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()) / (previous.getClosePrice().doubleValue() - previous.getOpenPrice().doubleValue()) > 1)
-                && previous.getOpenPrice().isLessThan(previous.getClosePrice())
-                && current.getOpenPrice().isGreaterThan(current.getClosePrice())
-                && previous.getLowPrice().isGreaterThan(current.getClosePrice())
-                && checkPriceHigh(series, i)
-                && previous.getClosePrice().doubleValue()>price
-        ) {
-            uperOB = previous.getLowPrice().doubleValue();
-            break;
+    public static Double findeUperOB(BarSeries series, Double price) {
+        double uperOB = -1.00;
+        for (int i = series.getEndIndex(); i >= 3; i--) {
+            Bar current = series.getBar(i);
+            Bar previous = series.getBar(i - 1);
+            if (((previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()) / (previous.getClosePrice().doubleValue() - previous.getOpenPrice().doubleValue()) > 1)
+                    && previous.getOpenPrice().isLessThan(previous.getClosePrice())
+                    && current.getOpenPrice().isGreaterThan(current.getClosePrice())
+                    && previous.getLowPrice().isGreaterThan(current.getClosePrice())
+                    && checkPriceHigh(series, i)
+                    && previous.getClosePrice().doubleValue()>price
+            ) {
+                uperOB = previous.getLowPrice().doubleValue();
+                break;
+            }
         }
+        return uperOB;
     }
-    return uperOB;
-}
 
     public static Double findeUperIMB(BarSeries series, Double price) {
         double uperIMB = -1.00;
@@ -134,8 +134,8 @@ public static Double findeUperOB(BarSeries series, Double price) {
             Bar next = series.getBar(i+1);
             if (
                     next.getHighPrice().isLessThan(previous.getLowPrice())
-                    && checkImbHigh(series, i)
-                    && previous.getClosePrice().doubleValue()>price
+                            && checkImbHigh(series, i)
+                            && previous.getClosePrice().doubleValue()>price
             ) {
                 uperIMB = previous.getLowPrice().doubleValue();
 
@@ -179,31 +179,31 @@ public static Double findeUperOB(BarSeries series, Double price) {
 //                    && previous.getHighPrice().isLessThan(current.getClosePrice())
 //                    && checkPriceLow(series, i)
 //                    && previous.getClosePrice().doubleValue()<price
-                   next.getLowPrice().isGreaterThan(previous.getHighPrice())
-                   && checkImbLow(series, i)
+                    next.getLowPrice().isGreaterThan(previous.getHighPrice())
+                            && checkImbLow(series, i)
 
             ) {
                 downIMB = previous.getHighPrice().doubleValue();
                 downOB = previous.getHighPrice().doubleValue();
-               // if (downIMB > downOB) {
+                // if (downIMB > downOB) {
                 System.out.println(series.getName() + "  DOWN "+  downIMB);
-                    return downIMB;
+                return downIMB;
                 //}
-               //   return downOB;
+                //   return downOB;
             }
         }
         return downIMB;
-        }
+    }
 
-   private static boolean checkPriceHigh(BarSeries series, int i) {
-       for (int j = series.getEndIndex(); j > i  ; j--) {
+    private static boolean checkPriceHigh(BarSeries series, int i) {
+        for (int j = series.getEndIndex(); j > i  ; j--) {
             if (series.getBar(j).getHighPrice().isGreaterThan( series.getBar(i).getHighPrice())
-                ){
+            ){
                 return false;
             }
-       }
+        }
         return true;
-   }
+    }
     private static boolean checkPriceLow(BarSeries series, int i) {
         for (int j = series.getEndIndex(); j > i  ; j--) {
             if (series.getBar(j).getLowPrice().isLessThan( series.getBar(i).getLowPrice())){
@@ -275,15 +275,15 @@ public static Double findeUperOB(BarSeries series, Double price) {
 
             // (Sell Order Block)
             if (            previous.getOpenPrice().isLessThan(previous.getClosePrice())
-                            && current.getOpenPrice().isGreaterThan(current.getClosePrice())
-                            && next.getHighPrice().isLessThan(previous.getLowPrice())
-                            && checkPriceHigh(series, i-1)
+                    && current.getOpenPrice().isGreaterThan(current.getClosePrice())
+                    && next.getHighPrice().isLessThan(previous.getLowPrice())
+                    && checkPriceHigh(series, i-1)
 
             ) {
                 OrderBlock orderBlock = new OrderBlock(-1,i-1,series.getBar(i-1));
                 orderBlocks.put((i - 1), orderBlock);
             }
-        // Buy Order Block
+            // Buy Order Block
             if (
                     previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
                             && current.getOpenPrice().isLessThan(current.getClosePrice())
@@ -334,3 +334,107 @@ public static Double findeUperOB(BarSeries series, Double price) {
         return bar.getVolume().doubleValue() > threshold;
     }
 }
+
+
+//package org.binance.springbot.analytic;
+//
+//import org.ta4j.core.Bar;
+//import org.ta4j.core.BarSeries;
+//import org.ta4j.core.*;
+//import org.ta4j.core.indicators.ATRIndicator;
+//import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
+//import org.ta4j.core.num.Num;
+//
+//import java.util.HashMap;
+//import java.util.Map;
+//
+//public class OrderBlockFinder {
+//
+//    // Метод для расчета стоп-лосса на основе ATR
+//    public static double calculateAtrStopLoss(BarSeries series, int atrPeriod, double multiplier, boolean isSell) {
+//        ATRIndicator atr = new ATRIndicator(series, atrPeriod);
+//        double lastAtr = atr.getValue(series.getEndIndex()).doubleValue();
+//        double currentPrice = series.getBar(series.getEndIndex()).getClosePrice().doubleValue();
+//
+//        if (isSell) {
+//            return currentPrice + (lastAtr * multiplier); // Для sell-позиций стоп выше цены
+//        } else {
+//            return currentPrice - (lastAtr * multiplier); // Для buy-позиций стоп ниже цены
+//        }
+//    }
+//
+//    // Метод для расчета тейк-профита на основе risk/reward ratio
+//    public static double calculateTakeProfit(double entryPrice, double stopLoss, double riskRewardRatio, boolean isSell) {
+//        double risk = Math.abs(entryPrice - stopLoss);
+//        double reward = risk * riskRewardRatio;
+//
+//        if (isSell) {
+//            return entryPrice - reward; // Для sell-позиций тейк-профит ниже цены входа
+//        } else {
+//            return entryPrice + reward; // Для buy-позиций тейк-профит выше цены входа
+//        }
+//    }
+//
+//    // Метод для поиска order blocks (обновленный)
+//    public static Map<String, Double[]> findOrderBlocks(BarSeries series, int maxIndex) {
+//        Double[] sellBlock = new Double[3];
+//        Double[] buyBlock = new Double[3];
+//
+//        for (int i = maxIndex - 1; i >= 3; i--) {
+//            Bar next = series.getBar(i + 1);
+//            Bar current = series.getBar(i);
+//            Bar previous = series.getBar(i - 1);
+//
+//            // Поиск sell-order block
+//            if (
+//                    previous.getOpenPrice().isLessThan(previous.getClosePrice()) &&
+//                            current.getOpenPrice().isGreaterThan(current.getClosePrice()) &&
+//                            next.getHighPrice().isLessThan(previous.getLowPrice()) &&
+//                            checkPriceHigh(series, i - 1)
+//            ) {
+//                sellBlock[0] = previous.getLowPrice().doubleValue(); // Low
+//                sellBlock[1] = previous.getHighPrice().doubleValue(); // High
+//                sellBlock[2] = next.getHighPrice().doubleValue(); // Imb
+//                break;
+//            }
+//
+//            // Поиск buy-order block
+//            if (
+//                    previous.getOpenPrice().isGreaterThan(previous.getClosePrice()) &&
+//                            current.getOpenPrice().isLessThan(current.getClosePrice()) &&
+//                            next.getLowPrice().isGreaterThan(previous.getHighPrice()) &&
+//                            checkPriceLow(series, i - 1)
+//            ) {
+//                buyBlock[0] = previous.getLowPrice().doubleValue(); // Low
+//                buyBlock[1] = previous.getHighPrice().doubleValue(); // High
+//                buyBlock[2] = next.getLowPrice().doubleValue(); // Imb
+//                break;
+//            }
+//        }
+//
+//        Map<String, Double[]> result = new HashMap<>();
+//        result.put("SellOrderBlock", sellBlock);
+//        result.put("BuyOrderBlock", buyBlock);
+//
+//        return result;
+//    }
+//
+//    // Вспомогательные методы
+//    private static boolean checkPriceHigh(BarSeries series, int i) {
+//        for (int j = series.getEndIndex(); j > i; j--) {
+//            if (series.getBar(j).getHighPrice().isGreaterThan(series.getBar(i).getHighPrice())) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
+//
+//    private static boolean checkPriceLow(BarSeries series, int i) {
+//        for (int j = series.getEndIndex(); j > i; j--) {
+//            if (series.getBar(j).getLowPrice().isLessThan(series.getBar(i).getLowPrice())) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
+//}
