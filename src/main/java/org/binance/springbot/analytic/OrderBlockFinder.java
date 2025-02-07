@@ -42,7 +42,7 @@ public class OrderBlockFinder {
             ) {
                 sellBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 sellBlock[1] = series.getBar(i - 1).getHighPrice().toString();
-                sellBlock[2] = String.valueOf(calculateImbalance(series, i+1, 3,true));//series.getBar(i + 1).getHighPrice().toString();
+                sellBlock[2] = String.valueOf(calculateImbalance(series, i+1, 3,false));//series.getBar(i + 1).getHighPrice().toString();
                 break;
             } if (
                     previous1.getOpenPrice().isLessThan(previous1.getClosePrice())
@@ -57,7 +57,7 @@ public class OrderBlockFinder {
             ){
                 sellBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 sellBlock[1] = series.getBar(i - 1).getHighPrice().toString();
-                sellBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 3,true));//series.getBar(i + 1).getHighPrice().toString();
+                sellBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 3,false));//series.getBar(i + 1).getHighPrice().toString();
 
                 break;
 //BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowBuy()))).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).scale(), RoundingMode.HALF_UP).toString();
@@ -82,7 +82,7 @@ public class OrderBlockFinder {
             ) {  /// +
                 buyBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 buyBlock[1] = series.getBar(i - 1).getHighPrice().toString();
-                buyBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 3,false)); //series.getBar(i + 1).getLowPrice().toString();
+                buyBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 3,true)); //series.getBar(i + 1).getLowPrice().toString();
 
                 break;
             }  if (
@@ -96,7 +96,7 @@ public class OrderBlockFinder {
             ) {
                 buyBlock[0] = series.getBar(i - 1).getLowPrice().toString();
                 buyBlock[1] = series.getBar(i - 1).getHighPrice().toString();
-                buyBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 3,false));//series.getBar(i + 1).getLowPrice().toString();
+                buyBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 3,true));//series.getBar(i + 1).getLowPrice().toString();
 
                 break;
             }
@@ -257,6 +257,7 @@ public class OrderBlockFinder {
         double price = closePrice.getValue(series.getEndIndex()).doubleValue();
         return findeDownIMB(series,price);
     }
+
     public static Double  findUpImbStop(String symbol) {
         BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
                 Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval2.getIntervalId(), 200))
@@ -341,24 +342,26 @@ public class OrderBlockFinder {
     private static boolean hasHighVolume(Bar bar, double threshold) {
         return bar.getVolume().doubleValue() > threshold;
     }
-    private static double calculateImbalance(BarSeries series, int startIndex, int lookback, boolean isSell) {
-        double  imbalance = isSell ? series.getBar(startIndex).getHighPrice().doubleValue() : series.getBar(startIndex).getLowPrice().doubleValue();
 
-        for (int j = 1; j <= lookback && startIndex + j < series.getBarCount(); j++) {
+
+    private static String calculateImbalance(BarSeries series, int startIndex, int lookback, boolean isSell) {
+        String maxPrice = series.getBar(startIndex).getHighPrice().toString() ;
+        String minPrice = series.getBar(startIndex).getLowPrice().toString();
+
+
+        for (int j = 0; j <= lookback && startIndex + j < series.getBarCount(); j++) {
             Bar bar = series.getBar(startIndex + j);
 
-            if (isSell) {
-                if (!isContinuationTrend(bar, isSell)) {
-                    imbalance = Math.max(imbalance, bar.getHighPrice().doubleValue());
-                }
-            } else {
-                if (!isContinuationTrend(bar, isSell)) {
-                    imbalance = Math.min(imbalance, bar.getLowPrice().doubleValue());
-                }
+            if (!isContinuationTrend(bar, isSell) ) { //&& hasHighVolume(bar, calculateAverageVolume(series, 5) * 1.1)) {
+                maxPrice = bar.getHighPrice().toString();
+                minPrice = bar.getLowPrice().toString();
+                break;
             }
         }
-        return imbalance;
+        return !isSell ? maxPrice : minPrice;
     }
+
+
     private static boolean isContinuationTrend(Bar bar, boolean isSell) {
         if (isSell) {
             return bar.getClosePrice().isGreaterThan(bar.getOpenPrice());
@@ -366,6 +369,7 @@ public class OrderBlockFinder {
             return bar.getClosePrice().isLessThan(bar.getOpenPrice());
         }
     }
+
     private static boolean hasHighVolumeForOB(BarSeries series, int startIndex, int lookback, double avgVolume, double multiplier) {
         double totalVolume = 0;
         int count = 0;
@@ -379,110 +383,6 @@ public class OrderBlockFinder {
         if (count == 0) return false;
 
         double averageOBVolume = totalVolume / count;
-        return averageOBVolume > (avgVolume * multiplier); // Проверяем, превышает ли объем порог
+        return averageOBVolume > (avgVolume * multiplier);
     }
 }
-
-
-//package org.binance.springbot.analytic;
-//
-//import org.ta4j.core.Bar;
-//import org.ta4j.core.BarSeries;
-//import org.ta4j.core.*;
-//import org.ta4j.core.indicators.ATRIndicator;
-//import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
-//import org.ta4j.core.num.Num;
-//
-//import java.util.HashMap;
-//import java.util.Map;
-//
-//public class OrderBlockFinder {
-//
-//    // Метод для расчета стоп-лосса на основе ATR
-//    public static double calculateAtrStopLoss(BarSeries series, int atrPeriod, double multiplier, boolean isSell) {
-//        ATRIndicator atr = new ATRIndicator(series, atrPeriod);
-//        double lastAtr = atr.getValue(series.getEndIndex()).doubleValue();
-//        double currentPrice = series.getBar(series.getEndIndex()).getClosePrice().doubleValue();
-//
-//        if (isSell) {
-//            return currentPrice + (lastAtr * multiplier); // Для sell-позиций стоп выше цены
-//        } else {
-//            return currentPrice - (lastAtr * multiplier); // Для buy-позиций стоп ниже цены
-//        }
-//    }
-//
-//    // Метод для расчета тейк-профита на основе risk/reward ratio
-//    public static double calculateTakeProfit(double entryPrice, double stopLoss, double riskRewardRatio, boolean isSell) {
-//        double risk = Math.abs(entryPrice - stopLoss);
-//        double reward = risk * riskRewardRatio;
-//
-//        if (isSell) {
-//            return entryPrice - reward; // Для sell-позиций тейк-профит ниже цены входа
-//        } else {
-//            return entryPrice + reward; // Для buy-позиций тейк-профит выше цены входа
-//        }
-//    }
-//
-//    // Метод для поиска order blocks (обновленный)
-//    public static Map<String, Double[]> findOrderBlocks(BarSeries series, int maxIndex) {
-//        Double[] sellBlock = new Double[3];
-//        Double[] buyBlock = new Double[3];
-//
-//        for (int i = maxIndex - 1; i >= 3; i--) {
-//            Bar next = series.getBar(i + 1);
-//            Bar current = series.getBar(i);
-//            Bar previous = series.getBar(i - 1);
-//
-//            // Поиск sell-order block
-//            if (
-//                    previous.getOpenPrice().isLessThan(previous.getClosePrice()) &&
-//                            current.getOpenPrice().isGreaterThan(current.getClosePrice()) &&
-//                            next.getHighPrice().isLessThan(previous.getLowPrice()) &&
-//                            checkPriceHigh(series, i - 1)
-//            ) {
-//                sellBlock[0] = previous.getLowPrice().doubleValue(); // Low
-//                sellBlock[1] = previous.getHighPrice().doubleValue(); // High
-//                sellBlock[2] = next.getHighPrice().doubleValue(); // Imb
-//                break;
-//            }
-//
-//            // Поиск buy-order block
-//            if (
-//                    previous.getOpenPrice().isGreaterThan(previous.getClosePrice()) &&
-//                            current.getOpenPrice().isLessThan(current.getClosePrice()) &&
-//                            next.getLowPrice().isGreaterThan(previous.getHighPrice()) &&
-//                            checkPriceLow(series, i - 1)
-//            ) {
-//                buyBlock[0] = previous.getLowPrice().doubleValue(); // Low
-//                buyBlock[1] = previous.getHighPrice().doubleValue(); // High
-//                buyBlock[2] = next.getLowPrice().doubleValue(); // Imb
-//                break;
-//            }
-//        }
-//
-//        Map<String, Double[]> result = new HashMap<>();
-//        result.put("SellOrderBlock", sellBlock);
-//        result.put("BuyOrderBlock", buyBlock);
-//
-//        return result;
-//    }
-//
-//    // Вспомогательные методы
-//    private static boolean checkPriceHigh(BarSeries series, int i) {
-//        for (int j = series.getEndIndex(); j > i; j--) {
-//            if (series.getBar(j).getHighPrice().isGreaterThan(series.getBar(i).getHighPrice())) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
-//
-//    private static boolean checkPriceLow(BarSeries series, int i) {
-//        for (int j = series.getEndIndex(); j > i; j--) {
-//            if (series.getBar(j).getLowPrice().isLessThan(series.getBar(i).getLowPrice())) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
-//}
