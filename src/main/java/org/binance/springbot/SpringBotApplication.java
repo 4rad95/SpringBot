@@ -419,10 +419,12 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				&& price < Double.valueOf(symbolsDto.getImbBuy())) {
 
 			{
-			 String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getImbBuy())+Double.valueOf(symbolsDto.getHighBuy())),countDecimalPlaces(price)));
+			 // String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getImbBuy())+Double.valueOf(symbolsDto.getHighBuy())),countDecimalPlaces(price)));
+			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowBuy())+Double.valueOf(symbolsDto.getHighBuy())),countDecimalPlaces(price)));
 
 			if (Double.valueOf(enterPrice) >= price){
 				String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
+		//		String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(enterPrice),Double.valueOf(symbolsDto.getLowBuy()),3, false),countDecimalPlaces(price)))
 				if (Double.valueOf(proffit) <0) {
 					proffit =symbolsDto.getImbSell();
 				}
@@ -435,7 +437,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 					    double k = (Double.valueOf(proffit)-price)/(price-Double.valueOf(stop));
 						if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES )&&(k>1.5)) {
 						Map<String, Long> id =  startPosition(variantDto);
-						OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+						OpenPositionDto openPositionDto =OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
 						log.info(" [LONG] " + variantDto.toString());
 						log.info(" [LONG] " + openPositionDto.toString());
 			insertOpenPosition(openPositionDto);
@@ -445,10 +447,13 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				&& price > Double.valueOf(symbolsDto.getImbSell())
 				&& price < Double.valueOf(symbolsDto.getLowSell())) {
 
-			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getImbSell())),countDecimalPlaces(price)));
+			//String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getImbSell())),countDecimalPlaces(price)));
+			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getHighSell())),countDecimalPlaces(price)));
 
 			if (Double.valueOf(enterPrice) <= price){
 				String proffit = OrderBlockFinder.findDownImbStop(symbolsDto.getSymbols()).toString();
+			//	String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(enterPrice),Double.valueOf(symbolsDto.getHighSell()),3, true),countDecimalPlaces(price)))
+
 
 				if (Double.valueOf(proffit) <0) {
 					proffit =symbolsDto.getImbBuy();
@@ -577,4 +582,10 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		insertLogRecord(logUpdateDto);
 	}
 
+	private static double calculateTakeProfit(double entry, double stopLoss, double riskRewardRatio, boolean isSell) {
+		double risk = Math.abs(entry - stopLoss);
+
+		if (!isSell) return entry + (risk * riskRewardRatio);
+		return entry - (risk * riskRewardRatio);
+	}
 }
