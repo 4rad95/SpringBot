@@ -102,7 +102,7 @@ public class TrendDetector {
         StochasticRSIIndicator stochRSIK = new StochasticRSIIndicator(rsiIndicator, 14);
         SMAIndicator smaStochK = new SMAIndicator(stochRSIK,3);
         SMAIndicator smaStochD = new SMAIndicator(smaStochK,3);
-        System.out.println( series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) );
+        System.out.print( series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) + "  ");
 
         Indicator<Num> shortEma = new EMAIndicator(closePrice, 25); // Короткая EMA
         Indicator<Num> longEma = new EMAIndicator(closePrice, 50); // Длинная EMA
@@ -119,18 +119,20 @@ public class TrendDetector {
         SMAIndicator signalLine = new SMAIndicator(macd, signalPeriod);
         Num histogram = macd.getValue(series.getEndIndex()).minus(signalLine.getValue(series.getEndIndex()));
         Double diff = histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue();
-        System.out.println(String.format("%.4f",macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()) + " , " +String.format("%.4f",histogram.doubleValue()) +
-                "   diff = " + String.format("%.4f",histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()));
+//        System.out.println(String.format("%.4f",macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()) + " , " +String.format("%.4f",histogram.doubleValue()) +
+//                "   diff = " + String.format("%.4f",histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()));
 
         if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.7)
               && macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()))
             && isBearishTrend)
         {
+            System.out.println( " TREND_DOWN");
             return -1; }
         if ((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.3)
                 && macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()))
                 && isBullishTrend)
              {
+            System.out.println( " TREND_UP");
             return 1; }
 
 //        if (((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.5) && (smaStochK.getValue(series.getEndIndex()).isLessThan(smaStochD.getValue(series.getEndIndex()))))
@@ -141,6 +143,7 @@ public class TrendDetector {
 //                && signalLine.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()-1)))
 //        {
 //            return 1; }
+        System.out.println( " ");
         return 0;
     }
 
