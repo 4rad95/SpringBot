@@ -448,8 +448,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		else if (trend < 0
 //				&& price > Double.valueOf(symbolsDto.getImbSell())
 //				&& price < Double.valueOf(symbolsDto.getLowSell())) {
-				&& price > Double.valueOf(symbolsDto.getHighSell())
-				&& price < Double.valueOf(symbolsDto.getLowSell())) {
+				&& price < Double.valueOf(symbolsDto.getHighSell())
+				&& price > Double.valueOf(symbolsDto.getLowSell())) {
 			//String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getImbSell())),countDecimalPlaces(price)));
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getHighSell())),countDecimalPlaces(price)));
 
