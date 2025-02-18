@@ -102,7 +102,7 @@ public class TrendDetector {
         StochasticRSIIndicator stochRSIK = new StochasticRSIIndicator(rsiIndicator, 14);
         SMAIndicator smaStochK = new SMAIndicator(stochRSIK,3);
         SMAIndicator smaStochD = new SMAIndicator(smaStochK,3);
-        System.out.print( series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) + "  ");
+
 
         Indicator<Num> shortEma = new EMAIndicator(closePrice, 25); // Короткая EMA
         Indicator<Num> longEma = new EMAIndicator(closePrice, 50); // Длинная EMA
@@ -126,12 +126,14 @@ public class TrendDetector {
               && macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()))
             && isBearishTrend)
         {
+            System.out.print("\u001B[31m" + series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) + "  ");
             System.out.println( " TREND_DOWN");
             return -1; }
         if ((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.3)
                 && macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()))
                 && isBullishTrend)
              {
+            System.out.print( "\u001B[32m" +series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) + "  ");
             System.out.println( " TREND_UP");
             return 1; }
 
@@ -143,7 +145,6 @@ public class TrendDetector {
 //                && signalLine.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()-1)))
 //        {
 //            return 1; }
-        System.out.println( " ");
         return 0;
     }
 
