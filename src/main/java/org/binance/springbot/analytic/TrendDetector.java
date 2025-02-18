@@ -122,12 +122,12 @@ public class TrendDetector {
         System.out.println(String.format("%.4f",macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()) + " , " +String.format("%.4f",histogram.doubleValue()) +
                 "   diff = " + String.format("%.4f",histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue()));
 
-        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.3)
+        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.7)
               && macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()))
             && isBearishTrend)
         {
             return -1; }
-        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.3)
+        if ((smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.3)
                 && macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()))
                 && isBullishTrend)
              {
