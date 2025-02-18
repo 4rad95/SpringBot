@@ -104,8 +104,8 @@ public class TrendDetector {
         SMAIndicator smaStochD = new SMAIndicator(smaStochK,3);
         System.out.println( series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) );
 
-        Indicator<Num> shortEma = new EMAIndicator(closePrice, 100); // Короткая EMA
-        Indicator<Num> longEma = new EMAIndicator(closePrice, 200); // Длинная EMA
+        Indicator<Num> shortEma = new EMAIndicator(closePrice, 25); // Короткая EMA
+        Indicator<Num> longEma = new EMAIndicator(closePrice, 50); // Длинная EMA
 
         boolean isBullishTrend = shortEma.getValue(series.getEndIndex()).isGreaterThan(longEma.getValue(series.getEndIndex()));
         boolean isBearishTrend = shortEma.getValue(series.getEndIndex()).isLessThan(longEma.getValue(series.getEndIndex()));
