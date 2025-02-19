@@ -426,7 +426,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 			if (Double.valueOf(enterPrice) >= price){
 		//		String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
-				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(enterPrice),Double.valueOf(symbolsDto.getLowBuy()),3, false),countDecimalPlaces(price)))
+				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(enterPrice),Double.valueOf(symbolsDto.getLowBuy()),3, false),countDecimalPlaces(price)));
 				if (Double.valueOf(proffit) <0) {
 					proffit =symbolsDto.getImbSell();
 				}
@@ -456,7 +456,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			if (Double.valueOf(enterPrice) <= price){
 
 				//String proffit = OrderBlockFinder.findDownImbStop(symbolsDto.getSymbols()).toString();
-				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(enterPrice),Double.valueOf(symbolsDto.getHighSell()),3, true),countDecimalPlaces(price)))
+				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(enterPrice),Double.valueOf(symbolsDto.getHighSell()),3, true),countDecimalPlaces(price)));
 
 
 				if (Double.valueOf(proffit) <0) {
