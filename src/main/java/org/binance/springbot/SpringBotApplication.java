@@ -407,8 +407,16 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 		if (Double.valueOf(symbolsDto.getLowSell())>Double.valueOf(symbolsDto.getImbSell())
 			&& Double.valueOf(symbolsDto.getHighBuy())< Double.valueOf(symbolsDto.getImbBuy())){
-		if (!openPositionService.getOpenPositionSymbol(symbolsDto.getSymbols()))  {
-		Double price = timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue(); // BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
+			Double price = timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue(); // BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
+			if  (!( price < Double.valueOf(symbolsDto.getHighBuy())
+					&& price > Double.valueOf(symbolsDto.getLowBuy()))
+					||
+					!(price < Double.valueOf(symbolsDto.getHighSell())
+							&& price > Double.valueOf(symbolsDto.getLowSell()))
+			)
+			{ return;}
+			if (!openPositionService.getOpenPositionSymbol(symbolsDto.getSymbols()))  {
+
 			int trend = trendDetect(timeSeriesCache.get(symbolsDto.getSymbols()));
 			//	int trend = detectTrendWithOB(timeSeriesCache.get(symbolsDto.getSymbols()));
 			//		TrendDetector.TrendResult result =  TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
@@ -457,7 +465,6 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 				//String proffit = OrderBlockFinder.findDownImbStop(symbolsDto.getSymbols()).toString();
 				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(enterPrice),Double.valueOf(symbolsDto.getHighSell()),3, true),countDecimalPlaces(price)));
-
 
 				if (Double.valueOf(proffit) <0) {
 					proffit =symbolsDto.getImbBuy();
