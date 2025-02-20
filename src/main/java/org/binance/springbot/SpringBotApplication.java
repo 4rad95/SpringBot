@@ -410,7 +410,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			Double price = timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue(); // BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
 			if  (!( price < Double.valueOf(symbolsDto.getHighBuy())
 					&& price > Double.valueOf(symbolsDto.getLowBuy()))
-					||
+					&&
 					!(price < Double.valueOf(symbolsDto.getHighSell())
 							&& price > Double.valueOf(symbolsDto.getLowSell()))
 			)
