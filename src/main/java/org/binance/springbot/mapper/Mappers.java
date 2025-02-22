@@ -35,4 +35,8 @@ public class Mappers {
     public LogUpdateDto convertToLogUpdateDto(LogUpdate logUpdate) {return modelMapper.map(logUpdate, LogUpdateDto.class);}
 
     public LogUpdate convertToLogUpdate (LogUpdateDto logUpdateDto) { return modelMapper.map(logUpdateDto, LogUpdate.class);}
+
+    public MonitorDto convertToMonitorDto(Monitor monitor) {return modelMapper.map(monitor, MonitorDto.class);}
+
+    public Monitor convertToMonitor (MonitorDto monitorDto) { return modelMapper.map(monitorDto, Monitor.class);}
 }

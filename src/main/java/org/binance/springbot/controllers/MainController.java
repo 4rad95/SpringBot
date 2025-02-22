@@ -80,6 +80,16 @@ public class MainController {
         model.addAttribute("calculatedResults", calculatedResults);
         return "variant";
     }
+
+    @Autowired
+    private MonitorRepository monitorRepository;
+    @GetMapping ("/monitor")
+    public String monitor(Model model){
+        Iterable<Monitor> symbols = monitorRepository.findAll();
+        model.addAttribute("symbols",symbols);
+        return "monitor";
+    }
+
     @Autowired
     private LogUpdateRepository logUpdateRepository;
     @GetMapping ("/logview")

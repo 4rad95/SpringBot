@@ -9,8 +9,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.binance.springbot.analytic.ClosePosition;
 import org.binance.springbot.analytic.OrderBlockFinder;
+import org.binance.springbot.analytic.TrendDetector;
 import org.binance.springbot.aspect.LoggingAspect;
 import org.binance.springbot.dto.*;
+import org.binance.springbot.entity.Monitor;
 import org.binance.springbot.entity.OpenPosition;
 import org.binance.springbot.entity.enums.Type;
 
@@ -85,6 +87,8 @@ public class SpringBotApplication {
 
     @Autowired
     private StatisticService statisticService;
+	@Autowired
+	private MonitorService monitorService;
 
 
 	public static void main(String[] args) throws Exception {
@@ -113,6 +117,13 @@ public class SpringBotApplication {
 	public void deleteSymbolsAll() throws Exception {
 		symbolService.deleteAll();
 	}
+	public void insertMonitor(MonitorDto monitorDto) throws Exception {
+		monitorService.insertMonitor(monitorDto);
+	}
+	public void deleteMonitor(Long id) throws Exception {
+		monitorService.deleteById(id);
+	}
+
 	public static void init() throws IOException {
 
 		exchangeInfo = BinanceUtil.getExchangeInfo();
@@ -243,6 +254,7 @@ public class SpringBotApplication {
 				try {
 					wait++;
 					checkClosePosition();
+					checkMonitorCoins();
 					sleep(5000);
 					Thread mainThread = new Thread(r, "Search thread");
 					mainThread.start();
@@ -431,27 +443,32 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			{
 			 // String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getImbBuy())+Double.valueOf(symbolsDto.getHighBuy())),countDecimalPlaces(price)));
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowBuy())+Double.valueOf(symbolsDto.getHighBuy())),countDecimalPlaces(price)));
-
-			if (Double.valueOf(enterPrice) >= price){
-		//		String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
-				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(enterPrice),Double.valueOf(symbolsDto.getLowBuy()),3, false),countDecimalPlaces(price)));
-				if (Double.valueOf(proffit) <0) {
-					proffit =symbolsDto.getImbSell();
-				}
-				String stop   = BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowBuy())).multiply(new BigDecimal("0.993")).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).scale(), RoundingMode.HALF_UP).toString();
-				VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
-						.type("LONG").price(price.toString()).stop(stop).proffit(proffit).enterPrice(enterPrice)
-						.build();
-					insertVariant(variantDto);
-				if (Double.valueOf(proffit) > 0) {
-					    double k = (Double.valueOf(proffit)-price)/(price-Double.valueOf(symbolsDto.getLowBuy()));
-						if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES )&&(k>1)) {
-						Map<String, Long> id =  startPosition(variantDto);
-						OpenPositionDto openPositionDto =OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
-						log.info(" [LONG] " + variantDto.toString());
-						log.info(" [LONG] " + openPositionDto.toString());
-			insertOpenPosition(openPositionDto);
-		}}}}}
+			newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getLowBuy());
+//			if (Double.valueOf(enterPrice) >= price){
+//				newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getLowBuy());
+//
+//		//		String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
+//				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(enterPrice),Double.valueOf(symbolsDto.getLowBuy()),3, false),countDecimalPlaces(price)));
+//				if (Double.valueOf(proffit) <0) {
+//					proffit =symbolsDto.getImbSell();
+//				}
+//				String stop   = BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowBuy())).multiply(new BigDecimal("0.993")).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).scale(), RoundingMode.HALF_UP).toString();
+//
+//				VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
+//						.type("LONG").price(price.toString()).stop(stop).proffit(proffit).enterPrice(enterPrice)
+//						.build();
+//					insertVariant(variantDto);
+//				if (Double.valueOf(proffit) > 0) {
+//					    double k = (Double.valueOf(proffit)-price)/(price-Double.valueOf(symbolsDto.getLowBuy()));
+//						if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES )&&(k>1)) {
+//						Map<String, Long> id =  startPosition(variantDto);
+//						OpenPositionDto openPositionDto =OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+//						log.info(" [LONG] " + variantDto.toString());
+//						log.info(" [LONG] " + openPositionDto.toString());
+//			insertOpenPosition(openPositionDto);
+//		}}
+//			}
+		}}
 
 		else if (trend < 0
 //				&& price > Double.valueOf(symbolsDto.getImbSell())
@@ -460,29 +477,32 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				&& price > Double.valueOf(symbolsDto.getLowSell())) {
 			//String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getImbSell())),countDecimalPlaces(price)));
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getHighSell())),countDecimalPlaces(price)));
+			newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getHighSell());
 
-			if (Double.valueOf(enterPrice) <= price){
-
+	//		if (Double.valueOf(enterPrice) <= price){
+	//			newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getHighSell());
 				//String proffit = OrderBlockFinder.findDownImbStop(symbolsDto.getSymbols()).toString();
-				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(enterPrice),Double.valueOf(symbolsDto.getHighSell()),3, true),countDecimalPlaces(price)));
-
-				if (Double.valueOf(proffit) <0) {
-					proffit =symbolsDto.getImbBuy();
-				}
-				String stop   = BigDecimal.valueOf(Double.valueOf(symbolsDto.getHighSell())).multiply(new BigDecimal("1.007")).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getHighSell())).scale(), RoundingMode.HALF_UP).toString();
-				VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
-						.type("SHORT").price(price.toString()).stop(stop).proffit(proffit).enterPrice(enterPrice)
-						.build();
-					insertVariant(variantDto);
-				if (Double.valueOf(proffit) > 0) {
-						double k = (price-Double.valueOf(proffit))/(Double.valueOf(symbolsDto.getHighSell())-price);
-						if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1)) {
-							Map<String, Long> id =  startPosition(variantDto);
-							OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
-							log.info(" [SHORT] " + variantDto.toString());
-							log.info(" [SHORT] " + openPositionDto.toString());
-							insertOpenPosition(openPositionDto);
-		}}}}
+//				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(enterPrice),Double.valueOf(symbolsDto.getHighSell()),3, true),countDecimalPlaces(price)));
+//
+//				if (Double.valueOf(proffit) <0) {
+//					proffit =symbolsDto.getImbBuy();
+//				}
+//				String stop   = BigDecimal.valueOf(Double.valueOf(symbolsDto.getHighSell())).multiply(new BigDecimal("1.007")).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getHighSell())).scale(), RoundingMode.HALF_UP).toString();
+//				VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
+//						.type("SHORT").price(price.toString()).stop(stop).proffit(proffit).enterPrice(enterPrice)
+//						.build();
+//					insertVariant(variantDto);
+//				if (Double.valueOf(proffit) > 0) {
+//						double k = (price-Double.valueOf(proffit))/(Double.valueOf(symbolsDto.getHighSell())-price);
+//						if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1)) {
+//							Map<String, Long> id =  startPosition(variantDto);
+//							OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+//							log.info(" [SHORT] " + variantDto.toString());
+//							log.info(" [SHORT] " + openPositionDto.toString());
+//							insertOpenPosition(openPositionDto);
+//		}}
+		//	}
+			}
 
 		}}
 	}
@@ -598,5 +618,92 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 		if (isSell) return entry - (risk * riskRewardRatio);
 		return entry + (risk * riskRewardRatio);
+	}
+	private void newMonitorCoin (String type, String symbol, String stop) throws Exception {
+			List<Monitor> monitorCoins = monitorService.getAll();
+				for (Monitor entry : monitorCoins) {
+					if (entry.getSymbol() == symbol) {
+						return;
+					}
+			}
+
+		MonitorDto monitorDto = MonitorDto.builder().type(type).symbol(symbol).stop(stop).build();
+		insertMonitor(monitorDto);
+	}
+	private void checkMonitorCoins() throws Exception {
+		List<Monitor> monitorCoins = monitorService.getAll();
+		for (Monitor entry : monitorCoins) {
+			List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(entry.getSymbol(), interval1.getIntervalId(), 55);
+			BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, entry.getSymbol(), interval1.getIntervalId());
+			String lastPrice = String.valueOf(series.getBar(series.getEndIndex()).getClosePrice());
+			if (entry.getType() == "LONG") {
+				if (TrendDetector.trendDetectFull(series) > 0) {
+					log.info("OPEN LONG "+ entry.getSymbol());
+					SymbolsDto symbolsDto = symbolService.getSymbol(entry.getSymbol());
+
+		//		String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
+				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(lastPrice),Double.valueOf(symbolsDto.getLowBuy()),3, false),countDecimalPlaces(Double.valueOf(lastPrice))));
+				if (Double.valueOf(proffit) <0) {
+					proffit =symbolsDto.getImbSell();
+				}
+				String stop   = BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowBuy())).multiply(new BigDecimal("0.993")).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).scale(), RoundingMode.HALF_UP).toString();
+
+				VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
+						.type("LONG").price(lastPrice.toString()).stop(stop).proffit(proffit).enterPrice(lastPrice)
+						.build();
+					insertVariant(variantDto);
+				if (Double.valueOf(proffit) > 0) {
+					    double k = (Double.valueOf(proffit)-Double.valueOf(lastPrice)/Double.valueOf(lastPrice)-Double.valueOf(symbolsDto.getLowBuy()));
+						if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES )&&(k>1)) {
+						Map<String, Long> id =  startPosition(variantDto);
+						OpenPositionDto openPositionDto =OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("LONG").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+						log.info(" [LONG] " + variantDto.toString());
+						log.info(" [LONG] " + openPositionDto.toString());
+			insertOpenPosition(openPositionDto);
+			deleteMonitor(entry.getId());
+		}
+			}
+
+				}
+				if (Double.valueOf(entry.getStop()) >  Double.valueOf(lastPrice)) {
+					deleteMonitor(entry.getId());
+					log.info("[CLOSE LONG] "+ entry.getSymbol());
+				}
+
+			}
+			if (entry.getType() == "SHORT") {
+				if (TrendDetector.trendDetectFull(series) < 0) {
+					log.info("[OPEN SHORT] "+ entry.getSymbol());
+					SymbolsDto symbolsDto = symbolService.getSymbol(entry.getSymbol());
+					//String proffit = OrderBlockFinder.findDownImbStop(symbolsDto.getSymbols()).toString();
+				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(lastPrice),Double.valueOf(symbolsDto.getHighSell()),3, true),countDecimalPlaces(Double.valueOf(lastPrice))));
+
+				if (Double.valueOf(proffit) <0) {
+					proffit =symbolsDto.getImbBuy();
+				}
+				String stop   = BigDecimal.valueOf(Double.valueOf(symbolsDto.getHighSell())).multiply(new BigDecimal("1.007")).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getHighSell())).scale(), RoundingMode.HALF_UP).toString();
+				VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
+						.type("SHORT").price(lastPrice.toString()).stop(stop).proffit(proffit).enterPrice(lastPrice)
+						.build();
+					insertVariant(variantDto);
+				if (Double.valueOf(proffit) > 0) {
+						double k = (Double.valueOf(lastPrice)-Double.valueOf(proffit))/(Double.valueOf(symbolsDto.getHighSell())-Double.valueOf(lastPrice));
+						if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k >1)) {
+							Map<String, Long> id =  startPosition(variantDto);
+							OpenPositionDto openPositionDto = OpenPositionDto.builder().symbol(symbolsDto.getSymbols()).idBinance(id.get("id")).stopId(id.get("stop")).profitId(id.get("profit")).profit2Id(id.get("profit2")).type("SHORT").time(Timestamp.valueOf(java.time.LocalDateTime.now())).build();
+							log.info(" [SHORT] " + variantDto.toString());
+							log.info(" [SHORT] " + openPositionDto.toString());
+							insertOpenPosition(openPositionDto);
+							deleteMonitor(entry.getId());
+						}
+						}
+				}
+				if (Double.valueOf(entry.getStop()) <  Double.valueOf(lastPrice)) {
+					deleteMonitor(entry.getId());
+					log.info("[CLOSE SHORT] "+ entry.getSymbol());
+				}
+			}
+
+		}
 	}
 }

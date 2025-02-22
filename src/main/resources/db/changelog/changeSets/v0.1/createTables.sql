@@ -16,3 +16,6 @@ CREATE TABLE OpenPosition(id INT AUTO_INCREMENT NOT NULL, time TIMESTAMP, type V
 
 -- changeset 4rad95:create_table_logUpdate
 CREATE TABLE LogUpdate (id INT AUTO_INCREMENT NOT NULL, time VARCHAR(20) NOT NULL , msg VARCHAR(100) NOT NULL )
+
+-- changeset 4rad95:create_monitor
+CREATE TABLE Monitor (id INT AUTO_INCREMENT NOT NULL, type VARCHAR(5), symbol VARCHAR(20), stop VARCHAR(25))
