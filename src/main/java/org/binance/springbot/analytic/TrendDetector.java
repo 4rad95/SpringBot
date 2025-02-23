@@ -166,8 +166,8 @@ public class TrendDetector {
         Double diff = histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue();
         {
             //-- Print
-            if (isBullishTrend) { System.out.print("\u001B[32m"+ series.getName() +  "  SMA  ");  }
-            else { System.out.print("\u001B[31m"+ series.getName() +  "  SMA  ");  }
+            if (isBullishTrend) { System.out.print(String.format("%-20s%-7s%","\u001B[32m"+ series.getName(),"  SMA  "));  }
+            else { System.out.print(String.format("%-20s%-7s%","\u001B[31m"+ series.getName(),"  SMA  "));  }
             if (smaStochK.getValue(series.getEndIndex()).doubleValue() > smaStochD.getValue(series.getEndIndex()).doubleValue()) { System.out.print("\u001B[32m"+ "StochRSI   ");  }
             else { System.out.print("\u001B[31m"+ "StochRSI   ");  }
             if (smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.5) { System.out.print("\u001B[32m"+ " StochRSI UP ");  }
