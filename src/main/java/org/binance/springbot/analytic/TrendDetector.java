@@ -170,8 +170,8 @@ public class TrendDetector {
             else { System.out.print(String.format("%-20s%-7s","\u001B[31m"+ series.getName(),"  SMA  "));  }
             if (smaStochK.getValue(series.getEndIndex()).doubleValue() > smaStochD.getValue(series.getEndIndex()).doubleValue()) { System.out.print("\u001B[32m"+ "StochRSI   ");  }
             else { System.out.print("\u001B[31m"+ "StochRSI   ");  }
-            if (smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.5) { System.out.print("\u001B[32m"+ " StochRSI UP ");  }
-            else { System.out.print("\u001B[31m"+ " StochRSI Down ");  }
+//            if (smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.5) { System.out.print("\u001B[32m"+ " StochRSI UP ");  }
+//            else { System.out.print("\u001B[31m"+ " StochRSI Down ");  }
             if ( macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()))) { System.out.print("\u001B[32m"+ "MACD   ");  }
             else { System.out.print("\u001B[31m"+ "MACD   ");  }
             System.out.print("\u001B[0m");
@@ -179,7 +179,7 @@ public class TrendDetector {
 
 
         if (smaStochK.getValue(series.getEndIndex()).doubleValue() < smaStochD.getValue(series.getEndIndex()).doubleValue()
-             &&   (smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.5)
+  //           &&   (smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.5)
              && macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()))
              &&   isBearishTrend)
         {
@@ -188,7 +188,7 @@ public class TrendDetector {
             System.out.print("\u001B[0m");
             return -1; }
         if (smaStochK.getValue(series.getEndIndex()).doubleValue() > smaStochD.getValue(series.getEndIndex()).doubleValue()
-             &&  (smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.5)
+ //            &&  (smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.5)
              &&   macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()))
              &&   isBullishTrend)
         {
