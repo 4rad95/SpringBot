@@ -249,16 +249,24 @@ public class SpringBotApplication {
 				System.out.println("-----");
 			}
 			};
+			Runnable checkMonitor = () -> {
+				try {
+					checkMonitorCoins();
+				} catch (Exception e) {
+					System.out.println("-----");
+				}
+			};
 			int wait = 0;
 			while (true) {
 				try {
 					wait++;
 					checkClosePosition();
-					checkMonitorCoins();
+
 					sleep(5000);
 					Thread mainThread = new Thread(r, "Search thread");
 					mainThread.start();
-
+					Thread checkMonitorC = new  Thread(checkMonitor,"chek");
+					checkMonitorC.start();
 					if (wait >= 10) {
 						Thread updateThread = new Thread(update, "Update symbols");
 						updateThread.start();
