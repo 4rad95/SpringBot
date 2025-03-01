@@ -628,15 +628,22 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		return entry + (risk * riskRewardRatio);
 	}
 	private void newMonitorCoin (String type, String symbol, String stop) throws Exception {
+
 			List<Monitor> monitorCoins = monitorService.getAll();
 				for (Monitor entry : monitorCoins) {
 					if (entry.getSymbol() == symbol) {
 						return;
 					}
 			}
-
+		List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval2.getIntervalId(), 55);
+		BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks,symbol, interval2.getIntervalId());
+		TrendDetector.trendDetectLight(series);
+		if ((type == "SHORT" && TrendDetector.trendDetectLight(series) <0 )
+			|| (type == "LONG" && TrendDetector.trendDetectLight(series) > 0 )) {
 		MonitorDto monitorDto = MonitorDto.builder().type(type).symbol(symbol).stop(stop).build();
 		insertMonitor(monitorDto);
+		}
+
 	}
 	private void checkMonitorCoins() throws Exception {
 		List<Monitor> monitorCoins = monitorService.getAll();
