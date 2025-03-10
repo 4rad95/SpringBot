@@ -656,8 +656,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 					log.info("OPEN LONG "+ entry.getSymbol());
 					SymbolsDto symbolsDto = symbolService.getSymbol(entry.getSymbol());
 
-		//		String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
-				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(lastPrice),Double.valueOf(symbolsDto.getLowBuy()),3, false),countDecimalPlaces(Double.valueOf(lastPrice))));
+				String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
+		//		String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(lastPrice),Double.valueOf(symbolsDto.getLowBuy()),3, false),countDecimalPlaces(Double.valueOf(lastPrice))));
 				if (Double.valueOf(proffit) <0) {
 					proffit =symbolsDto.getImbSell();
 				}
@@ -690,8 +690,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				if (TrendDetector.trendDetectFull(series) < 0) {
 					log.info("[OPEN SHORT] "+ entry.getSymbol());
 					SymbolsDto symbolsDto = symbolService.getSymbol(entry.getSymbol());
-					//String proffit = OrderBlockFinder.findDownImbStop(symbolsDto.getSymbols()).toString();
-				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(lastPrice),Double.valueOf(symbolsDto.getHighSell()),3, true),countDecimalPlaces(Double.valueOf(lastPrice))));
+					String proffit = OrderBlockFinder.findDownImbStop(symbolsDto.getSymbols()).toString();
+				//String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(lastPrice),Double.valueOf(symbolsDto.getHighSell()),3, true),countDecimalPlaces(Double.valueOf(lastPrice))));
 
 				if (Double.valueOf(proffit) <0) {
 					proffit =symbolsDto.getImbBuy();

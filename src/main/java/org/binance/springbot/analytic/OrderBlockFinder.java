@@ -251,7 +251,7 @@ public class OrderBlockFinder {
 
     public static Double  findDownImbStop(String symbol) {
         BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
-                Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval2.getIntervalId(), 200))
+                Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval1.getIntervalId(), 200))
                 , symbol, SpringBotApplication.interval2.getIntervalId());
         ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
         double price = closePrice.getValue(series.getEndIndex()).doubleValue();
@@ -260,7 +260,7 @@ public class OrderBlockFinder {
 
     public static Double  findUpImbStop(String symbol) {
         BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
-                Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval2.getIntervalId(), 200))
+                Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval1.getIntervalId(), 200))
                 , symbol, SpringBotApplication.interval2.getIntervalId());
         ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
         double price = closePrice.getValue(series.getEndIndex()).doubleValue();
