@@ -428,11 +428,11 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		if (Double.valueOf(symbolsDto.getLowSell())>Double.valueOf(symbolsDto.getImbSell())
 			&& Double.valueOf(symbolsDto.getHighBuy())< Double.valueOf(symbolsDto.getImbBuy())){
 			Double price = timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue(); // BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
-			if  (!( price < Double.valueOf(symbolsDto.getHighBuy())
+			if  (!( price < Double.valueOf(symbolsDto.getImbBuy())
 					&& price > Double.valueOf(symbolsDto.getLowBuy()))
 					&&
 					!(price < Double.valueOf(symbolsDto.getHighSell())
-							&& price > Double.valueOf(symbolsDto.getLowSell()))
+							&& price > Double.valueOf(symbolsDto.getImbSell()))
 			)
 			{ return;}
 			if (!openPositionService.getOpenPositionSymbol(symbolsDto.getSymbols()))  {
@@ -445,7 +445,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		if (	trend > 0
 //				&& price > Double.valueOf(symbolsDto.getHighBuy())
 //				&& price < Double.valueOf(symbolsDto.getImbBuy())) {
-				&& price < Double.valueOf(symbolsDto.getHighBuy())
+				&& price < Double.valueOf(symbolsDto.getImbBuy())
 				&& price > Double.valueOf(symbolsDto.getLowBuy())) {
 
 			{
@@ -482,7 +482,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 //				&& price > Double.valueOf(symbolsDto.getImbSell())
 //				&& price < Double.valueOf(symbolsDto.getLowSell())) {
 				&& price < Double.valueOf(symbolsDto.getHighSell())
-				&& price > Double.valueOf(symbolsDto.getLowSell())) {
+				&& price > Double.valueOf(symbolsDto.getImbSell())) {
 			//String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getImbSell())),countDecimalPlaces(price)));
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getHighSell())),countDecimalPlaces(price)));
 			newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getHighSell());
@@ -637,9 +637,9 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			}
 		List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval2.getIntervalId(), 55);
 		BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks,symbol, interval2.getIntervalId());
-		TrendDetector.trendDetectLight(series);
-		if ((type == "SHORT" && TrendDetector.trendDetectLight(series) <0 )
-			|| (type == "LONG" && TrendDetector.trendDetectLight(series) > 0 )) {
+		int trend = TrendDetector.trendDetectLight(series);
+		if ((type == "SHORT" && trend <0 )
+			|| (type == "LONG" && trend > 0 )) {
 		MonitorDto monitorDto = MonitorDto.builder().type(type).symbol(symbol).stop(stop).build();
 		insertMonitor(monitorDto);
 		}

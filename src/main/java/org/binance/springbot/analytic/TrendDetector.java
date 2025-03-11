@@ -121,7 +121,8 @@ public class TrendDetector {
         Double diff = histogram.doubleValue()-macd.getValue(series.getEndIndex()-1).minus(signalLine.getValue(series.getEndIndex()-1)).doubleValue();
 
         if (//(smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.7)
-                macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()))
+            // macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()))
+             diff < 0
              && isBearishTrend)
         {
             System.out.print("\u001B[31m" + series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) + "  ");
@@ -129,7 +130,8 @@ public class TrendDetector {
             System.out.print("\u001B[0m");
             return -1; }
         if (//(smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.3)
-                macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()))
+               // macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()))
+                diff > 0
                 && isBullishTrend)
              {
             System.out.print( "\u001B[32m" +series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) + "  ");
@@ -174,22 +176,26 @@ public class TrendDetector {
 //            else { System.out.print("\u001B[31m"+ " StochRSI Down ");  }
             if ( macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()))) { System.out.print("\u001B[32m"+ "MACD   ");  }
             else { System.out.print("\u001B[31m"+ "MACD   ");  }
+            if (diff.doubleValue() > 0) { System.out.print("\u001B[32m"+ "diff MACD   ");  }
+            else { System.out.print("\u001B[31m"+ "diff MACD   ");  }
             System.out.print("\u001B[0m");
         }
 
 
-        if (smaStochK.getValue(series.getEndIndex()).doubleValue() < smaStochD.getValue(series.getEndIndex()).doubleValue()
+        if (//smaStochK.getValue(series.getEndIndex()).doubleValue() < smaStochD.getValue(series.getEndIndex()).doubleValue()
+          diff.doubleValue() <0
   //           &&   (smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.5)
-             && macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()))
+              //macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()))
              &&   isBearishTrend)
         {
       //      System.out.print("\u001B[31m" + series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) + "  ");
             System.out.println("\u001B[31m" +  " TREND_DOWN");
             System.out.print("\u001B[0m");
             return -1; }
-        if (smaStochK.getValue(series.getEndIndex()).doubleValue() > smaStochD.getValue(series.getEndIndex()).doubleValue()
+        if (//smaStochK.getValue(series.getEndIndex()).doubleValue() > smaStochD.getValue(series.getEndIndex()).doubleValue()
  //            &&  (smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.5)
-             &&   macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()))
+                diff.doubleValue() >0
+              //  macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()))
              &&   isBullishTrend)
         {
     //        System.out.print( "\u001B[32m" +series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) + "  ");
