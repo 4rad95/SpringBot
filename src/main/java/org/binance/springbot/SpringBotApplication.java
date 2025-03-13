@@ -7,6 +7,7 @@ import com.binance.client.SyncRequestClient;
 import com.binance.client.model.trade.MyTrade;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
+import org.binance.springbot.analytic.CandellaAnalyse;
 import org.binance.springbot.analytic.ClosePosition;
 import org.binance.springbot.analytic.OrderBlockFinder;
 import org.binance.springbot.analytic.TrendDetector;
@@ -428,30 +429,31 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		if (Double.valueOf(symbolsDto.getLowSell())>Double.valueOf(symbolsDto.getImbSell())
 			&& Double.valueOf(symbolsDto.getHighBuy())< Double.valueOf(symbolsDto.getImbBuy())){
 			Double price = timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue(); // BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
-			if  (!( price < Double.valueOf(symbolsDto.getImbBuy())
+			if  (!( price < Double.valueOf(symbolsDto.getHighBuy())
 					&& price > Double.valueOf(symbolsDto.getLowBuy()))
 					&&
 					!(price < Double.valueOf(symbolsDto.getHighSell())
-							&& price > Double.valueOf(symbolsDto.getImbSell()))
+							&& price > Double.valueOf(symbolsDto.getLowSell()))
 			)
 			{ return;}
 			if (!openPositionService.getOpenPositionSymbol(symbolsDto.getSymbols()))  {
 
-			int trend = trendDetect(timeSeriesCache.get(symbolsDto.getSymbols()));
-			//	int trend = detectTrendWithOB(timeSeriesCache.get(symbolsDto.getSymbols()));
+		//	int trend = trendDetect(timeSeriesCache.get(symbolsDto.getSymbols()));
+
+		//		int trend = detectTrendWithOB(timeSeriesCache.get(symbolsDto.getSymbols()));
 			//		TrendDetector.TrendResult result =  TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
-		if (trend == 0) { return;}
+	//	 if (trend == 0) { return;}
 
-		if (	trend > 0
-//				&& price > Double.valueOf(symbolsDto.getHighBuy())
-//				&& price < Double.valueOf(symbolsDto.getImbBuy())) {
-				&& price < Double.valueOf(symbolsDto.getImbBuy())
-				&& price > Double.valueOf(symbolsDto.getLowBuy())) {
-
+		if (	// trend > 0
+				 price > Double.valueOf(symbolsDto.getLowBuy())
+				&& price < Double.valueOf(symbolsDto.getHighBuy())) {
 			{
 			 // String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getImbBuy())+Double.valueOf(symbolsDto.getHighBuy())),countDecimalPlaces(price)));
+			double trend = CandellaAnalyse.trendDetect(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowBuy(),symbolsDto.getHighBuy());
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowBuy())+Double.valueOf(symbolsDto.getHighBuy())),countDecimalPlaces(price)));
-			newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getLowBuy());
+			if (trend > 0) {newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getLowBuy());}
+			else {newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getHighBuy());}
+
 //			if (Double.valueOf(enterPrice) >= price){
 //				newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getLowBuy());
 //
@@ -478,14 +480,14 @@ public  void mainProcess(List<String> symbols) throws Exception {
 //			}
 		}}
 
-		else if (trend < 0
-//				&& price > Double.valueOf(symbolsDto.getImbSell())
-//				&& price < Double.valueOf(symbolsDto.getLowSell())) {
-				&& price < Double.valueOf(symbolsDto.getHighSell())
-				&& price > Double.valueOf(symbolsDto.getImbSell())) {
+		else if ( // trend < 0
+				 price < Double.valueOf(symbolsDto.getHighSell())
+				&& price > Double.valueOf(symbolsDto.getLowSell())) {
 			//String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getImbSell())),countDecimalPlaces(price)));
 			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getHighSell())),countDecimalPlaces(price)));
-			newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getHighSell());
+			double trend = CandellaAnalyse.trendDetect(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowSell(),symbolsDto.getHighSell());
+			if (trend <0) { newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getHighSell());}
+			else { newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getLowSell());}
 
 	//		if (Double.valueOf(enterPrice) <= price){
 	//			newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getHighSell());
@@ -648,8 +650,10 @@ public  void mainProcess(List<String> symbols) throws Exception {
 	private void checkMonitorCoins() throws Exception {
 		List<Monitor> monitorCoins = monitorService.getAll();
 		for (Monitor entry : monitorCoins) {
+
 			List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(entry.getSymbol(), interval1.getIntervalId(), 55);
 			BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, entry.getSymbol(), interval1.getIntervalId());
+
 			String lastPrice = String.valueOf(series.getBar(series.getEndIndex()).getClosePrice());
 			if (entry.getType() == "LONG") {
 				if (TrendDetector.trendDetectFull(series) > 0) {
