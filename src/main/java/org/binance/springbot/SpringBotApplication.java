@@ -638,14 +638,14 @@ public  void mainProcess(List<String> symbols) throws Exception {
 						return;
 					}
 			}
-		List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval2.getIntervalId(), 55);
-		BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks,symbol, interval2.getIntervalId());
-		int trend = TrendDetector.trendDetectLight(series);
-		if ((type == "SHORT" && trend <0 )
-			|| (type == "LONG" && trend > 0 )) {
+//		List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval2.getIntervalId(), 55);
+//		BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks,symbol, interval2.getIntervalId());
+//		int trend = TrendDetector.trendDetectLight(series);
+//		if ((type == "SHORT" && trend <0 )
+//			|| (type == "LONG" && trend > 0 )) {
 		MonitorDto monitorDto = MonitorDto.builder().type(type).symbol(symbol).stop(stop).build();
 		insertMonitor(monitorDto);
-		}
+	//		}
 
 	}
 	private void checkMonitorCoins() throws Exception {
