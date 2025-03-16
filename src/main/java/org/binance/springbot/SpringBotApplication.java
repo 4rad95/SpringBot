@@ -388,6 +388,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 //	 t0 = currentTimeMillis();
 	List<SymbolsDto> listSymbols =  symbolService.getAll();
 	variantService.deleteAllAndResetSequence();
+
 	for (SymbolsDto symbol : listSymbols) {
 		try {
 			updateSymbol(symbol.getSymbols());
@@ -430,9 +431,9 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			&& Double.valueOf(symbolsDto.getHighBuy())< Double.valueOf(symbolsDto.getImbBuy())){
 		//	Double price = timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue(); // BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
 			Bar curentBar =  timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar();
-			if  (!( curentBar.getHighPrice().doubleValue() > Double.valueOf(symbolsDto.getHighBuy()))
+			if  (!( curentBar.getHighPrice().doubleValue() > Double.valueOf(symbolsDto.getHighSell()))
 					&&
-					!(curentBar.getLowPrice().doubleValue() < Double.valueOf(symbolsDto.getLowSell()))
+					!(curentBar.getLowPrice().doubleValue() < Double.valueOf(symbolsDto.getLowBuy()))
 			)
 			{ return;}
 			if (!openPositionService.getOpenPositionSymbol(symbolsDto.getSymbols()))  {
