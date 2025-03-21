@@ -19,6 +19,7 @@ public class MonitorDto {
         private Long id;
         private String type;
         private String symbol;
+        private String start;
         private String stop;
 
 }

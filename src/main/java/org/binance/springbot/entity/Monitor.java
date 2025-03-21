@@ -23,6 +23,8 @@ public class Monitor {
     private String type;
     @Column(name = "symbol")
     private String symbol;
+    @Column(name = "start")
+    private String start;
     @Column(name = "stop")
     private String stop;
 }

@@ -16,8 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.binance.springbot.SpringBotApplication.timeSeriesCache;
 
@@ -133,7 +132,8 @@ public class BinanceTa4jUtils {
 //    //        log.info("[SHORT]:" + series.getName() + "  Ok!");
 //            return true;
 //        }
-////        Log.info(BinanceTa4jUtils.class, "[SHORT]:" + series.getName() + "  Cancel!");
+
+    // / /        Log.info(BinanceTa4jUtils.class, "[SHORT]:" + series.getName() + "  Cancel!");
 //        return false;
 //    }
 //
@@ -275,11 +275,12 @@ public class BinanceTa4jUtils {
 //        }
 //        return Double.NaN;
 //    }
+    public static Num getCurrentPrice(String symbol) {
 
-public static Num getCurrentPrice(String symbol) {
+        BarSeries series = timeSeriesCache.get(symbol);
+        Num currentPrice = series.getLastBar().getClosePrice();
+        return currentPrice;
+    }
 
-    BarSeries series = timeSeriesCache.get(symbol);
-    Num currentPrice = series.getLastBar().getClosePrice();
-    return currentPrice;
-}
+
 }

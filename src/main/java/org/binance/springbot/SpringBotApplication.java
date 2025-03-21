@@ -35,11 +35,13 @@ import java.io.IOException;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
 
+import static org.binance.springbot.util.BinanceTa4jUtils.*;
 import static org.binance.springbot.util.BinanceUtil.*;
 
 import static org.binance.springbot.analytic.TrendDetector.trendDetect;
@@ -268,7 +270,7 @@ public class SpringBotApplication {
 					mainThread.start();
 					Thread checkMonitorC = new  Thread(checkMonitor,"chek");
 					checkMonitorC.start();
-					if (wait >= 10) {
+					if (wait >= 20) {
 						Thread updateThread = new Thread(update, "Update symbols");
 						updateThread.start();
 						wait = 1;
@@ -427,6 +429,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 	private void checkSymbols(SymbolsDto symbolsDto) throws Exception {
 
+
 		if (Double.valueOf(symbolsDto.getLowSell())>Double.valueOf(symbolsDto.getImbSell())
 			&& Double.valueOf(symbolsDto.getHighBuy())< Double.valueOf(symbolsDto.getImbBuy())){
 		//	Double price = timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue(); // BinanceTa4jUtils.getCurrentPrice(symbolsDto.getSymbols()).doubleValue();
@@ -449,13 +452,13 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				//&& price < Double.valueOf(symbolsDto.getHighBuy())) {
 			{
 			 // String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getImbBuy())+Double.valueOf(symbolsDto.getHighBuy())),countDecimalPlaces(price)));
-			double trend = CandellaAnalyse.trendDetect(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowBuy(),symbolsDto.getHighBuy());
+			double trend = CandellaAnalyse.trendDetectHigh(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowBuy(),symbolsDto.getHighBuy());
 //			String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowBuy())+Double.valueOf(symbolsDto.getHighBuy())),countDecimalPlaces(price)));
-			if (trend > 0) {newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getLowBuy());}
+			if (trend > 0) {newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getHighBuy(),  symbolsDto.getLowBuy());}
 	//		else {newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getHighBuy());}
 
 //			if (Double.valueOf(enterPrice) >= price){
-//				newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getLowBuy());
+//			newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getLowBuy());
 //
 //		//		String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
 //				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(enterPrice),Double.valueOf(symbolsDto.getLowBuy()),3, false),countDecimalPlaces(price)));
@@ -486,8 +489,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				{
 			//String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getImbSell())),countDecimalPlaces(price)));
 	//		String enterPrice = String.valueOf(roundToDecimalPlaces(0.5*(Double.valueOf(symbolsDto.getLowSell())+Double.valueOf(symbolsDto.getHighSell())),countDecimalPlaces(price)));
-			double trend = CandellaAnalyse.trendDetect(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowSell(),symbolsDto.getHighSell());
-			if (trend <0) { newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getHighSell());}
+			double trend = CandellaAnalyse.trendDetectLow(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowSell(),symbolsDto.getHighSell());
+			if (trend <0) { newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getLowSell(), symbolsDto.getHighSell());}
 	//		else { newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getLowSell());}
 
 	//		if (Double.valueOf(enterPrice) <= price){
@@ -630,7 +633,9 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		if (isSell) return entry - (risk * riskRewardRatio);
 		return entry + (risk * riskRewardRatio);
 	}
-	private void newMonitorCoin (String type, String symbol, String stop) throws Exception {
+
+
+	private void newMonitorCoin (String type, String symbol, String start, String stop) throws Exception {
 
 			List<Monitor> monitorCoins = monitorService.getAll();
 				for (Monitor entry : monitorCoins) {
@@ -638,27 +643,20 @@ public  void mainProcess(List<String> symbols) throws Exception {
 						return;
 					}
 			}
-//		List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval2.getIntervalId(), 55);
-//		BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks,symbol, interval2.getIntervalId());
-//		int trend = TrendDetector.trendDetectLight(series);
-//		if ((type == "SHORT" && trend <0 )
-//			|| (type == "LONG" && trend > 0 )) {
-		MonitorDto monitorDto = MonitorDto.builder().type(type).symbol(symbol).stop(stop).build();
+		MonitorDto monitorDto = MonitorDto.builder().type(type).symbol(symbol).start(start).stop(stop).build();
 		insertMonitor(monitorDto);
-	//		}
+
 
 	}
 	private void checkMonitorCoins() throws Exception {
 		List<Monitor> monitorCoins = monitorService.getAll();
 		for (Monitor entry : monitorCoins) {
 
-//			List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(entry.getSymbol(), interval1.getIntervalId(), 55);
-//			BarSeries series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, entry.getSymbol(), interval1.getIntervalId());
 			Bar curentBar =  timeSeriesCache.get(entry.getSymbol()).getLastBar();
 			SymbolsDto symbolsDto = symbolService.getSymbol(entry.getSymbol());
-		//	String lastPrice = String.valueOf(series.getBar(series.getEndIndex()).getClosePrice());
+
 			if (entry.getType() == "LONG") {
-				if (curentBar.getClosePrice().doubleValue() < Double.valueOf(symbolsDto.getLowBuy())) {
+				if (curentBar.getClosePrice().doubleValue() < Double.valueOf(entry.getStart())) {
 					log.info("OPEN LONG "+ entry.getSymbol());
 
 	//			String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
@@ -685,14 +683,14 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			}
 
 				}
-				if (Double.valueOf(entry.getStop()) > 1.3 * curentBar.getClosePrice().doubleValue()) {
+				if (Double.valueOf(entry.getStop()) > curentBar.getClosePrice().doubleValue()) {
 					deleteMonitor(entry.getId());
 					log.info("[CLOSE LONG] "+ entry.getSymbol());
 				}
 
 			}
 			if (entry.getType() == "SHORT") {
-				if (curentBar.getClosePrice().doubleValue() >  Double.valueOf(symbolsDto.getLowSell())) {
+				if (curentBar.getClosePrice().doubleValue() <  Double.valueOf(entry.getStart())) {
 					log.info("[OPEN SHORT] "+ entry.getSymbol());
 
 				//	String proffit = OrderBlockFinder.findDownImbStop(symbolsDto.getSymbols()).toString();
@@ -718,7 +716,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 						}
 						}
 				}
-				if (Double.valueOf(entry.getStop()) < 0.7 * curentBar.getClosePrice().doubleValue()) {
+				if (Double.valueOf(entry.getStop()) < curentBar.getClosePrice().doubleValue()) {
 					deleteMonitor(entry.getId());
 					log.info("[CLOSE SHORT] "+ entry.getSymbol());
 				}
