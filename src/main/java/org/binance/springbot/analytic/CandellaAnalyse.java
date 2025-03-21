@@ -79,7 +79,7 @@ public class CandellaAnalyse {
                 startIndex = i;
                 break;
             }
-            if (series.getBar(i).getLowPrice().doubleValue() < series.getBar(lowIndex).getHighPrice().doubleValue()) {
+            if (series.getBar(i).getLowPrice().doubleValue() < series.getBar(lowIndex).getLowPrice().doubleValue()) {
                 lowIndex = i;
             }
             i--;
