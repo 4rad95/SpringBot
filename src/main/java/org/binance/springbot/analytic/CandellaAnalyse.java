@@ -48,7 +48,7 @@ public class CandellaAnalyse {
         int endIndex = i;
         int startIndex = 0;
         int highIndex = 0;
-        while (true) {
+        while (i >0 ) {
             if (series.getBar(i).getHighPrice().doubleValue() == Double.valueOf(HighLimit)
                     && series.getBar(i).getLowPrice().doubleValue() == Double.valueOf(LowLimit)
             ){
@@ -61,8 +61,7 @@ public class CandellaAnalyse {
             i--;
         }
 
-        if (highIndex-startIndex <  series.getEndIndex()-1 - highIndex ) {return 1;}
-        if (highIndex-startIndex >  series.getEndIndex()-1 - highIndex) {return - 1;}
+        if (3* (highIndex-startIndex) < (series.getEndIndex()-1 - highIndex) ) {return 1;}
         return 0;
     }
 
@@ -72,7 +71,7 @@ public class CandellaAnalyse {
         int startIndex = 0;
         int lowIndex = 0;
 
-        while (true) {
+        while (i > 0) {
             if (series.getBar(i).getHighPrice().doubleValue() == Double.valueOf(HighLimit)
                     && series.getBar(i).getLowPrice().doubleValue() == Double.valueOf(LowLimit)
             ){
@@ -85,8 +84,7 @@ public class CandellaAnalyse {
             i--;
         }
 
-        if (lowIndex-startIndex <  series.getEndIndex()-1 - lowIndex ) {return - 1;}
-        if (lowIndex-startIndex >  series.getEndIndex()-1 - lowIndex) {return  1;}
+        if (3*(lowIndex-startIndex) <  series.getEndIndex()-1 - lowIndex ) {return - 1;}
         return 0;
     }
 

@@ -389,6 +389,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 //	}
 //	 t0 = currentTimeMillis();
 	List<SymbolsDto> listSymbols =  symbolService.getAll();
+	System.out.println( "\u001B[36m  !---  SpringBot  ---!  \u001B[0m");
 	variantService.deleteAllAndResetSequence();
 
 	for (SymbolsDto symbol : listSymbols) {
@@ -401,9 +402,9 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		}
 	}
 	Long t1 = currentTimeMillis() - t0;
-	log.info("All symbols analyzed, time elapsed: "
-			+ (t1 / 1000.0) + " seconds.");
-	LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("All symbols analyzed, time elapsed: "  + (t1 / 1000.0) + " seconds.").time(BinanceUtil.dateTimeFormat(currentTimeMillis())).build();
+	log.info("\u001B[32m --- All symbols analyzed, time elapsed: "
+			+ (t1 / 1000.0) + " seconds. \u001B[0m");
+	LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg(" All symbols analyzed, time elapsed: "  + (t1 / 1000.0) + " seconds. ").time(BinanceUtil.dateTimeFormat(currentTimeMillis())).build();
 	insertLogRecord(logUpdateDto);
 	// updateAll();
 }
@@ -659,7 +660,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				if (curentBar.getClosePrice().doubleValue() < Double.valueOf(entry.getStart())) {
 					log.info("OPEN LONG "+ entry.getSymbol());
 
-	//			String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
+	    //		String proffit = OrderBlockFinder.findUpImbStop(symbolsDto.getSymbols()).toString();
 				String proffit = String.valueOf(roundToDecimalPlaces(calculateTakeProfit(Double.valueOf(curentBar.getClosePrice().doubleValue()),Double.valueOf(symbolsDto.getLowBuy()),3, false),countDecimalPlaces(curentBar.getClosePrice().doubleValue())));
 				if (Double.valueOf(proffit) <0) {
 					proffit =symbolsDto.getImbSell();
