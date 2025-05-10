@@ -21,5 +21,6 @@ public class MonitorDto {
         private String symbol;
         private String start;
         private String stop;
+        private String profit;
 
 }

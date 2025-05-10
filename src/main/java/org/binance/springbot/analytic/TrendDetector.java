@@ -96,7 +96,7 @@ public class TrendDetector {
     }
 
     public static int trendDetect(BarSeries series) {
-        //BarSeries series = BinanceUtil.getSeriesT1(symbol);
+        //BarSeries series = BinanceUtil.ge-tSeriesT1(symbol);
         ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
         RSIIndicator rsiIndicator = new RSIIndicator(closePrice,14);
         StochasticRSIIndicator stochRSIK = new StochasticRSIIndicator(rsiIndicator, 14);
@@ -122,8 +122,8 @@ public class TrendDetector {
 
         if (//(smaStochK.getValue(series.getEndIndex()).doubleValue() < 0.7)
             // macd.getValue(series.getEndIndex()).isLessThan(signalLine.getValue(series.getEndIndex()))
-             diff < 0
-             && isBearishTrend)
+             // diff < 0
+              isBearishTrend)
         {
             System.out.print("\u001B[31m" + series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) + "  ");
             System.out.println( " TREND_DOWN");
@@ -131,8 +131,8 @@ public class TrendDetector {
             return -1; }
         if (//(smaStochK.getValue(series.getEndIndex()).doubleValue() > 0.3)
                // macd.getValue(series.getEndIndex()).isGreaterThan(signalLine.getValue(series.getEndIndex()))
-                diff > 0
-                && isBullishTrend)
+            //    diff > 0
+              isBullishTrend)
              {
             System.out.print( "\u001B[32m" +series.getName() + "  K=" + smaStochK.getValue(series.getEndIndex()) +"    D="+smaStochD.getValue(series.getEndIndex()) + "  ");
             System.out.println( " TREND_UP");

@@ -4,7 +4,7 @@
 CREATE TABLE Statistic (id INT AUTO_INCREMENT NOT NULL, startDateTime VARCHAR(25) not null , duration VARCHAR(25) NULL, symbols VARCHAR(15) NULL, type ENUM('LONG','SHORT'),pnl VARCHAR(15) not null , comission VARCHAR(15) not null );
 
 -- changeset 4rad95:create_table_symbols
-CREATE TABLE Symbols (symbols VARCHAR(25) NOT NULL, lowbuy VARCHAR(25) NOT NULL, highbuy VARCHAR(25) NOT NULL, imbbuy VARCHAR(25), lowsell VARCHAR(25) NOT NULL, highsell VARCHAR(25) NOT NULL, imbsell VARCHAR(25));
+CREATE TABLE Symbols (symbols VARCHAR(25) NOT NULL, lowbuy VARCHAR(25), highbuy VARCHAR(25) , imbbuy VARCHAR(25), lowsell VARCHAR(25), highsell VARCHAR(25) , imbsell VARCHAR(25));
 --CREATE TABLE Symbols (id INT AUTO_INCREMENT NOT NULL, symbols VARCHAR(25) NOT NULL);
 
 -- changeset 4rad95:create_table_variant
@@ -18,4 +18,4 @@ CREATE TABLE OpenPosition(id INT AUTO_INCREMENT NOT NULL, time TIMESTAMP, type V
 CREATE TABLE LogUpdate (id INT AUTO_INCREMENT NOT NULL, time VARCHAR(20) NOT NULL , msg VARCHAR(100) NOT NULL )
 
 -- changeset 4rad95:create_monitor
-CREATE TABLE Monitor (id INT AUTO_INCREMENT NOT NULL, type VARCHAR(5), symbol VARCHAR(20),start VARCHAR(25), stop VARCHAR(25))
+CREATE TABLE Monitor (id INT AUTO_INCREMENT NOT NULL, type VARCHAR(5), symbol VARCHAR(20),start VARCHAR(25), stop VARCHAR(25), profit VARCHAR(25))

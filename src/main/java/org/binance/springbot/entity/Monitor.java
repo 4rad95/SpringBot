@@ -27,4 +27,6 @@ public class Monitor {
     private String start;
     @Column(name = "stop")
     private String stop;
+    @Column(name = "profit")
+    private String profit;
 }

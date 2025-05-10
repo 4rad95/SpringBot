@@ -28,7 +28,7 @@ public class PivotCalculator {
     }
 
     public static PivotPoints calculatePivotPoints(BarSeries series) {
-        // Получаем последнюю свечу для расчёта пивотных точек
+
         Bar bar = series.getBar(series.getEndIndex());
         double high = bar.getHighPrice().doubleValue();
         double low = bar.getLowPrice().doubleValue();

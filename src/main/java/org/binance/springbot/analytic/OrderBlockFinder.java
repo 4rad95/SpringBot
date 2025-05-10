@@ -15,7 +15,7 @@ public class OrderBlockFinder {
         String[]  buyBlock = {null,null,null};
         ///  String [Low, High, Imb ]
 
-        double avgVolume = calculateAverageVolume(series, 5);
+        double avgResult = calculateAverageVolume(series, 100);
 
 
         // (Sell Order Block)
@@ -26,12 +26,28 @@ public class OrderBlockFinder {
             Bar previous1 = series.getBar(i - 2);
             Bar previous2 = series.getBar(i - 3);
             Bar previous3 = series.getBar(i - 3);
+            double shadow = (current.getHighPrice().doubleValue() - current.getLowPrice().doubleValue())/Math.abs(current.getOpenPrice().doubleValue() - current.getClosePrice().doubleValue());
+            double resultPrevious = Math.abs(previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue())/previous.getVolume().doubleValue();
+            double resultCurent = Math.abs(current.getHighPrice().doubleValue() - current.getLowPrice().doubleValue())/current.getVolume().doubleValue();
+            double resultNext = Math.abs(next.getHighPrice().doubleValue() - next.getLowPrice().doubleValue())/next.getVolume().doubleValue();
+            if (     current.getVolume().isGreaterThan(next.getVolume())
+                    && shadow > 1
+                    && previous.getOpenPrice().isLessThan(previous.getClosePrice())
+                    && next.getOpenPrice().isGreaterThan(next.getClosePrice())
 
-            if (
-                    previous.getOpenPrice().isLessThan(previous.getClosePrice())
+                    //&& current.getOpenPrice().isLessThan(current.getClosePrice())
+
+               //      &&  current.getVolume().isGreaterThan(previous.getVolume())
+                     && avgResult  < current.getVolume().doubleValue()
+                     && resultCurent > resultNext
+                    && resultCurent > resultPrevious
+             //       && resultCurent > avgResult*1.2
+                    && checkPriceHigh(series, i)
+                    /*previous1.getOpenPrice().isLessThan(previous1.getClosePrice())
+                            && previous.getOpenPrice().isLessThan(previous.getClosePrice())
                             && current.getOpenPrice().isGreaterThan(current.getClosePrice())
                             && next.getHighPrice().isLessThan(previous.getLowPrice())
-                                            && checkPriceHigh(series, i)
+                                            && checkPriceHigh(series, i) */
                     //        &&  hasHighVolumeForOB(series, i - 1, 3, avgVolume, 1.5)
              //   && checkPriceHigh(series, i)
 //            if (((previous.getHighPrice().doubleValue()-previous.getLowPrice().doubleValue())/(previous.getClosePrice().doubleValue()-previous.getOpenPrice().doubleValue())>1)
@@ -40,28 +56,30 @@ public class OrderBlockFinder {
 //                && previous.getLowPrice().isGreaterThan(current.getClosePrice())
 //                && checkPriceHigh(series, i)
             ) {
-                sellBlock[0] = series.getBar(i - 1).getLowPrice().toString();
-                sellBlock[1] = series.getBar(i - 1).getHighPrice().toString();
-                sellBlock[2] = String.valueOf(calculateImbalance(series, i+1, 3,false));//series.getBar(i + 1).getHighPrice().toString();
+                ///  String [Low, High, Imb ]
+                sellBlock[0] = series.getBar(i).getClosePrice().toString();
+                sellBlock[1] = series.getBar(i).getHighPrice().toString();
+                sellBlock[2] = series.getBar(i -1 ).getLowPrice().toString();
                 break;
-            } if (
-                    previous1.getOpenPrice().isLessThan(previous1.getClosePrice())
-                            && Math.abs(previous.getHighPrice().doubleValue() - previous.getOpenPrice().doubleValue()/Math.abs(previous.getOpenPrice().doubleValue() - previous.getClosePrice().doubleValue()))>50
-                            && current.getOpenPrice().isGreaterThan(current.getClosePrice())
-                            && next.getHighPrice().isLessThan(previous.getLowPrice())
-                                && checkPriceHigh(series, i)
-       //                     && hasHighVolumeForOB(series, i - 1, 3, avgVolume, 1.5)
-                        //    && hasHighVolume(previous, avgVolume )
-                // && checkPriceHigh(series, i)
-
-            ){
-                sellBlock[0] = series.getBar(i - 1).getLowPrice().toString();
-                sellBlock[1] = series.getBar(i - 1).getHighPrice().toString();
-                sellBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 3,false));//series.getBar(i + 1).getHighPrice().toString();
-
-                break;
-//BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowBuy()))).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).scale(), RoundingMode.HALF_UP).toString();
             }
+//            if (
+//                    previous1.getOpenPrice().isLessThan(previous1.getClosePrice())
+//                            && Math.abs(previous.getHighPrice().doubleValue() - previous.getOpenPrice().doubleValue()/Math.abs(previous.getOpenPrice().doubleValue() - previous.getClosePrice().doubleValue()))>50
+//                            && current.getOpenPrice().isGreaterThan(current.getClosePrice())
+//                            && next.getHighPrice().isLessThan(previous.getLowPrice())
+//                                && checkPriceHigh(series, i)
+//       //                     && hasHighVolumeForOB(series, i - 1, 3, avgVolume, 1.5)
+//                        //    && hasHighVolume(previous, avgVolume )
+//                // && checkPriceHigh(series, i)
+//
+//            ){
+//                sellBlock[0] = series.getBar(i - 1).getLowPrice().toString();
+//                sellBlock[1] = series.getBar(i - 1).getHighPrice().toString();
+//                sellBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 1,false));//series.getBar(i + 1).getHighPrice().toString();
+//
+//                break;
+////BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowBuy()))).setScale(BigDecimal.valueOf(Double.valueOf(symbolsDto.getLowSell())).scale(), RoundingMode.HALF_UP).toString();
+//            }
         }
         // Buy Order Block
         for (int i = maxIndex-1; i >= 3; i--) {
@@ -71,35 +89,49 @@ public class OrderBlockFinder {
             Bar previous1 = series.getBar(i - 2);
             Bar previous2 = series.getBar(i - 3);
             Bar previous3 = series.getBar(i - 3);
-
+            double shadow = (current.getHighPrice().doubleValue() - current.getLowPrice().doubleValue())/Math.abs(current.getOpenPrice().doubleValue() - current.getClosePrice().doubleValue());
+            double resultPrevious = Math.abs(previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue())/previous.getVolume().doubleValue();
+            double resultCurent = Math.abs(current.getHighPrice().doubleValue() - current.getLowPrice().doubleValue())/current.getVolume().doubleValue();
+            double resultNext = Math.abs(next.getHighPrice().doubleValue() - next.getLowPrice().doubleValue())/next.getVolume().doubleValue();
             if (
-                    previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
+                    current.getVolume().isGreaterThan(next.getVolume())
+//                            && current.getOpenPrice().isGreaterThan(current.getClosePrice())
+                            && previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
+                            && next.getOpenPrice().isLessThan(next.getClosePrice())
+                            && shadow > 1
+                            && avgResult  < current.getVolume().doubleValue()
+                            && resultCurent > resultNext
+                            && resultCurent > resultPrevious
+                            && checkPriceLow(series, i)
+        /*            previous1.getOpenPrice().isGreaterThan(previous1.getClosePrice())
+                            && previous.getOpenPrice().isGreaterThan(previous.getClosePrice())
                             && current.getOpenPrice().isLessThan(current.getClosePrice())
                             && next.getLowPrice().isGreaterThan(previous.getHighPrice())
-                            && checkPriceLow(series, i)
+                            && checkPriceLow(series, i) */
   //                          && hasHighVolumeForOB(series, i - 1, 3, avgVolume, 1.5)
                     //        && hasHighVolume(previous, avgVolume )
             ) {  /// +
-                buyBlock[0] = series.getBar(i - 1).getLowPrice().toString();
-                buyBlock[1] = series.getBar(i - 1).getHighPrice().toString();
-                buyBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 3,true)); //series.getBar(i + 1).getLowPrice().toString();
-
-                break;
-            }  if (
-                    previous1.getOpenPrice().isGreaterThan(previous1.getClosePrice())
-                            && Math.abs(previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()/Math.abs(previous.getOpenPrice().doubleValue() - previous.getClosePrice().doubleValue()))>50
-                            && current.getOpenPrice().isLessThan(current.getClosePrice())
-                            && next.getLowPrice().isGreaterThan(previous.getHighPrice())
-  //                          && hasHighVolumeForOB(series, i - 1, 3, avgVolume, 1.5)
-                            && checkPriceLow(series, i)
-                    //        && hasHighVolume(previous, avgVolume )
-            ) {
-                buyBlock[0] = series.getBar(i - 1).getLowPrice().toString();
-                buyBlock[1] = series.getBar(i - 1).getHighPrice().toString();
-                buyBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 3,true));//series.getBar(i + 1).getLowPrice().toString();
+                buyBlock[0] = series.getBar(i).getLowPrice().toString();
+                buyBlock[1] = series.getBar(i).getClosePrice().toString();
+                buyBlock[2] =  series.getBar(i - 1).getHighPrice().toString();
 
                 break;
             }
+//            if (
+//                    previous1.getOpenPrice().isGreaterThan(previous1.getClosePrice())
+//                            && Math.abs(previous.getHighPrice().doubleValue() - previous.getLowPrice().doubleValue()/Math.abs(previous.getOpenPrice().doubleValue() - previous.getClosePrice().doubleValue()))>50
+//                            && current.getOpenPrice().isLessThan(current.getClosePrice())
+//                            && next.getLowPrice().isGreaterThan(previous.getHighPrice())
+//  //                          && hasHighVolumeForOB(series, i - 1, 3, avgVolume, 1.5)
+//                            && checkPriceLow(series, i)
+//                    //        && hasHighVolume(previous, avgVolume )
+//            ) {
+//                buyBlock[0] = series.getBar(i - 1).getLowPrice().toString();
+//                buyBlock[1] = series.getBar(i - 1).getHighPrice().toString();
+//                buyBlock[2] =  String.valueOf(calculateImbalance(series, i+1, 1,true));//series.getBar(i + 1).getLowPrice().toString();
+//
+//                break;
+//            }
 
         }
         Map<String, String[]> orderBlocks = new HashMap<>();
@@ -110,7 +142,7 @@ public class OrderBlockFinder {
 //        else {
         orderBlocks.put("SellOrderBlock", sellBlock);
         orderBlocks.put("BuyOrderBlock", buyBlock);
-        //}
+   //     }
         return orderBlocks;
     }
 
@@ -205,7 +237,7 @@ public class OrderBlockFinder {
 
     private static boolean checkPriceHigh(BarSeries series, int i) {
         for (int j = series.getEndIndex(); j > i  ; j--) {
-            if (series.getBar(j).getHighPrice().isGreaterThan( series.getBar(i).getHighPrice())
+            if (series.getBar(j).getClosePrice().isGreaterThan( series.getBar(i).getHighPrice())
             ){
                 return false;
             }
@@ -214,7 +246,7 @@ public class OrderBlockFinder {
     }
     private static boolean checkPriceLow(BarSeries series, int i) {
         for (int j = series.getEndIndex(); j > i  ; j--) {
-            if (series.getBar(j).getLowPrice().isLessThan( series.getBar(i).getLowPrice())){
+            if (series.getBar(j).getClosePrice().isLessThan( series.getBar(i).getLowPrice())){
                 return false;
             }
         }
@@ -237,17 +269,7 @@ public class OrderBlockFinder {
         }
         return true;
     }
-    public static void findSwingHighLow(BarSeries series, int period) {
 
-        HighestValueIndicator swingHigh = new HighestValueIndicator(new HighPriceIndicator(series), period);
-        LowestValueIndicator swingLow = new LowestValueIndicator(new LowPriceIndicator(series), period);
-        System.out.println(series.getName());
-        for (int i = period; i < series.getBarCount(); i++) {
-            System.out.println("Bar: " + i
-                    + " Swing High: " + swingHigh.getValue(i)
-                    + " Swing Low: " + swingLow.getValue(i));
-        }
-    }
 
     public static Double  findDownImbStop(String symbol) {
         BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
@@ -328,7 +350,7 @@ public class OrderBlockFinder {
 
     private static double calculateAverageVolume(BarSeries series, int lookbackPeriod) {
         double totalVolume = 0;
-        int count = 0;
+        int count = 1;
 
         for (int i = 0; i < lookbackPeriod && i < series.getBarCount(); i++) {
             Bar bar = series.getBar(series.getEndIndex() - i);
@@ -336,7 +358,7 @@ public class OrderBlockFinder {
             count++;
         }
 
-        return count > 0 ? totalVolume / count : 0;
+        return   (totalVolume /(count-1));
     }
 
     private static boolean hasHighVolume(Bar bar, double threshold) {
@@ -370,19 +392,4 @@ public class OrderBlockFinder {
         }
     }
 
-    private static boolean hasHighVolumeForOB(BarSeries series, int startIndex, int lookback, double avgVolume, double multiplier) {
-        double totalVolume = 0;
-        int count = 0;
-
-        for (int i = 0; i <= lookback && startIndex + i < series.getBarCount(); i++) {
-            Bar bar = series.getBar(startIndex + i);
-            totalVolume += bar.getVolume().doubleValue();
-            count++;
-        }
-
-        if (count == 0) return false;
-
-        double averageOBVolume = totalVolume / count;
-        return averageOBVolume > (avgVolume * multiplier);
-    }
 }
