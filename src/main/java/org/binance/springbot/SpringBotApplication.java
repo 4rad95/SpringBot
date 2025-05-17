@@ -616,8 +616,9 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
 						.type("LONG").price(curentBar.getClosePrice().toString()).stop(stop).proffit(proffit).enterPrice(curentBar.getClosePrice().toString())
 						.build();
-					insertVariant(variantDto);
+
 				if (Double.valueOf(proffit) > 0) {
+	     				insertVariant(variantDto);
 					    double k = 1.1; //(Double.valueOf(proffit)-curentBar.getClosePrice().doubleValue())/(curentBar.getClosePrice().doubleValue()-Double.valueOf(symbolsDto.getLowBuy()));
 						if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES )&&(k > 1)) {
 						Map<String, Long> id =  startPosition(variantDto);
@@ -650,8 +651,9 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				VariantDto variantDto = VariantDto.builder().time(Timestamp.valueOf(java.time.LocalDateTime.now())).symbol(symbolsDto.getSymbols())
 						.type("SHORT").price(curentBar.getClosePrice().toString()).stop(stop).proffit(proffit).enterPrice(curentBar.getClosePrice().toString())
 						.build();
-					insertVariant(variantDto);
+
 				if (Double.valueOf(proffit) > 0) {
+			    		insertVariant(variantDto);
 						double k = 1.1; //(curentBar.getClosePrice().doubleValue()-curentBar.getClosePrice().doubleValue())/(Double.valueOf(symbolsDto.getHighSell())-curentBar.getClosePrice().doubleValue());
 						if ((openPositionService.getCount() < MAX_SIMULTANEOUS_TRADES ) && ( k > 1)) {
 							Map<String, Long> id =  startPosition(variantDto);
