@@ -6,6 +6,7 @@ import com.binance.client.RequestOptions;
 import com.binance.client.SyncRequestClient;
 import com.binance.client.model.trade.MyTrade;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import liquibase.ui.CompositeUIService;
 import org.apache.commons.lang3.StringUtils;
 import org.binance.springbot.analytic.CandellaAnalyse;
 import org.binance.springbot.analytic.ClosePosition;
@@ -21,6 +22,7 @@ import org.binance.springbot.service.*;
 
 import java.math.BigDecimal;
 
+import org.binance.springbot.task.Position;
 import org.binance.springbot.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +47,14 @@ import static org.binance.springbot.util.BinanceTa4jUtils.*;
 import static org.binance.springbot.util.BinanceUtil.*;
 
 import static org.binance.springbot.analytic.TrendDetector.trendDetect;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.telegram.telegrambots.meta.generics.TelegramBot;
 
-
+//@SpringBootApplication(scanBasePackages = "com.example.springbot") // Adjust if needed
 @SpringBootApplication
 public class SpringBotApplication {
+
 
 	@Autowired
 	private  SymbolService symbolService;
@@ -85,6 +91,10 @@ public class SpringBotApplication {
 	public static String exchangeInfo;
 
 	private static final Logger log = LoggerFactory.getLogger(LoggingAspect.class);
+
+//	private final TelegramBot telegramBot;
+
+	private final NotificationService notificationService;
     @Autowired
     private VariantService variantService;
 
@@ -93,8 +103,16 @@ public class SpringBotApplication {
 	@Autowired
 	private MonitorService monitorService;
 
+    public SpringBotApplication(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
-	public static void main(String[] args) throws Exception {
+//    public SpringBotApplication(TelegramBot telegramBot) {
+//        this.telegramBot = telegramBot;
+//    }
+
+
+    public static void main(String[] args) throws Exception {
 		ApplicationContext context = SpringApplication.run(SpringBotApplication.class, args);
 		SpringBotApplication app = context.getBean(SpringBotApplication.class);
 		init();
@@ -130,7 +148,7 @@ public class SpringBotApplication {
 
 	public static void init() throws IOException {
 
-		exchangeInfo = BinanceUtil.getExchangeInfo();
+		exchangeInfo = getExchangeInfo();
 		String strPauseTimeMinutes = ConfigUtils
 				.readPropertyValue(ConfigUtils.CONFIG_PAUSE_TIME_MINUTES);
 		if (StringUtils.isNotEmpty(strPauseTimeMinutes)
@@ -231,9 +249,9 @@ public class SpringBotApplication {
 
 	public  void process( SpringBotApplication app ) {
 		try {
-			LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Start application").time(BinanceUtil.dateTimeFormat(currentTimeMillis())).build();
+			LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Start application").time(dateTimeFormat(currentTimeMillis())).build();
 			insertLogRecord(logUpdateDto);
-			List<String> symbols = BinanceUtil.getBitcoinSymbols();
+			List<String> symbols = getBitcoinSymbols();
 			generateTimeSeriesCache( symbols);
 			Long timeToWait = PAUSE_TIME_MINUTES * 60 * 1000L;
 			if (timeToWait < 0) {
@@ -299,8 +317,8 @@ public class SpringBotApplication {
 					int limit = 500;
 					BarSeries series = null;
 					if (timeSeriesCache.get(symbol) == null) {
-						List<Candlestick> candlesticks = BinanceUtil.getCandelSeries(symbol, interval.getIntervalId(), limit);
-						series = BinanceTa4jUtils.convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
+						List<Candlestick> candlesticks = getCandelSeries(symbol, interval.getIntervalId(), limit);
+						series = convertToTimeSeries(candlesticks, symbol, interval.getIntervalId());
 					} else {
 						series = timeSeriesCache.get(symbol);
 					}
@@ -357,8 +375,6 @@ public class SpringBotApplication {
 					insertSymbols(symbolDto);
 					count++;
 				} catch (Exception e) {
-
-
 					System.out.println("\u001B[32m" + symbol + "  -  Not used symbol !!! \u001B[0m");
 					badSymbols.add(symbol);
 				}
@@ -405,20 +421,20 @@ public  void mainProcess(List<String> symbols) throws Exception {
 	Long t1 = currentTimeMillis() - t0;
 	log.info("\u001B[32m --- All symbols analyzed, time elapsed: "
 			+ (t1 / 1000.0) + " seconds. \u001B[0m");
-	LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg(" All symbols analyzed, time elapsed: "  + (t1 / 1000.0) + " seconds. ").time(BinanceUtil.dateTimeFormat(currentTimeMillis())).build();
+	LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg(" All symbols analyzed, time elapsed: "  + (t1 / 1000.0) + " seconds. ").time(dateTimeFormat(currentTimeMillis())).build();
 	insertLogRecord(logUpdateDto);
 	// updateAll();
 }
 	private <GeneralException extends Throwable> void updateSymbol(String symbol) throws Exception {
 
 			Long t0 = currentTimeMillis();
-            List<Candlestick> latestCandlesticks = BinanceUtil.getLatestCandlestickBars(symbol, interval);
+            List<Candlestick> latestCandlesticks = getLatestCandlestickBars(symbol, interval);
             BarSeries series = timeSeriesCache.get(symbol);
-            if (BinanceTa4jUtils.isSameTick(latestCandlesticks.get(1), series.getLastBar())) {
+            if (isSameTick(latestCandlesticks.get(1), series.getLastBar())) {
                 updateLastTick(symbol, latestCandlesticks.get(1));
             } else {
                 updateLastTick(symbol, latestCandlesticks.get(0));
-                series.addBar(BinanceTa4jUtils.convertToTa4jTick(latestCandlesticks.get(1)));
+                series.addBar(convertToTa4jTick(latestCandlesticks.get(1)));
             }
 	}
 
@@ -426,7 +442,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		BarSeries series = timeSeriesCache.get(symbol);
 		List<Bar> seriesTick = series.getBarData();
 		seriesTick.remove(series.getEndIndex());
-		seriesTick.add(BinanceTa4jUtils.convertToTa4jTick(candlestick));
+		seriesTick.add(convertToTa4jTick(candlestick));
 	}
 
 	private void checkSymbols(SymbolsDto symbolsDto) throws Exception {
@@ -469,9 +485,9 @@ public  void mainProcess(List<String> symbols) throws Exception {
 	}
 
 	public Map<String,Long> startPosition(VariantDto variantDto) throws InterruptedException, JsonProcessingException {
-		String quality = BinanceUtil.getAmount(variantDto.getSymbol(), Double.valueOf(variantDto.getPrice()),TRADE_SIZE_USDT);
+		String quality = getAmount(variantDto.getSymbol(), Double.valueOf(variantDto.getPrice()),TRADE_SIZE_USDT);
 
-		org.binance.springbot.task.Position position = new org.binance.springbot.task.Position(variantDto.getSymbol(),variantDto.getType(),quality ,variantDto.getEnterPrice());
+		Position position = new Position(variantDto.getSymbol(),variantDto.getType(),quality ,variantDto.getEnterPrice());
 		Map<String,Long> mapa = new HashMap<String,Long>();
 		if (variantDto.getType() == "SHORT") {
 			Long idPosition = position.openPositionShort();
@@ -479,7 +495,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 				sleep(1000);
 			}
-			org.binance.springbot.task.Position positionSP = new org.binance.springbot.task.Position(idPosition,variantDto.getSymbol());
+			Position positionSP = new Position(idPosition,variantDto.getSymbol());
 			Long[] idSP = positionSP.stopPositionShort(variantDto.getStop(),variantDto.getProffit(),variantDto.getEnterPrice());
 			mapa.put("id",idPosition);
 			mapa.put("stop",idSP[0]);
@@ -492,7 +508,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 			   sleep(1000);
 			}
-			org.binance.springbot.task.Position positionSP = new org.binance.springbot.task.Position(idPosition,variantDto.getSymbol());
+			Position positionSP = new Position(idPosition,variantDto.getSymbol());
 			Long[] idSP = positionSP.stopPositionLong(variantDto.getStop(),variantDto.getProffit(),variantDto.getEnterPrice());
 			mapa.put("id",idPosition);
 			mapa.put("stop",idSP[0]);
@@ -534,7 +550,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 							.comission(totalCommission.toString())
 							.type(Type.valueOf(lastTrade.getPositionSide()))
 							.startDateTime(convertTimestampToDate(lastTime))
-							.duration(BinanceUtil.timeFormat(lastTime - trades.get(trades.size() - 2).getTime()))
+							.duration(timeFormat(lastTime - trades.get(trades.size() - 2).getTime()))
 							.build();
 
 				statisticService.insertStatistic(statisticDto);
@@ -568,8 +584,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		deleteSymbolsAll();
 		int i = generateTimeSeriesCache( symbols);
 		LogUpdateDto logUpdateDto = LogUpdateDto.builder()
-				.msg("Update all symbols time elapsed: " + BinanceUtil.timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.")
-				.time(BinanceUtil.dateTimeFormat(currentTimeMillis()))
+				.msg("Update all symbols time elapsed: " + timeFormat(currentTimeMillis()-t0) +".  "+ i+" Symbols add.")
+				.time(dateTimeFormat(currentTimeMillis()))
 				.build();
 		insertLogRecord(logUpdateDto);
 	}
@@ -594,10 +610,14 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		insertMonitor(monitorDto);
 		LogUpdateDto logUpdateDto = LogUpdateDto.builder()
 				.msg(type + "  " + symbol +"  add to monitor")
-				.time(BinanceUtil.dateTimeFormat(currentTimeMillis()))
+				.time(dateTimeFormat(currentTimeMillis()))
 				.build();
 		insertLogRecord(logUpdateDto);
 
+		notificationService.send("🔔 СИГНАЛ: " + type+ "   " + symbol + "\n" +
+				"📊 Вход: " + start+ "\n" +
+				"🛑 Стоп: " + stop + "\n" +
+				"🎯 Цель: " + profit );
 	}
 	private void checkMonitorCoins() throws Exception {
 		List<Monitor> monitorCoins = monitorService.getAll();
