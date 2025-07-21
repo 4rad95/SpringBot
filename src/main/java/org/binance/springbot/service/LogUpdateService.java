@@ -35,6 +35,6 @@ public class LogUpdateService {
 
     }
     public List<LogUpdateDto> getLogUpdate50() {
-        return MapperUtil.convertList(logUpdateRepository.getLogUpdate50(),mappers::convertToLogUpdateDto);
+        return MapperUtil.convertList(logUpdateRepository.getLogUpdate200(),mappers::convertToLogUpdateDto);
     }
 }

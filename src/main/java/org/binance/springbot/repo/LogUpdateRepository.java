@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface LogUpdateRepository extends JpaRepository<LogUpdate,Long> {
 
-    @Query(value = "SELECT  *  FROM  LOGUPDATE  ORDER BY ID DESC  LIMIT 50",  nativeQuery = true
+    @Query(value = "SELECT  *  FROM  LOGUPDATE  ORDER BY ID DESC  LIMIT 200",  nativeQuery = true
     )
-    List<LogUpdate> getLogUpdate50();
+    List<LogUpdate> getLogUpdate200();
 }
