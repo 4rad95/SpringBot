@@ -17,7 +17,7 @@ public class NotificationService {
     public void send(String message) {
         Long chatId = 566185151L; // Ваш ID из getUpdates
         telegramBot.sendMessage(chatId, message);
-        Long groupChatId = -100123456789L;
-        telegramBot.sendMessage(groupChatId, message);
+//        Long groupChatId = -100123456789L;
+//        telegramBot.sendMessage(groupChatId, message);
     }
 }
