@@ -467,6 +467,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			{
 			CandellaAnalyse candellaAnalyse = new CandellaAnalyse(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowBuy(),symbolsDto.getHighBuy());
 			if ((candellaAnalyse.getTrend() > 0)
+					&& (detectTrendWithMA50(timeSeriesCache.get(symbolsDto.getSymbols())) > 0 )
 					&& (detectTrendWithMA50(getSeriesT2(symbolsDto.getSymbols())) > 0 )
 					&& (detectTrendWithMA50(getSeriesT1(symbolsDto.getSymbols())) > 0 )) {
 					newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getHighBuy(),  symbolsDto.getLowBuy(),candellaAnalyse.getPointHigh());}
@@ -478,6 +479,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
      		CandellaAnalyse candellaAnalyse = new CandellaAnalyse(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowSell(),symbolsDto.getHighSell());
 			if ((candellaAnalyse.getTrend()  < 0)
+					&& (detectTrendWithMA50(timeSeriesCache.get(symbolsDto.getSymbols())) < 0 )
 					&& (detectTrendWithMA50(getSeriesT2(symbolsDto.getSymbols())) < 0 )
 					&& (detectTrendWithMA50(getSeriesT1(symbolsDto.getSymbols())) < 0 )) {
 					newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getLowSell(), symbolsDto.getHighSell(), candellaAnalyse.getPointLow());}
