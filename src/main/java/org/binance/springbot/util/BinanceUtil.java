@@ -260,12 +260,17 @@ public class BinanceUtil {
     }
 
     public static BarSeries getSeriesT1(String symbol) {
-        if (timeSeriesCache_t1.get(symbol) == null) {
             BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
                     Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval1.getIntervalId(), 100))
                     , symbol, interval1.getIntervalId());
-            timeSeriesCache_t1.put(symbol,series);
-        }
-        return timeSeriesCache_t1.get(symbol);
+        return series;
+    }
+    public static BarSeries getSeriesT2(String symbol) {
+
+            BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
+                    Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval2.getIntervalId(), 100))
+                    , symbol, interval1.getIntervalId());
+
+        return series;
     }
 }

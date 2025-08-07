@@ -76,6 +76,20 @@ public class TrendDetector {
         return 0;
     }
 
+    public static Integer detectTrendWithMA50(BarSeries series){
+        ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
+
+        EMAIndicator smaIndicator = new EMAIndicator(closePrice, 50);
+        detectTrendWithStochRSI(series);
+        if (smaIndicator.getValue(series.getEndIndex()).isLessThan(smaIndicator.getValue(series.getEndIndex()-1))
+            && (smaIndicator.getValue(series.getEndIndex()).isLessThan(series.getLastBar().getClosePrice()))) {
+            return -1;
+        }
+        if (smaIndicator.getValue(series.getEndIndex()).isGreaterThan(smaIndicator.getValue(series.getEndIndex()-1))
+                && (smaIndicator.getValue(series.getEndIndex()).isGreaterThan(series.getLastBar().getClosePrice()))) {
+            return 1;}
+        return 0;
+    }
     public static int detectTrendWithStochRSI(BarSeries series) {
         ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
         RSIIndicator rsiIndicator = new RSIIndicator(closePrice,14);

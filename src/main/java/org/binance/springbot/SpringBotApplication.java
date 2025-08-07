@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.binance.springbot.analytic.CandellaAnalyse;
 import org.binance.springbot.analytic.ClosePosition;
 import org.binance.springbot.analytic.OrderBlockFinder;
-import org.binance.springbot.analytic.TrendDetector;
 import org.binance.springbot.aspect.LoggingAspect;
 import org.binance.springbot.dto.*;
 import org.binance.springbot.entity.Monitor;
@@ -43,13 +42,10 @@ import java.util.stream.Collectors;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
 
+import static org.binance.springbot.analytic.TrendDetector.detectTrendWithMA50;
 import static org.binance.springbot.util.BinanceTa4jUtils.*;
 import static org.binance.springbot.util.BinanceUtil.*;
 
-import static org.binance.springbot.analytic.TrendDetector.trendDetect;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.telegram.telegrambots.meta.generics.TelegramBot;
 
 //@SpringBootApplication(scanBasePackages = "com.example.springbot") // Adjust if needed
 @SpringBootApplication
@@ -65,6 +61,8 @@ public class SpringBotApplication {
 
 	public static final Map<String, BarSeries> timeSeriesCache = Collections.synchronizedMap(new HashMap<>());
 	public static final Map<String, BarSeries> timeSeriesCache_t1 = Collections.synchronizedMap(new HashMap<>());
+	public static final Map<String, BarSeries> timeSeriesCache_t2 = Collections.synchronizedMap(new HashMap<>());
+
 
 	private static final List<String> badSymbols = new LinkedList<>();
 	public static Boolean MAKE_LONG = true;
@@ -252,7 +250,7 @@ public class SpringBotApplication {
 			LogUpdateDto logUpdateDto = LogUpdateDto.builder().msg("Start application").time(dateTimeFormat(currentTimeMillis())).build();
 			insertLogRecord(logUpdateDto);
 			List<String> symbols = getBitcoinSymbols();
-			generateTimeSeriesCache( symbols);
+			generateTimeSeriesCache(symbols);
 			Long timeToWait = PAUSE_TIME_MINUTES * 60 * 1000L;
 			if (timeToWait < 0) {
 				timeToWait = 5 * 60 * 1000L;
@@ -468,7 +466,9 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				curentBar.getLowPrice().doubleValue()  < Double.valueOf(symbolsDto.getLowBuy()))
 			{
 			CandellaAnalyse candellaAnalyse = new CandellaAnalyse(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowBuy(),symbolsDto.getHighBuy());
-			if (candellaAnalyse.getTrend() > 0) {
+			if ((candellaAnalyse.getTrend() > 0)
+					&& (detectTrendWithMA50(getSeriesT2(symbolsDto.getSymbols())) > 0 )
+					&& (detectTrendWithMA50(getSeriesT1(symbolsDto.getSymbols())) > 0 )) {
 					newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getHighBuy(),  symbolsDto.getLowBuy(),candellaAnalyse.getPointHigh());}
 		}
 
@@ -477,7 +477,9 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				{
 
      		CandellaAnalyse candellaAnalyse = new CandellaAnalyse(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowSell(),symbolsDto.getHighSell());
-			if (candellaAnalyse.getTrend()  < 0) {
+			if ((candellaAnalyse.getTrend()  < 0)
+					&& (detectTrendWithMA50(getSeriesT2(symbolsDto.getSymbols())) < 0 )
+					&& (detectTrendWithMA50(getSeriesT1(symbolsDto.getSymbols())) < 0 )) {
 					newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getLowSell(), symbolsDto.getHighSell(), candellaAnalyse.getPointLow());}
 			}
 
