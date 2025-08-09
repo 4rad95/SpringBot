@@ -82,11 +82,11 @@ public class TrendDetector {
         EMAIndicator smaIndicator = new EMAIndicator(closePrice, 50);
         detectTrendWithStochRSI(series);
         if (smaIndicator.getValue(series.getEndIndex()).isLessThan(smaIndicator.getValue(series.getEndIndex()-1))
-            && (smaIndicator.getValue(series.getEndIndex()).isLessThan(series.getLastBar().getClosePrice()))) {
+            && (smaIndicator.getValue(series.getEndIndex()).isGreaterThan(series.getLastBar().getClosePrice()))) {
             return -1;
         }
         if (smaIndicator.getValue(series.getEndIndex()).isGreaterThan(smaIndicator.getValue(series.getEndIndex()-1))
-                && (smaIndicator.getValue(series.getEndIndex()).isGreaterThan(series.getLastBar().getClosePrice()))) {
+                && (smaIndicator.getValue(series.getEndIndex()).isLessThan(series.getLastBar().getClosePrice()))) {
             return 1;}
         return 0;
     }

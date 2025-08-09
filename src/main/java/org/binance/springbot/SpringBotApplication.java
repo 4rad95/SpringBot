@@ -462,27 +462,33 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		// 			TrendDetector.TrendResult result =  TrendDetector.detectTrendWithExtremes(timeSeriesCache.get(symbolsDto.getSymbols()), 150,5);
     	//	 if (trend == 0) { return;}
 
-		if (
-				curentBar.getLowPrice().doubleValue()  < Double.valueOf(symbolsDto.getLowBuy()))
+		if (curentBar.getLowPrice().doubleValue()  < Double.valueOf(symbolsDto.getLowBuy())||(curentBar.getHighPrice().doubleValue()  > Double.valueOf(symbolsDto.getHighSell())))
 			{
 			CandellaAnalyse candellaAnalyse = new CandellaAnalyse(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowBuy(),symbolsDto.getHighBuy());
-			if ((candellaAnalyse.getTrend() > 0)
-					&& (detectTrendWithMA50(timeSeriesCache.get(symbolsDto.getSymbols())) > 0 )
-					&& (detectTrendWithMA50(getSeriesT2(symbolsDto.getSymbols())) > 0 )
+			if  // ((candellaAnalyse.getTrend() > 0) &&
+					 (detectTrendWithMA50(timeSeriesCache.get(symbolsDto.getSymbols())) > 0 ){
+							List<Candlestick> candlesticks1 = getCandelSeries(symbolsDto.getSymbols(), interval1.getIntervalId(), 100);
+							BarSeries seriesT1 = convertToTimeSeries(candlesticks1, symbolsDto.getSymbols(), interval1.getIntervalId());
+							List<Candlestick> candlesticks2 = getCandelSeries(symbolsDto.getSymbols(), interval2.getIntervalId(), 100);
+							BarSeries seriesT2= convertToTimeSeries(candlesticks2, symbolsDto.getSymbols(), interval2.getIntervalId());
+					if ( (detectTrendWithMA50(getSeriesT2(symbolsDto.getSymbols())) > 0 )
 					&& (detectTrendWithMA50(getSeriesT1(symbolsDto.getSymbols())) > 0 )) {
 					newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getHighBuy(),  symbolsDto.getLowBuy(),candellaAnalyse.getPointHigh());}
-		}
+		}}
 
-		else if ( // trend < 0
-				curentBar.getHighPrice().doubleValue()  > Double.valueOf(symbolsDto.getHighSell()))
-				{
-
-     		CandellaAnalyse candellaAnalyse = new CandellaAnalyse(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowSell(),symbolsDto.getHighSell());
-			if ((candellaAnalyse.getTrend()  < 0)
-					&& (detectTrendWithMA50(timeSeriesCache.get(symbolsDto.getSymbols())) < 0 )
-					&& (detectTrendWithMA50(getSeriesT2(symbolsDto.getSymbols())) < 0 )
+//		else if ( // trend < 0
+//				curentBar.getHighPrice().doubleValue()  > Double.valueOf(symbolsDto.getHighSell()))
+//				{
+				CandellaAnalyse candellaAnalyse1 = new CandellaAnalyse(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowSell(),symbolsDto.getHighSell());
+			if  // ((candellaAnalyse.getTrend()  < 0) &&
+					 (detectTrendWithMA50(timeSeriesCache.get(symbolsDto.getSymbols())) < 0 ) {
+				List<Candlestick> candlesticks1 = getCandelSeries(symbolsDto.getSymbols(), interval1.getIntervalId(), 100);
+				BarSeries seriesT1 = convertToTimeSeries(candlesticks1, symbolsDto.getSymbols(), interval1.getIntervalId());
+				List<Candlestick> candlesticks2 = getCandelSeries(symbolsDto.getSymbols(), interval2.getIntervalId(), 100);
+				BarSeries seriesT2= convertToTimeSeries(candlesticks2, symbolsDto.getSymbols(), interval2.getIntervalId());
+			if ((detectTrendWithMA50(getSeriesT2(symbolsDto.getSymbols())) < 0 )
 					&& (detectTrendWithMA50(getSeriesT1(symbolsDto.getSymbols())) < 0 )) {
-					newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getLowSell(), symbolsDto.getHighSell(), candellaAnalyse.getPointLow());}
+					newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getLowSell(), symbolsDto.getHighSell(), candellaAnalyse1.getPointLow());}
 			}
 
 		}}
