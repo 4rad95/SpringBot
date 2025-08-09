@@ -34,8 +34,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ta4j.core.BarSeries;
 
-import static org.binance.springbot.SpringBotApplication.interval1;
-import static org.binance.springbot.SpringBotApplication.timeSeriesCache_t1;
+import static org.binance.springbot.SpringBotApplication.*;
 
 public class BinanceUtil {
 
@@ -268,8 +267,8 @@ public class BinanceUtil {
     public static BarSeries getSeriesT2(String symbol) {
 
             BarSeries series = BinanceTa4jUtils.convertToTimeSeries(
-                    Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, SpringBotApplication.interval2.getIntervalId(), 100))
-                    , symbol, interval1.getIntervalId());
+                    Objects.requireNonNull(BinanceUtil.getCandelSeries(symbol, interval2.getIntervalId(), 100))
+                    , symbol, interval2.getIntervalId());
 
         return series;
     }
