@@ -636,7 +636,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			}
 		MonitorDto monitorDto = MonitorDto.builder().type(type).symbol(symbol).start(start).stop(stop).profit(profit).build();
 		insertMonitor(monitorDto);
-		Double percent = Double.valueOf(profit)/Double.valueOf(start)/100;
+		Double percent = Math.abs(Double.valueOf(profit)-Double.valueOf(start))*100/Double.valueOf(start);
 		LogUpdateDto logUpdateDto = LogUpdateDto.builder()
 				.msg(type + "  " + symbol +"  add to monitor " + String.valueOf(percent) + "%")
 				.time(dateTimeFormat(currentTimeMillis()))
