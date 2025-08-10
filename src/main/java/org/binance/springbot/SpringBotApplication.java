@@ -469,8 +469,10 @@ public  void mainProcess(List<String> symbols) throws Exception {
 		if (curentBar.getLowPrice().doubleValue()  < Double.valueOf(symbolsDto.getLowBuy())||(curentBar.getHighPrice().doubleValue()  > Double.valueOf(symbolsDto.getHighSell())))
 			{
 			CandellaAnalyse candellaAnalyse = new CandellaAnalyse(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowBuy(),symbolsDto.getHighBuy());
+			CandellaAnalyse candellaAnalyse1 = new CandellaAnalyse(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowSell(),symbolsDto.getHighSell());
+			int trend =	detectTrendWithMA50(timeSeriesCache.get(symbolsDto.getSymbols()));
 			if  // ((candellaAnalyse.getTrend() > 0) &&
-					 (detectTrendWithMA50(timeSeriesCache.get(symbolsDto.getSymbols())) > 0 ){
+					 (trend > 0 ){
 							List<Candlestick> candlesticks1 = getCandelSeries(symbolsDto.getSymbols(), interval1.getIntervalId(), 100);
 							BarSeries seriesT1 = convertToTimeSeries(candlesticks1, symbolsDto.getSymbols(), interval1.getIntervalId());
 							List<Candlestick> candlesticks2 = getCandelSeries(symbolsDto.getSymbols(), interval2.getIntervalId(), 100);
@@ -485,14 +487,14 @@ public  void mainProcess(List<String> symbols) throws Exception {
 					String stopPrice   = findeDownOB(timeSeriesCache.get(symbolsDto.getSymbols()),Double.valueOf(startPrice)).toString();
 
 					newMonitorCoin("LONG",symbolsDto.getSymbols(),startPrice, stopPrice, profitPrice);}
-		}}
+		}
 
 //		else if ( // trend < 0
 //				curentBar.getHighPrice().doubleValue()  > Double.valueOf(symbolsDto.getHighSell()))
 //				{
-				CandellaAnalyse candellaAnalyse1 = new CandellaAnalyse(timeSeriesCache.get(symbolsDto.getSymbols()), symbolsDto.getLowSell(),symbolsDto.getHighSell());
+
 			if  // ((candellaAnalyse.getTrend()  < 0) &&
-					 (detectTrendWithMA50(timeSeriesCache.get(symbolsDto.getSymbols())) < 0 ) {
+					 (trend < 0 ) {
 				List<Candlestick> candlesticks1 = getCandelSeries(symbolsDto.getSymbols(), interval1.getIntervalId(), 100);
 				BarSeries seriesT1 = convertToTimeSeries(candlesticks1, symbolsDto.getSymbols(), interval1.getIntervalId());
 				List<Candlestick> candlesticks2 = getCandelSeries(symbolsDto.getSymbols(), interval2.getIntervalId(), 100);
@@ -510,7 +512,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 			}
 
 		}}
-	}
+	}}
 
 	public Map<String,Long> startPosition(VariantDto variantDto) throws InterruptedException, JsonProcessingException {
 		String quality = getAmount(variantDto.getSymbol(), Double.valueOf(variantDto.getPrice()),TRADE_SIZE_USDT);
