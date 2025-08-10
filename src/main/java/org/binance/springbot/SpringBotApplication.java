@@ -641,11 +641,11 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				.time(dateTimeFormat(currentTimeMillis()))
 				.build();
 		insertLogRecord(logUpdateDto);
-
+		Double percent = Double.valueOf(profit)/Double.valueOf(start)/100;
 		notificationService.send("🔔 СИГНАЛ: " + type+ "   " + symbol + "\n" +
 				"📊 Вход: " + start+ "\n" +
 				"🛑 Стоп: " + stop + "\n" +
-				"🎯 Цель: " + profit );
+				"🎯 Цель: " + profit  + "  " + String.valueOf(percent) + "%"  );
 	}
 	private void checkMonitorCoins() throws Exception {
 		List<Monitor> monitorCoins = monitorService.getAll();
