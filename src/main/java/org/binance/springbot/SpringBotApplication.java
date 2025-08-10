@@ -482,7 +482,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 						ClosePriceIndicator closePrice = new ClosePriceIndicator(timeSeriesCache.get(symbolsDto.getSymbols()));
 						EMAIndicator smaIndicator = new EMAIndicator(closePrice, 25);
-					String startPrice  = smaIndicator.getValue(timeSeriesCache.get(symbolsDto.getSymbols()).getEndIndex()).toString();
+					String startPrice  = timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().toString(); //smaIndicator.getValue(timeSeriesCache.get(symbolsDto.getSymbols()).getEndIndex()).toString();
 					String profitPrice = findeUperOB(timeSeriesCache.get(symbolsDto.getSymbols()),timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue() ).toString();
 					String stopPrice   = findeDownOB(timeSeriesCache.get(symbolsDto.getSymbols()),Double.valueOf(startPrice)).toString();
 
@@ -504,7 +504,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 
 				ClosePriceIndicator closePrice = new ClosePriceIndicator(timeSeriesCache.get(symbolsDto.getSymbols()));
 				EMAIndicator smaIndicator = new EMAIndicator(closePrice, 25);
-				String startPrice = smaIndicator.getValue(timeSeriesCache.get(symbolsDto.getSymbols()).getEndIndex()).toString();
+				String startPrice = timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().toString(); //smaIndicator.getValue(timeSeriesCache.get(symbolsDto.getSymbols()).getEndIndex()).toString();
 				String profitPrice = findeDownOB(timeSeriesCache.get(symbolsDto.getSymbols()),timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue() ).toString();
 				String stopPrice   = findeUperOB(timeSeriesCache.get(symbolsDto.getSymbols()),Double.valueOf(startPrice)).toString();
 
