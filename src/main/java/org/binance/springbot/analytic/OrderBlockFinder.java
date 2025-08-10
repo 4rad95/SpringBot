@@ -5,6 +5,7 @@ import org.binance.springbot.util.BinanceUtil;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.helpers.*;
+import org.ta4j.core.num.Num;
 
 import java.util.*;
 
@@ -146,8 +147,8 @@ public class OrderBlockFinder {
         return orderBlocks;
     }
 
-    public static Double findeUperOB(BarSeries series, Double price) {
-        double uperOB = -1.00;
+    public static Num findeUperOB(BarSeries series, Double price) {
+        Num uperOB = null;
         for (int i = series.getEndIndex(); i >= 3; i--) {
             Bar current = series.getBar(i);
             Bar previous = series.getBar(i - 1);
@@ -158,7 +159,7 @@ public class OrderBlockFinder {
                     && checkPriceHigh(series, i)
                     && previous.getClosePrice().doubleValue()>price
             ) {
-                uperOB = previous.getLowPrice().doubleValue();
+                uperOB = previous.getLowPrice();
                 break;
             }
         }
@@ -186,8 +187,8 @@ public class OrderBlockFinder {
         return uperIMB;
     }
 
-    public static Double findeDownOB(BarSeries series, Double price) {
-        double downOB = -1.00;
+    public static Num findeDownOB(BarSeries series, Double price) {
+        Num downOB = null;
         for (int i = series.getEndIndex(); i >= 3; i--) {
             Bar current = series.getBar(i);
             Bar previous = series.getBar(i - 1);
@@ -198,7 +199,7 @@ public class OrderBlockFinder {
                     && checkPriceLow(series, i)
                     && previous.getClosePrice().doubleValue()<price
             ) {
-                downOB = previous.getHighPrice().doubleValue();
+                downOB = previous.getHighPrice();
                 break;
             }
         }

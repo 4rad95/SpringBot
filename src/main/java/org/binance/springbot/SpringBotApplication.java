@@ -31,6 +31,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
+import org.ta4j.core.indicators.EMAIndicator;
+import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 
 import java.io.IOException;
 import java.math.RoundingMode;
@@ -42,6 +44,8 @@ import java.util.stream.Collectors;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
 
+import static org.binance.springbot.analytic.OrderBlockFinder.findeDownOB;
+import static org.binance.springbot.analytic.OrderBlockFinder.findeUperOB;
 import static org.binance.springbot.analytic.TrendDetector.detectTrendWithMA50;
 import static org.binance.springbot.util.BinanceTa4jUtils.*;
 import static org.binance.springbot.util.BinanceUtil.*;
@@ -473,7 +477,14 @@ public  void mainProcess(List<String> symbols) throws Exception {
 							BarSeries seriesT2= convertToTimeSeries(candlesticks2, symbolsDto.getSymbols(), interval2.getIntervalId());
 					if ( (detectTrendWithMA50(getSeriesT2(symbolsDto.getSymbols())) > 0 )
 					&& (detectTrendWithMA50(getSeriesT1(symbolsDto.getSymbols())) > 0 )) {
-					newMonitorCoin("LONG",symbolsDto.getSymbols(),symbolsDto.getHighBuy(),  symbolsDto.getLowBuy(),candellaAnalyse.getPointHigh());}
+
+						ClosePriceIndicator closePrice = new ClosePriceIndicator(timeSeriesCache.get(symbolsDto.getSymbols()));
+						EMAIndicator smaIndicator = new EMAIndicator(closePrice, 25);
+					String startPrice  = smaIndicator.getValue(timeSeriesCache.get(symbolsDto.getSymbols()).getEndIndex()).toString();
+					String profitPrice = findeUperOB(timeSeriesCache.get(symbolsDto.getSymbols()),timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue() ).toString();
+					String stopPrice   = findeDownOB(timeSeriesCache.get(symbolsDto.getSymbols()),Double.valueOf(startPrice)).toString();
+
+					newMonitorCoin("LONG",symbolsDto.getSymbols(),startPrice, stopPrice, profitPrice);}
 		}}
 
 //		else if ( // trend < 0
@@ -488,7 +499,14 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				BarSeries seriesT2= convertToTimeSeries(candlesticks2, symbolsDto.getSymbols(), interval2.getIntervalId());
 			if ((detectTrendWithMA50(getSeriesT2(symbolsDto.getSymbols())) < 0 )
 					&& (detectTrendWithMA50(getSeriesT1(symbolsDto.getSymbols())) < 0 )) {
-					newMonitorCoin("SHORT",symbolsDto.getSymbols(),symbolsDto.getLowSell(), symbolsDto.getHighSell(), candellaAnalyse1.getPointLow());}
+
+				ClosePriceIndicator closePrice = new ClosePriceIndicator(timeSeriesCache.get(symbolsDto.getSymbols()));
+				EMAIndicator smaIndicator = new EMAIndicator(closePrice, 25);
+				String startPrice = smaIndicator.getValue(timeSeriesCache.get(symbolsDto.getSymbols()).getEndIndex()).toString();
+				String profitPrice = findeDownOB(timeSeriesCache.get(symbolsDto.getSymbols()),timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue() ).toString();
+				String stopPrice   = findeUperOB(timeSeriesCache.get(symbolsDto.getSymbols()),Double.valueOf(startPrice)).toString();
+
+					newMonitorCoin("SHORT",symbolsDto.getSymbols(),startPrice, stopPrice, profitPrice);}
 			}
 
 		}}
@@ -671,7 +689,11 @@ public  void mainProcess(List<String> symbols) throws Exception {
 //				}
 				if (Double.valueOf(entry.getStop()) > curentBar.getClosePrice().doubleValue()) {
 					deleteMonitor(entry.getId());
-					log.info("[CLOSE LONG] "+ entry.getSymbol());
+					log.info("[CLOSE LONG STOP] "+ entry.getSymbol());
+				}
+				else if (Double.valueOf(entry.getProfit()) < curentBar.getClosePrice().doubleValue()) {
+					deleteMonitor(entry.getId());
+					log.info("[CLOSE LONG PROFIT] "+ entry.getSymbol());
 				}
 
 			}
@@ -708,7 +730,11 @@ public  void mainProcess(List<String> symbols) throws Exception {
 //				}
 				if (Double.valueOf(entry.getStop()) < curentBar.getClosePrice().doubleValue()) {
 					deleteMonitor(entry.getId());
-					log.info("[CLOSE SHORT] "+ entry.getSymbol());
+					log.info("[CLOSE SHORT STOP] "+ entry.getSymbol());
+				}
+				else if (Double.valueOf(entry.getProfit()) > curentBar.getClosePrice().doubleValue()) {
+					deleteMonitor(entry.getId());
+					log.info("[CLOSE SHORT PROFIT] "+ entry.getSymbol());
 				}
 			}
 
