@@ -695,6 +695,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 							.time(dateTimeFormat(currentTimeMillis()))
 							.build();
 					insertLogRecord(logUpdateDto);
+					notificationService.send("🔔 СИГНАЛ: LONG    " + entry.getSymbol() + " STOP\n");
 				}
 				else if (Double.valueOf(entry.getProfit()) < curentBar.getClosePrice().doubleValue()) {
 					deleteMonitor(entry.getId());
@@ -704,6 +705,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 							.time(dateTimeFormat(currentTimeMillis()))
 							.build();
 					insertLogRecord(logUpdateDto);
+					notificationService.send("🔔 СИГНАЛ: LONG  " + entry.getSymbol() + " PROFIT\n");
 				}
 
 			}
@@ -746,6 +748,8 @@ public  void mainProcess(List<String> symbols) throws Exception {
 							.time(dateTimeFormat(currentTimeMillis()))
 							.build();
 					insertLogRecord(logUpdateDto);
+					notificationService.send("🔔 СИГНАЛ: SHORT  " + entry.getSymbol() + " STOP\n");
+
 				}
 				else if (Double.valueOf(entry.getProfit()) > curentBar.getClosePrice().doubleValue()) {
 					deleteMonitor(entry.getId());
@@ -755,6 +759,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 							.time(dateTimeFormat(currentTimeMillis()))
 							.build();
 					insertLogRecord(logUpdateDto);
+					notificationService.send("🔔 СИГНАЛ: SHORT  " + entry.getSymbol() + " PROFIT\n");
 				}
 			}
 
