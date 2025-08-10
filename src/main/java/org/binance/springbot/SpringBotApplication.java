@@ -690,10 +690,20 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				if (Double.valueOf(entry.getStop()) > curentBar.getClosePrice().doubleValue()) {
 					deleteMonitor(entry.getId());
 					log.info("[CLOSE LONG STOP] "+ entry.getSymbol());
+					LogUpdateDto logUpdateDto = LogUpdateDto.builder()
+							.msg("Stop LONG "  + entry.getSymbol())
+							.time(dateTimeFormat(currentTimeMillis()))
+							.build();
+					insertLogRecord(logUpdateDto);
 				}
 				else if (Double.valueOf(entry.getProfit()) < curentBar.getClosePrice().doubleValue()) {
 					deleteMonitor(entry.getId());
 					log.info("[CLOSE LONG PROFIT] "+ entry.getSymbol());
+					LogUpdateDto logUpdateDto = LogUpdateDto.builder()
+							.msg("Profit LONG  " + entry.getSymbol() )
+							.time(dateTimeFormat(currentTimeMillis()))
+							.build();
+					insertLogRecord(logUpdateDto);
 				}
 
 			}
@@ -731,10 +741,20 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				if (Double.valueOf(entry.getStop()) < curentBar.getClosePrice().doubleValue()) {
 					deleteMonitor(entry.getId());
 					log.info("[CLOSE SHORT STOP] "+ entry.getSymbol());
+					LogUpdateDto logUpdateDto = LogUpdateDto.builder()
+							.msg("Stop SHORT " + entry.getSymbol())
+							.time(dateTimeFormat(currentTimeMillis()))
+							.build();
+					insertLogRecord(logUpdateDto);
 				}
 				else if (Double.valueOf(entry.getProfit()) > curentBar.getClosePrice().doubleValue()) {
 					deleteMonitor(entry.getId());
 					log.info("[CLOSE SHORT PROFIT] "+ entry.getSymbol());
+					LogUpdateDto logUpdateDto = LogUpdateDto.builder()
+							.msg("Proffit SHORT " + entry.getSymbol())
+							.time(dateTimeFormat(currentTimeMillis()))
+							.build();
+					insertLogRecord(logUpdateDto);
 				}
 			}
 
