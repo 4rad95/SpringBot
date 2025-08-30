@@ -12,7 +12,7 @@ public class MarketSignalService {
         this.notificationService = notificationService;
     }
 
-    public void onBuySignal(String symbol, double price) {
+    public void onBuySignal(String symbol, double price) throws InterruptedException {
         String message = "🟢 BUY SIGNAL: " + symbol + " at " + price;
         notificationService.send(message);
     }
