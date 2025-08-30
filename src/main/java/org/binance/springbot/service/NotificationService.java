@@ -14,10 +14,15 @@ public class NotificationService {
     }
 
     // Метод для отправки сообщений
-    public void send(String message) {
+    public void send(String message) throws InterruptedException {
+        try {
         Long chatId = 566185151L; // Ваш ID из getUpdates
         telegramBot.sendMessage(chatId, message);
 //        Long groupChatId = -100123456789L;
 //        telegramBot.sendMessage(groupChatId, message);
+    } catch (Exception e) {
+            wait(1000);
+            send(message);
+        }
     }
 }
