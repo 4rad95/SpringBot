@@ -485,9 +485,13 @@ public  void mainProcess(List<String> symbols) throws Exception {
 					String startPrice  = timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().toString(); //smaIndicator.getValue(timeSeriesCache.get(symbolsDto.getSymbols()).getEndIndex()).toString();
 					String profitPrice = findeUperOB(timeSeriesCache.get(symbolsDto.getSymbols()),timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue() ).toString();
 					String stopPrice   = findeDownOB(timeSeriesCache.get(symbolsDto.getSymbols()),Double.valueOf(startPrice)).toString();
+                    Double percent = Math.abs(Double.valueOf(profitPrice)-Double.valueOf(startPrice))*100/Double.valueOf(startPrice);
 
+                    if (Double.valueOf(startPrice)>Double.valueOf(stopPrice)
+                        &&   Double.valueOf(startPrice)< Double.valueOf(profitPrice)
+                        && percent > 1 ) {
 					newMonitorCoin("LONG",symbolsDto.getSymbols(),startPrice, stopPrice, profitPrice);}
-		}
+		}}
 
 //		else if ( // trend < 0
 //				curentBar.getHighPrice().doubleValue()  > Double.valueOf(symbolsDto.getHighSell()))
@@ -507,9 +511,13 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				String startPrice = timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().toString(); //smaIndicator.getValue(timeSeriesCache.get(symbolsDto.getSymbols()).getEndIndex()).toString();
 				String profitPrice = findeDownOB(timeSeriesCache.get(symbolsDto.getSymbols()),timeSeriesCache.get(symbolsDto.getSymbols()).getLastBar().getClosePrice().doubleValue() ).toString();
 				String stopPrice   = findeUperOB(timeSeriesCache.get(symbolsDto.getSymbols()),Double.valueOf(startPrice)).toString();
+                Double percent = Math.abs(Double.valueOf(profitPrice)-Double.valueOf(startPrice))*100/Double.valueOf(startPrice);
 
+                if (Double.valueOf(startPrice) < Double.valueOf(stopPrice)
+                        &&   Double.valueOf(startPrice) >  Double.valueOf(profitPrice)
+                        && percent >1 ) {
 					newMonitorCoin("SHORT",symbolsDto.getSymbols(),startPrice, stopPrice, profitPrice);}
-			}
+			}}
 
 		}}
 	}}
@@ -644,6 +652,7 @@ public  void mainProcess(List<String> symbols) throws Exception {
 				.time(dateTimeFormat(currentTimeMillis()))
 				.build();
 		insertLogRecord(logUpdateDto);
+
 
 		notificationService.send("🔔 СИГНАЛ: " + type+ "   " + symbol + "\n" +
 				"📊 Вход: " + start+ "\n" +
