@@ -22,7 +22,7 @@ public class NotificationService {
 //        telegramBot.sendMessage(groupChatId, message);
     } catch (Exception e) {
             wait(1000);
-            send(message);
+      //      send(message);
         }
     }
 }
