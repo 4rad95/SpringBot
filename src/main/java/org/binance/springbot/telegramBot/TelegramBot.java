@@ -13,7 +13,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Component // ← Обязательно!
-public class TelegramBot extends TelegramLongPollingBot {
+public class TelegramBot  extends TelegramLongPollingBot {
 
 
     private final String BOT_TOKEN = "8192367196:AAHfsXzVEERHGx4kv2YKgkJ6_wdPBWa1wJc";
@@ -31,25 +31,25 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            String messageText = update.getMessage().getText();
-            Long chatId = update.getMessage().getChatId();
-
-            // Пример: ответ на команду /start
-            if (messageText.equalsIgnoreCase("/start")) {
-                sendMessage(chatId, "Привет! Я ваш торговый бот. Готов к работе.");
-            }
-
-            // Пример: обработка команды /signal
-            if (messageText.startsWith("/signal")) {
-                // Вы можете вызвать метод анализа рынка и отправить результат
-                String analysisResult = analyzeMarketSignal();
-                sendMessage(chatId, analysisResult);
-            }
-            if ("/test".equalsIgnoreCase(messageText)) {
-                sendMessage(chatId, "✅ Бот работает. Получено: " + messageText);
-            }
-        }
+//        if (update.hasMessage() && update.getMessage().hasText()) {
+//            String messageText = update.getMessage().getText();
+//            Long chatId = update.getMessage().getChatId();
+//
+//            // Пример: ответ на команду /start
+//            if (messageText.equalsIgnoreCase("/start")) {
+//                sendMessage(chatId, "Привет! Я ваш торговый бот. Готов к работе.");
+//            }
+//
+//            // Пример: обработка команды /signal
+//            if (messageText.startsWith("/signal")) {
+//                // Вы можете вызвать метод анализа рынка и отправить результат
+//                String analysisResult = analyzeMarketSignal();
+//                sendMessage(chatId, analysisResult);
+//            }
+//            if ("/test".equalsIgnoreCase(messageText)) {
+//                sendMessage(chatId, "✅ Бот работает. Получено: " + messageText);
+//            }
+//        }
     }
 
     public int sendMessage(Long chatId, String text) {
